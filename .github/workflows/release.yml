@@ -270,6 +270,8 @@ jobs:
         env:
           TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No checkout on this job — force gh to the release repo (not cwd).
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           if [ -z "$TAP_TOKEN" ]; then
