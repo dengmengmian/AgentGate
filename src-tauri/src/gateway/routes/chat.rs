@@ -27,6 +27,9 @@ pub async fn handle_chat_completions(
 ) -> Result<Response, GatewayError> {
     let body = request_body_or_gateway_error(body)?;
     validate_auth(&headers)?;
+    // Daily budget hard gate: block new requests or force cheapest (streams mid-flight not cut).
+    let force_cheapest =
+        crate::gateway::budget::check_new_request(&state.db).map_err(GatewayError)?;
     let start = Instant::now();
     let request_id = format!(
         "req_{}",
@@ -83,19 +86,34 @@ pub async fn handle_chat_completions(
         GatewayError(e)
     })?;
 
+    let mut selection = selection;
+    if force_cheapest {
+        let _ = crate::gateway::budget::apply_force_cheapest(&state.db, &mut selection);
+    }
+
     let is_failover = selection.mode == "failover" && selection.candidates.len() > 1;
     let candidates = selection.candidates.clone();
     let raw_body = sanitize_body(&body);
 
+    // 会话亲和：与 /v1/responses 对齐，cache-hit 后粘住同一上游以保 prompt cache。
+    // force_cheapest 时禁用亲和重排——否则会把贵上游提到队首，抵消预算闸。
+    let body_json: serde_json::Value =
+        serde_json::from_str(&body).unwrap_or_else(|_| serde_json::json!({}));
+    let session_id = crate::gateway::session_affinity::derive_from_chat_body(&body_json);
+    let affinity_sid = if force_cheapest {
+        None
+    } else {
+        session_id.as_deref()
+    };
+
     // 带图请求跳过显式不支持 vision 的 provider(与 /v1/responses 对齐)。
-    // 会话亲和暂不在 chat 入口启用(保持既有行为)。
     let request_has_images = chat_request_has_images(&body);
     let attempt_order = crate::gateway::failover::build_attempt_order(
         &candidates,
         &selection.provider.id,
         is_failover,
         request_has_images,
-        None,
+        affinity_sid,
     );
 
     let mut last_error: Option<AppError> = None;
@@ -140,6 +158,8 @@ pub async fn handle_chat_completions(
                 raw_body.clone(),
                 start,
                 client_type.clone(),
+                session_id.clone(),
+                candidate.provider_id.clone(),
             )
             .await;
 
@@ -217,6 +237,8 @@ pub async fn handle_chat_completions(
             start,
             &client_type,
             Some(&headers),
+            session_id.as_deref(),
+            Some(candidate.provider_id.as_str()),
         )
         .await;
 
@@ -283,6 +305,8 @@ async fn client_chat_to_anthropic_handle(
     raw_request: String,
     start: Instant,
     client_type: String,
+    session_id: Option<String>,
+    provider_id: String,
 ) -> Result<Response, GatewayError> {
     use crate::protocol::chat_completions::ChatCompletionsRequest;
 
@@ -339,6 +363,8 @@ async fn client_chat_to_anthropic_handle(
             converted_request,
             start,
             client_type,
+            session_id,
+            provider_id,
         )
         .await;
     }
@@ -365,6 +391,11 @@ async fn client_chat_to_anthropic_handle(
                 .get("usage")
                 .map(crate::storage::request_logs::extract_cache_tokens)
                 .unwrap_or((None, None));
+            if let Some(ref sid) = session_id {
+                if let Some(usage) = chat_resp.get("usage") {
+                    crate::gateway::session_affinity::record_if_cache_hit(sid, &provider_id, usage);
+                }
+            }
             let trace =
                 json!({"mode": "transform", "protocol": "chat_to_anthropic", "stream": false})
                     .to_string();
@@ -424,6 +455,8 @@ async fn client_chat_to_anthropic_stream(
     converted_request: String,
     start: Instant,
     client_type: String,
+    session_id: Option<String>,
+    provider_id: String,
 ) -> Result<Response, GatewayError> {
     use futures::StreamExt;
 
@@ -476,6 +509,8 @@ async fn client_chat_to_anthropic_stream(
     let raw_req = raw_request.clone();
     let conv_req = converted_request.clone();
     let client_type_owned = client_type.clone();
+    let session_id_owned = session_id;
+    let provider_id_owned = provider_id;
 
     tokio::spawn(async move {
         use crate::transform::anthropic_to_chat_stream::AnthropicToChatStream;
@@ -613,6 +648,15 @@ async fn client_chat_to_anthropic_stream(
                     .as_ref()
                     .map(crate::storage::request_logs::extract_cache_tokens)
                     .unwrap_or((None, None));
+                if let (Some(sid), Some(usage)) =
+                    (session_id_owned.as_deref(), final_usage_json.as_ref())
+                {
+                    crate::gateway::session_affinity::record_if_cache_hit(
+                        sid,
+                        &provider_id_owned,
+                        usage,
+                    );
+                }
                 log_request_success(
                     &db,
                     &client_type_owned,
@@ -1145,6 +1189,8 @@ mod tests {
             "not valid json".into(),
             Instant::now(),
             "test".into(),
+            None,
+            "provider_test".into(),
         )
         .await
         .unwrap_err();

@@ -1,6 +1,6 @@
 [package]
 name = "agentgate"
-version = "1.5.1"
+version = "1.6.0"
 description = "Local gateway for AI coding agents"
 authors = ["dengmengmian"]
 edition = "2021"
@@ -59,7 +59,7 @@ uuid = { version = "1", features = ["v4"] }
 # gzip/brotli/zstd 让 reqwest 自动解压上游响应——若上游返回压缩 SSE 流
 # （即便我们没显式发 Accept-Encoding），bytes_stream/text 拿到的是明文。
 # 否则 pass-through 会把压缩字节原样转给客户端，导致 SSE 帧解析失败。
-reqwest = { version = "0.12", features = ["json", "stream", "gzip", "brotli", "zstd"] }
+reqwest = { version = "0.12", features = ["json", "stream", "gzip", "brotli", "zstd", "blocking"] }
 tokio = { version = "1", features = ["full"] }
 axum = "0.7"
 # CLI/headless 生产部署需要 TLS：用 axum-server 替代 axum::serve，

@@ -214,6 +214,11 @@ export function Settings() {
   const handleUpdateCostAlert = async (patch: {
     cost_alert_enabled?: boolean;
     cost_alert_threshold?: number;
+    cost_budget_enabled?: boolean;
+    cost_budget_threshold?: number;
+    cost_budget_strategy?: string;
+    auto_compact_enabled?: boolean;
+    auto_compact_usage_percent?: number;
   }) => {
     try {
       await api.updateGatewaySettings(patch);

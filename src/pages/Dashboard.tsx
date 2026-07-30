@@ -17,6 +17,7 @@ import { toast } from "@/components/common/Toast";
 import { useI18n } from "@/lib/i18n";
 import { usePolling } from "@/lib/usePolling";
 import { formatLatency } from "@/lib/utils";
+import { estimateCacheSavingsUsd } from "@/lib/requestLogDebug";
 import * as api from "@/lib/api";
 import {
   useProviders,
@@ -88,12 +89,14 @@ function CostList({ title, rows }: { title: string; rows: CostBreakdown[] }) {
                   {formatCost(r.cost)}
                 </span>
               ) : (
-                <span
-                  className="w-16 shrink-0 text-right text-[10px] text-text-muted/60"
+                <Link
+                  to="/settings?tab=data"
+                  className="w-16 shrink-0 text-right text-[10px] text-accent hover:underline"
                   title={t("stats.no_price_tip")}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {t("stats.no_price")}
-                </span>
+                  {t("stats.no_price_set")}
+                </Link>
               )}
             </div>
           ))}
@@ -544,6 +547,35 @@ export function Dashboard() {
                   inputTokens={stats.today_input_tokens}
                 />
               </span>
+              {/* Dollar savings only when real cache_read exists; use avg priced model input if any. */}
+              {stats.today_cache_read_tokens > 0 &&
+                (() => {
+                  const priced = costByModel.find(
+                    (m) => m.has_price && m.cost > 0
+                  );
+                  // Without a reliable unit price, show share only (no invented $).
+                  if (!priced) return null;
+                  // Derive rough $/1M from cost / non-cache-adjusted tokens when possible.
+                  const unit =
+                    priced.input_tokens > 0
+                      ? (priced.cost /
+                          (priced.input_tokens + priced.output_tokens)) *
+                        1_000_000
+                      : null;
+                  const save = estimateCacheSavingsUsd(
+                    stats.today_cache_read_tokens,
+                    unit
+                  );
+                  if (save == null || save <= 0) return null;
+                  return (
+                    <span
+                      className="w-full text-[10px] text-success"
+                      title={t("stats.cache_savings_tip")}
+                    >
+                      {t("stats.cache_savings")}: ~${save.toFixed(4)}
+                    </span>
+                  );
+                })()}
             </div>
           )}
         </div>

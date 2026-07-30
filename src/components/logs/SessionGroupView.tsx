@@ -35,6 +35,7 @@ export function SessionGroupView({
   const [convo, setConvo] = useState<{
     sessionId: string;
     source: string;
+    usage: SessionUsageSummary;
   } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
@@ -133,6 +134,7 @@ export function SessionGroupView({
                         setConvo({
                           sessionId: row.session_id,
                           source: row.source,
+                          usage: row,
                         });
                       }}
                       className="shrink-0 text-text-muted transition-colors hover:text-accent"
@@ -196,6 +198,7 @@ export function SessionGroupView({
         <ConversationModal
           sessionId={convo.sessionId}
           source={convo.source}
+          usage={convo.usage}
           onClose={() => setConvo(null)}
         />
       )}

@@ -12,6 +12,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
   return {
     ...actual,
     getProviderHealth: vi.fn(),
+    getRefinerHint: vi.fn(),
   };
 });
 
@@ -52,6 +53,7 @@ describe("ProviderCard", () => {
     vi.mocked(api.getProviderHealth).mockResolvedValue(
       null as unknown as ProviderHealth
     );
+    vi.mocked(api.getRefinerHint).mockResolvedValue(null);
   });
 
   afterEach(() => {

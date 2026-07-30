@@ -73,6 +73,14 @@ export function ProviderCard({
   const { t } = useI18n();
   const [health, setHealth] = useState<ProviderHealth | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [refinerHint, setRefinerHint] = useState<string | null>(null);
+
+  useEffect(() => {
+    api
+      .getRefinerHint(provider.provider_type)
+      .then(setRefinerHint)
+      .catch(() => setRefinerHint(null));
+  }, [provider.provider_type]);
 
   useEffect(() => {
     api
@@ -167,6 +175,14 @@ export function ProviderCard({
       className={`flex min-w-0 flex-col rounded-xl border bg-card p-4 ${provider.is_active ? "border-accent/50" : "border-border"}`}
       style={{ boxShadow: "var(--shadow-sm)" }}
     >
+      {refinerHint && (
+        <p className="mb-2 rounded-md border border-border/60 bg-card-secondary/60 px-2 py-1.5 text-[10px] leading-relaxed text-text-muted">
+          <span className="font-medium text-text-secondary">
+            {t("providers.refiner_hint")}:{" "}
+          </span>
+          {refinerHint}
+        </p>
+      )}
       {/* ── Header: icon + name + url ; status dot + capability icons ── */}
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">

@@ -192,6 +192,46 @@ pub fn derive_from_anthropic_body(body: &Value) -> Option<String> {
     Some(make_session_id(&first_user, &tools_sig))
 }
 
+/// Chat Completions 请求体指纹：首条 user 文本 + tools 签名。
+/// OpenCode / 通用 Chat 客户端同样每轮回放完整 history，指纹跨轮稳定。
+pub fn derive_from_chat_body(body: &Value) -> Option<String> {
+    let messages = body.get("messages")?.as_array()?;
+    let first_user = messages.iter().find_map(|m| {
+        if m.get("role").and_then(|r| r.as_str()) != Some("user") {
+            return None;
+        }
+        extract_text_from_chat_content(m.get("content")?)
+    })?;
+    if first_user.len() < MIN_PROMPT_LEN {
+        return None;
+    }
+    let tools_sig = body
+        .get("tools")
+        .and_then(|t| t.as_array())
+        .map(|t| tools_signature(t))
+        .unwrap_or_default();
+    Some(make_session_id(&first_user, &tools_sig))
+}
+
+fn extract_text_from_chat_content(c: &Value) -> Option<String> {
+    if let Some(s) = c.as_str() {
+        return Some(s.to_string());
+    }
+    if let Some(parts) = c.as_array() {
+        for p in parts {
+            let pt = p.get("type").and_then(|t| t.as_str()).unwrap_or("");
+            if pt == "text" || pt == "input_text" || pt.is_empty() {
+                if let Some(s) = p.get("text").and_then(|x| x.as_str()) {
+                    if !s.is_empty() {
+                        return Some(s.to_string());
+                    }
+                }
+            }
+        }
+    }
+    None
+}
+
 fn make_session_id(first_user_text: &str, tools_sig: &str) -> String {
     let mut h = DefaultHasher::new();
     first_user_text.hash(&mut h);
@@ -535,6 +575,45 @@ mod tests {
             ]
         });
         assert!(derive_from_anthropic_body(&body).is_some());
+    }
+
+    #[test]
+    fn derive_from_chat_body_stable_across_turns() {
+        let p = long_text("You are a coding agent. Help me build something.");
+        let body1 = json!({
+            "model": "gpt",
+            "messages": [{"role": "user", "content": p.clone()}]
+        });
+        let body2 = json!({
+            "model": "gpt",
+            "messages": [
+                {"role": "user", "content": p.clone()},
+                {"role": "assistant", "content": "ok"},
+                {"role": "user", "content": "next step"},
+            ]
+        });
+        let id1 = derive_from_chat_body(&body1).expect("turn1");
+        let id2 = derive_from_chat_body(&body2).expect("turn2");
+        assert_eq!(id1, id2);
+    }
+
+    #[test]
+    fn derive_from_chat_body_skips_short_prompts() {
+        let body = json!({
+            "messages": [{"role": "user", "content": "hi"}]
+        });
+        assert!(derive_from_chat_body(&body).is_none());
+    }
+
+    #[test]
+    fn derive_from_chat_body_reads_array_text_parts() {
+        let body = json!({
+            "messages": [{
+                "role": "user",
+                "content": [{"type": "text", "text": long_text("array chat content")}]
+            }]
+        });
+        assert!(derive_from_chat_body(&body).is_some());
     }
 
     #[test]

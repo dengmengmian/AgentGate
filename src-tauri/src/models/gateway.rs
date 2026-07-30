@@ -36,6 +36,16 @@ pub struct GatewaySettings {
     pub cost_alert_enabled: bool,
     /// 今日花费预警阈值(USD)。None / <=0 视为未设。
     pub cost_alert_threshold: Option<f64>,
+    /// 每日花费硬闸开关(默认关)。与 cost_alert 独立：alert 只通知，budget 可 block / force_cheapest。
+    pub cost_budget_enabled: bool,
+    /// 每日花费硬闸阈值(USD)。None / <=0 视为未设。
+    pub cost_budget_threshold: Option<f64>,
+    /// `notify_only` | `block` | `force_cheapest`
+    pub cost_budget_strategy: String,
+    /// 长历史自压缩总开关。默认开；可被 AGENTGATE_AUTO_COMPACT=off 强制关。
+    pub auto_compact_enabled: bool,
+    /// 上下文窗口用于 history 的百分比(默认 85，留 15% 给 reasoning/output)。1–95。
+    pub auto_compact_usage_percent: i64,
     /// 防休眠总开关。默认开启。
     pub wake_enabled: bool,
     /// false=AgentGate 生命周期持续保持，true=仅按生成请求控制。
@@ -65,6 +75,11 @@ pub struct UpdateGatewaySettingsInput {
     pub request_body_limit_mb: Option<i64>,
     pub cost_alert_enabled: Option<bool>,
     pub cost_alert_threshold: Option<f64>,
+    pub cost_budget_enabled: Option<bool>,
+    pub cost_budget_threshold: Option<f64>,
+    pub cost_budget_strategy: Option<String>,
+    pub auto_compact_enabled: Option<bool>,
+    pub auto_compact_usage_percent: Option<i64>,
     pub wake_enabled: Option<bool>,
     pub wake_request_control: Option<bool>,
     pub wake_cooldown_seconds: Option<i64>,
@@ -120,6 +135,11 @@ mod tests {
             request_body_limit_mb: 32,
             cost_alert_enabled: false,
             cost_alert_threshold: None,
+            cost_budget_enabled: false,
+            cost_budget_threshold: None,
+            cost_budget_strategy: "notify_only".into(),
+            auto_compact_enabled: true,
+            auto_compact_usage_percent: 85,
             wake_enabled: true,
             wake_request_control: false,
             wake_cooldown_seconds: 900,

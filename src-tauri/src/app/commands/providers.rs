@@ -10,6 +10,21 @@ use crate::storage;
 
 // ── Provider Commands ──────────────────────────────────────────
 
+/// Discover local Ollama / LM Studio / common OpenAI-compatible ports.
+#[tauri::command]
+#[specta::specta]
+pub fn discover_local_endpoints(
+) -> Result<Vec<crate::tools::local_discovery::LocalEndpoint>, AppError> {
+    Ok(crate::tools::local_discovery::discover())
+}
+
+/// Refiner recommendation for a provider type (never force-on).
+#[tauri::command]
+#[specta::specta]
+pub fn get_refiner_hint(provider_type: String) -> Result<Option<String>, AppError> {
+    Ok(crate::gateway::refiner_hints::suggestion_for(&provider_type).map(str::to_string))
+}
+
 /// Auto-derive capabilities for a list of model IDs given a provider type.
 /// Used by the "Auto-detect" button in the capability matrix editor to fill
 /// in sensible defaults without forcing the user to tick every box.
@@ -1210,11 +1225,75 @@ pub async fn test_tool_connection(
         Err(e) => (false, Some(format!("Request failed: {e}"))),
     };
 
+    // Step 4: 已接入 AgentGate 的客户端是否有进程在跑。
+    // 不能读进程 env 判断「是否热加载了配置」——能做的是：配置已写盘 + 进程是否存活。
+    // 进程在跑时提示用户「刚改过配置请重启」；未跑则提示启动客户端。
+    let client_processes = probe_active_client_processes(&state);
+    // 第四步是「探测完成」而非「进程必须在跑」：未运行只是提示启动，不判失败。
+    // 无已接入客户端时返回 null（UI 中性点）；有则 true。
+    let client_process_ok = if client_processes.is_empty() {
+        serde_json::Value::Null
+    } else {
+        serde_json::Value::Bool(true)
+    };
+    let client_processes_json: Vec<serde_json::Value> = client_processes
+        .into_iter()
+        .map(|(id, running, count)| {
+            serde_json::json!({
+                "client_id": id,
+                "running": running,
+                "count": count,
+            })
+        })
+        .collect();
+
     Ok(serde_json::json!({
         "config_ok": true,
         "gateway_ok": true,
         "provider_ok": provider_ok,
+        "client_process_ok": client_process_ok,
+        "client_processes": client_processes_json,
         "test_model": test_body.get("model").and_then(|v| v.as_str()).unwrap_or("test"),
         "error": error,
     }))
+}
+
+/// 返回 (client_id, running, process_count)。只列「配置侧已接入 AgentGate」的客户端。
+fn probe_active_client_processes(_state: &State<'_, AppState>) -> Vec<(String, bool, usize)> {
+    let mut out = Vec::new();
+    let pairs: [(&str, &str, bool); 5] = [
+        (
+            "codex",
+            "codex",
+            crate::tools::codex::detect().has_agentgate,
+        ),
+        (
+            "claude_code",
+            "claude",
+            crate::tools::claude_code::detect_env().has_agentgate,
+        ),
+        (
+            "opencode",
+            "opencode",
+            crate::tools::opencode::detect().has_agentgate,
+        ),
+        (
+            "gemini",
+            "gemini",
+            crate::tools::gemini_cli::detect().has_agentgate,
+        ),
+        (
+            "atomcode",
+            "atomcode",
+            crate::tools::atomcode::detect().has_agentgate,
+        ),
+    ];
+    for (client_id, needle, active) in pairs {
+        if !active {
+            continue;
+        }
+        let procs = crate::tools::process_detect::find_running(&[needle]);
+        out.push((client_id.to_string(), !procs.is_empty(), procs.len()));
+    }
+    out
 }

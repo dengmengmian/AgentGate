@@ -1062,6 +1062,28 @@ async testToolConnection() : Promise<Result<JsonValue, AppError>> {
     else return { status: "error", error: e  as any };
 }
 },
+/**
+ * Discover local Ollama / LM Studio / common OpenAI-compatible ports.
+ */
+async discoverLocalEndpoints() : Promise<Result<LocalEndpoint[], AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("discover_local_endpoints") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Refiner recommendation for a provider type (never force-on).
+ */
+async getRefinerHint(providerType: string) : Promise<Result<string | null, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_refiner_hint", { providerType }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async getPetSettings() : Promise<Result<PetSettings, AppError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_pet_settings") };
@@ -1525,6 +1547,26 @@ cost_alert_enabled: boolean;
  */
 cost_alert_threshold: number | null; 
 /**
+ * 每日花费硬闸开关(默认关)。与 cost_alert 独立：alert 只通知，budget 可 block / force_cheapest。
+ */
+cost_budget_enabled: boolean; 
+/**
+ * 每日花费硬闸阈值(USD)。None / <=0 视为未设。
+ */
+cost_budget_threshold: number | null; 
+/**
+ * `notify_only` | `block` | `force_cheapest`
+ */
+cost_budget_strategy: string; 
+/**
+ * 长历史自压缩总开关。默认开；可被 AGENTGATE_AUTO_COMPACT=off 强制关。
+ */
+auto_compact_enabled: boolean; 
+/**
+ * 上下文窗口用于 history 的百分比(默认 85，留 15% 给 reasoning/output)。1–95。
+ */
+auto_compact_usage_percent: number; 
+/**
  * 防休眠总开关。默认开启。
  */
 wake_enabled: boolean; 
@@ -1604,6 +1646,23 @@ category: string;
  */
 scopes: string[]; content: string }
 export type JsonValue = null | boolean | number | string | JsonValue[] | Partial<{ [key in string]: JsonValue }>
+export type LocalEndpoint = { 
+/**
+ * Display name, e.g. "Ollama".
+ */
+name: string; 
+/**
+ * Suggested provider_type (usually custom_openai_compatible).
+ */
+provider_type: string; base_url: string; host: string; port: number; 
+/**
+ * true if TCP connect succeeded.
+ */
+reachable: boolean; 
+/**
+ * Models from GET /v1/models when reachable and JSON-shaped.
+ */
+models: string[]; hint: string }
 export type McpEnvInput = { key: string; value: string }
 export type McpEnvVar = { key: string; value?: string | null; is_sensitive: boolean; has_value: boolean }
 /**
@@ -1748,7 +1807,11 @@ export type SessionUsageSummary = { session_id: string;
 /**
  * 该 session 多数请求的 source。混合时填 'mixed'。
  */
-source: string; provider: string | null; model: string | null; first_seen: string; last_seen: string; request_count: number; input_tokens: number; output_tokens: number; cache_read_tokens: number; cache_write_tokens: number; cost: number }
+source: string; provider: string | null; 
+/**
+ * 该会话用过的全部 provider（去重，按出现顺序近似）。
+ */
+providers: string[]; model: string | null; first_seen: string; last_seen: string; request_count: number; input_tokens: number; output_tokens: number; cache_read_tokens: number; cache_write_tokens: number; cost: number }
 /**
  * 一个本地 skill（归一后的展示形态）。
  */
@@ -1791,7 +1854,7 @@ export type SyncMcpServerInput = { from_client: string; name: string; to_clients
 export type SyncResult = { files_scanned: number; imported: number; skipped: number; errors: string[] }
 export type TestDiagnostic = { code: string; title: string; hint: string; action_url?: string | null; action_label?: string | null; raw: string }
 export type ToolConfigView = { id: string; name: string; slug: string; icon: string; config_path: string; description: string; config_exists: boolean }
-export type UpdateGatewaySettingsInput = { host: string | null; port: number | null; active_provider_id: string | null; input_protocol: string | null; output_protocol: string | null; auto_start: boolean | null; log_retention_days: number | null; body_filter_global: boolean | null; thinking_rectifier_global: boolean | null; error_mapper_global: boolean | null; health_probe_enabled: boolean | null; codex_compact_enabled: boolean | null; codex_compact_summary_max_tokens: number | null; request_body_limit_mb: number | null; cost_alert_enabled: boolean | null; cost_alert_threshold: number | null; wake_enabled: boolean | null; wake_request_control: boolean | null; wake_cooldown_seconds: number | null; wake_keep_display_awake: boolean | null }
+export type UpdateGatewaySettingsInput = { host: string | null; port: number | null; active_provider_id: string | null; input_protocol: string | null; output_protocol: string | null; auto_start: boolean | null; log_retention_days: number | null; body_filter_global: boolean | null; thinking_rectifier_global: boolean | null; error_mapper_global: boolean | null; health_probe_enabled: boolean | null; codex_compact_enabled: boolean | null; codex_compact_summary_max_tokens: number | null; request_body_limit_mb: number | null; cost_alert_enabled: boolean | null; cost_alert_threshold: number | null; cost_budget_enabled: boolean | null; cost_budget_threshold: number | null; cost_budget_strategy: string | null; auto_compact_enabled: boolean | null; auto_compact_usage_percent: number | null; wake_enabled: boolean | null; wake_request_control: boolean | null; wake_cooldown_seconds: number | null; wake_keep_display_awake: boolean | null }
 export type UpdatePetSettingsInput = { pet_type: string | null; visible: boolean | null; pos_x: number | null; pos_y: number | null }
 export type UpdateProviderInput = { name: string | null; provider_type: string | null; base_url: string | null; api_key: string | null; default_model: string | null; reasoning_model: string | null; supported_models: string | null; model_mapping: string | null; extra_headers: string | null; anthropic_base_url: string | null; responses_base_url: string | null; auto_cache_control: boolean | null; model_capabilities: string | null; provider_quirks: string | null; body_filter_enabled: number | null; thinking_rectifier_enabled: number | null; error_mapper_enabled: number | null; model_degradation_chain: string | null; model_context_windows: string | null; protocol: string | null; timeout_seconds: number | null; enabled: boolean | null }
 export type UpdateRouteProfileInput = { name: string | null; mode: string | null; selection_strategy: string | null; enabled: boolean | null }

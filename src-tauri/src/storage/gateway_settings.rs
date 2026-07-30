@@ -14,7 +14,9 @@ pub fn get(conn: &Connection) -> Result<GatewaySettings, AppError> {
                 codex_compact_enabled, codex_compact_summary_max_tokens,
                 request_body_limit_mb, cost_alert_enabled, cost_alert_threshold,
                 wake_enabled, wake_request_control, wake_cooldown_seconds,
-                wake_keep_display_awake
+                wake_keep_display_awake,
+                cost_budget_enabled, cost_budget_threshold, cost_budget_strategy,
+                auto_compact_enabled, auto_compact_usage_percent
          FROM gateway_settings WHERE id = 1",
         [],
         |row| {
@@ -41,6 +43,13 @@ pub fn get(conn: &Connection) -> Result<GatewaySettings, AppError> {
                 wake_request_control: row.get(19)?,
                 wake_cooldown_seconds: row.get(20)?,
                 wake_keep_display_awake: row.get(21)?,
+                cost_budget_enabled: row.get(22)?,
+                cost_budget_threshold: row.get(23)?,
+                cost_budget_strategy: row
+                    .get::<_, Option<String>>(24)?
+                    .unwrap_or_else(|| "notify_only".into()),
+                auto_compact_enabled: row.get(25)?,
+                auto_compact_usage_percent: row.get(26)?,
             })
         },
     )
@@ -100,6 +109,24 @@ pub fn update(
         Some(v) => Some(v),
         None => existing.cost_alert_threshold,
     };
+    let cost_budget_enabled = input
+        .cost_budget_enabled
+        .unwrap_or(existing.cost_budget_enabled);
+    let cost_budget_threshold = match input.cost_budget_threshold {
+        Some(v) => Some(v),
+        None => existing.cost_budget_threshold,
+    };
+    let cost_budget_strategy = input
+        .cost_budget_strategy
+        .map(|s| crate::gateway::budget::normalize_strategy(&s))
+        .unwrap_or(existing.cost_budget_strategy);
+    let auto_compact_enabled = input
+        .auto_compact_enabled
+        .unwrap_or(existing.auto_compact_enabled);
+    let auto_compact_usage_percent = input
+        .auto_compact_usage_percent
+        .unwrap_or(existing.auto_compact_usage_percent)
+        .clamp(1, 95);
     let wake_enabled = input.wake_enabled.unwrap_or(existing.wake_enabled);
     let wake_request_control = input
         .wake_request_control
@@ -123,7 +150,10 @@ pub fn update(
                 cost_alert_enabled=?15, cost_alert_threshold=?16,
                 wake_enabled=?17, wake_request_control=?18,
                 wake_cooldown_seconds=?19, wake_keep_display_awake=?20,
-                updated_at=?21
+                cost_budget_enabled=?21, cost_budget_threshold=?22,
+                cost_budget_strategy=?23,
+                auto_compact_enabled=?24, auto_compact_usage_percent=?25,
+                updated_at=?26
          WHERE id = 1",
         params![
             &host,
@@ -146,6 +176,11 @@ pub fn update(
             wake_request_control,
             wake_cooldown_seconds,
             wake_keep_display_awake,
+            cost_budget_enabled,
+            cost_budget_threshold,
+            &cost_budget_strategy,
+            auto_compact_enabled,
+            auto_compact_usage_percent,
             &now,
         ],
     )?;
@@ -172,6 +207,43 @@ mod tests {
         assert_eq!(settings.host, "127.0.0.1");
         assert_eq!(settings.port, 9090);
         assert_eq!(settings.request_body_limit_mb, 32);
+        assert!(!settings.cost_budget_enabled);
+        assert_eq!(settings.cost_budget_strategy, "notify_only");
+    }
+
+    #[test]
+    fn budget_fields_roundtrip() {
+        let conn = setup_db();
+        let updated = update(
+            &conn,
+            UpdateGatewaySettingsInput {
+                cost_budget_enabled: Some(true),
+                cost_budget_threshold: Some(12.5),
+                cost_budget_strategy: Some("block".into()),
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        assert!(updated.cost_budget_enabled);
+        assert_eq!(updated.cost_budget_threshold, Some(12.5));
+        assert_eq!(updated.cost_budget_strategy, "block");
+    }
+
+    #[test]
+    fn migration_v9_adds_budget_to_existing_v8_db() {
+        // Fresh DB after migrations lands on CURRENT schema with budget + compact columns.
+        let conn = Connection::open_in_memory().unwrap();
+        crate::storage::migrations::run_migrations(&conn).unwrap();
+        let v: u32 = conn
+            .query_row("PRAGMA user_version", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(v, 10);
+        let ok = conn
+            .prepare(
+                "SELECT cost_budget_enabled, cost_budget_strategy, auto_compact_enabled, auto_compact_usage_percent FROM gateway_settings LIMIT 0",
+            )
+            .is_ok();
+        assert!(ok);
     }
 
     #[test]

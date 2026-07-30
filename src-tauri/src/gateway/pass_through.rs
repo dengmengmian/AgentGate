@@ -47,6 +47,10 @@ fn forward_client_headers(
 }
 
 /// Handle a native upstream pass-through request (stream or non-stream).
+///
+/// `session_id` + `provider_id`：可选会话亲和上下文。上游 usage 报告
+/// cache hit 时写入 affinity，供后续同会话 failover 排序粘住该上游。
+#[allow(clippy::too_many_arguments)]
 pub async fn handle(
     http_client: &reqwest::Client,
     db: &crate::storage::db::DbPool,
@@ -60,6 +64,8 @@ pub async fn handle(
     start: Instant,
     client_type: &str,
     client_headers: Option<&HeaderMap>,
+    session_id: Option<&str>,
+    provider_id: Option<&str>,
 ) -> Result<Response, AppError> {
     let mut body_json: serde_json::Value =
         serde_json::from_str(raw_body).unwrap_or(serde_json::json!({}));
@@ -98,6 +104,8 @@ pub async fn handle(
             start,
             client_type,
             client_headers,
+            session_id,
+            provider_id,
         )
         .await
     } else {
@@ -116,6 +124,8 @@ pub async fn handle(
             start,
             client_type,
             client_headers,
+            session_id,
+            provider_id,
         )
         .await
     }
@@ -143,6 +153,7 @@ fn native_trace_mode(model_override: Option<&str>) -> &'static str {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn handle_non_stream(
     http_client: &reqwest::Client,
     db: &crate::storage::db::DbPool,
@@ -158,6 +169,8 @@ async fn handle_non_stream(
     start: Instant,
     client_type: &str,
     client_headers: Option<&HeaderMap>,
+    session_id: Option<&str>,
+    provider_id: Option<&str>,
 ) -> Result<Response, AppError> {
     let resp = crate::providers::adapter::send_with_net_retry(
         || {
@@ -204,6 +217,16 @@ async fn handle_non_stream(
         Some(truncate(&sanitized_response, 2000))
     };
 
+    if upstream_status.is_success() {
+        if let (Some(sid), Some(pid)) = (session_id, provider_id) {
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&body_text) {
+                if let Some(usage) = v.get("usage") {
+                    crate::gateway::session_affinity::record_if_cache_hit(sid, pid, usage);
+                }
+            }
+        }
+    }
+
     log_to_db(
         db,
         client_type,
@@ -229,6 +252,7 @@ async fn handle_non_stream(
         .unwrap())
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn handle_stream(
     http_client: &reqwest::Client,
     db: &crate::storage::db::DbPool,
@@ -244,6 +268,8 @@ async fn handle_stream(
     start: Instant,
     client_type: &str,
     client_headers: Option<&HeaderMap>,
+    session_id: Option<&str>,
+    provider_id: Option<&str>,
 ) -> Result<Response, AppError> {
     let resp = crate::providers::adapter::send_with_net_retry(
         || {
@@ -330,6 +356,8 @@ async fn handle_stream(
     let model_resolution_owned = model_resolution.to_string();
     let api_key = config.api_key().to_string();
     let client_type_owned = client_type.to_string();
+    let session_id_owned = session_id.map(str::to_string);
+    let provider_id_owned = provider_id.map(str::to_string);
 
     tokio::spawn(async move {
         let mut utf8_pending: Vec<u8> = Vec::new();
@@ -420,6 +448,13 @@ async fn handle_stream(
         .to_string();
 
         let sanitized_sse = sanitize(&sse_log, &api_key);
+        if let (Some(sid), Some(pid), Some(usage)) = (
+            session_id_owned.as_deref(),
+            provider_id_owned.as_deref(),
+            parse_chat_usage_value(&usage_tail),
+        ) {
+            crate::gateway::session_affinity::record_if_cache_hit(sid, pid, &usage);
+        }
         if let Some(conn) = lock_db(&db_clone) {
             // 旁路解析直通响应里的 token usage（流已原样转发，这里只读不改），
             // 有则记 token + 算成本；解析不出保持现状（None）。
@@ -521,6 +556,22 @@ fn with_route_decision(
 /// 返回 (prompt_tokens, completion_tokens)。直通模式不转换流，这里只**旁路**读
 /// usage 做 token/成本统计——不碰转发、解析失败返回 None 保持现状。
 fn parse_chat_usage(sse_tail: &str) -> Option<(i64, i64)> {
+    let usage = parse_chat_usage_value(sse_tail)?;
+    let inp = usage
+        .get("prompt_tokens")
+        .and_then(serde_json::Value::as_i64);
+    let out = usage
+        .get("completion_tokens")
+        .and_then(serde_json::Value::as_i64);
+    if inp.is_some() || out.is_some() {
+        Some((inp.unwrap_or(0), out.unwrap_or(0)))
+    } else {
+        None
+    }
+}
+
+/// 与 `parse_chat_usage` 同源，返回完整 usage 对象（给 session affinity 读 cache）。
+fn parse_chat_usage_value(sse_tail: &str) -> Option<serde_json::Value> {
     for line in sse_tail.lines().rev() {
         let data = line
             .strip_prefix("data:")
@@ -531,19 +582,43 @@ fn parse_chat_usage(sse_tail: &str) -> Option<(i64, i64)> {
         }
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(data) {
             if let Some(usage) = v.get("usage").filter(|u| !u.is_null()) {
-                let inp = usage
-                    .get("prompt_tokens")
-                    .and_then(serde_json::Value::as_i64);
-                let out = usage
-                    .get("completion_tokens")
-                    .and_then(serde_json::Value::as_i64);
-                if inp.is_some() || out.is_some() {
-                    return Some((inp.unwrap_or(0), out.unwrap_or(0)));
-                }
+                return Some(usage.clone());
             }
         }
     }
     None
+}
+
+/// Anthropic SSE 里 usage 常在 message_start / message_delta 的 data 帧；
+/// 合并所有含 usage 的片段字段，供 cache_read_input_tokens 亲和记录。
+fn parse_anthropic_usage_value(sse_tail: &str) -> Option<serde_json::Value> {
+    let mut merged = serde_json::Map::new();
+    for line in sse_tail.lines() {
+        let data = line
+            .strip_prefix("data:")
+            .map(str::trim)
+            .unwrap_or_else(|| line.trim());
+        if data.is_empty() || !data.contains("\"usage\"") {
+            continue;
+        }
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(data) else {
+            continue;
+        };
+        let usage = v
+            .get("usage")
+            .or_else(|| v.pointer("/message/usage"))
+            .filter(|u| u.is_object());
+        if let Some(serde_json::Value::Object(obj)) = usage {
+            for (k, val) in obj {
+                merged.insert(k.clone(), val.clone());
+            }
+        }
+    }
+    if merged.is_empty() {
+        None
+    } else {
+        Some(serde_json::Value::Object(merged))
+    }
 }
 
 fn sanitize(text: &str, api_key: &str) -> String {
@@ -648,6 +723,8 @@ pub async fn handle_anthropic(
     start: Instant,
     client_type: &str,
     client_headers: Option<&HeaderMap>,
+    session_id: Option<&str>,
+    provider_id: Option<&str>,
 ) -> Result<Response, AppError> {
     let is_stream = serde_json::from_str::<serde_json::Value>(raw_body)
         .ok()
@@ -775,12 +852,15 @@ pub async fn handle_anthropic(
         let client_type_owned = client_type.to_string();
         let trace_mode_owned = trace_mode.to_string();
         let model_resolution_owned = model_resolution.to_string();
+        let session_id_owned = session_id.map(str::to_string);
+        let provider_id_owned = provider_id.map(str::to_string);
 
         tokio::spawn(async move {
             let mut stream = resp.bytes_stream();
             let mut utf8_pending: Vec<u8> = Vec::new();
             let mut sse_log = String::new();
             let mut sse_size: usize = 0;
+            let mut usage_tail = String::new();
             while let Some(chunk_result) = stream.next().await {
                 match chunk_result {
                     Ok(bytes) => {
@@ -797,6 +877,15 @@ pub async fn handle_anthropic(
                             );
                             sse_log.push_str(slice);
                             sse_size += slice.len();
+                        }
+                        usage_tail.push_str(&text);
+                        if usage_tail.len() > 16384 {
+                            let cut = usage_tail.len() - 16384;
+                            let mut b = cut;
+                            while b < usage_tail.len() && !usage_tail.is_char_boundary(b) {
+                                b += 1;
+                            }
+                            usage_tail.drain(..b);
                         }
                         // Client 断开则提前退出，省 upstream token。
                         if tx.send(text).await.is_err() {
@@ -817,6 +906,13 @@ pub async fn handle_anthropic(
             let latency = start.elapsed().as_millis() as i64;
             let trace = json!({"mode":&trace_mode_owned,"target":&target,"model_resolution":&model_resolution_owned,"stream":true}).to_string();
             let sanitized_sse = sanitize(&sse_log, &api_key);
+            if let (Some(sid), Some(pid), Some(usage)) = (
+                session_id_owned.as_deref(),
+                provider_id_owned.as_deref(),
+                parse_anthropic_usage_value(&usage_tail),
+            ) {
+                crate::gateway::session_affinity::record_if_cache_hit(sid, pid, &usage);
+            }
             if let Some(conn) = lock_db(&db_clone) {
                 let _ = crate::storage::request_logs::insert(
                     &conn,
@@ -886,6 +982,15 @@ pub async fn handle_anthropic(
         } else {
             Some(truncate(&sanitized, 2000))
         };
+        if status.is_success() {
+            if let (Some(sid), Some(pid)) = (session_id, provider_id) {
+                if let Ok(v) = serde_json::from_str::<serde_json::Value>(&body_text) {
+                    if let Some(usage) = v.get("usage") {
+                        crate::gateway::session_affinity::record_if_cache_hit(sid, pid, usage);
+                    }
+                }
+            }
+        }
         log_to_db(
             db,
             client_type,

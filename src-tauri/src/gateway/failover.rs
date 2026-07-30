@@ -134,4 +134,34 @@ mod tests {
         let order = build_attempt_order(&cands, "a", true, true, None);
         assert_eq!(ids(&order), vec!["a", "b"]);
     }
+
+    #[test]
+    fn session_affinity_promotes_cached_provider_to_front() {
+        // cache-hit 过的 backup 应提到队首（亲和是提示，候选集内且非 cooldown）
+        crate::gateway::session_affinity::clear();
+        crate::gateway::session_affinity::record("sa_failover_test", "b");
+        let cands = vec![cand("a", false, None), cand("b", false, None)];
+        let order = build_attempt_order(&cands, "a", true, false, Some("sa_failover_test"));
+        assert_eq!(ids(&order), vec!["b", "a"]);
+        crate::gateway::session_affinity::clear();
+    }
+
+    #[test]
+    fn force_cheapest_disables_affinity_when_session_id_none() {
+        // 预算闸 force_cheapest 路径：调用方传 session_id=None，亲和不得把贵上游提到队首。
+        // 主是 cheap(a)，亲和绑定 expensive(b)——传 None 后仍 a 优先。
+        crate::gateway::session_affinity::clear();
+        crate::gateway::session_affinity::record("sa_budget_force", "b");
+        let cands = vec![cand("a", false, None), cand("b", false, None)];
+        let order = build_attempt_order(&cands, "a", true, false, None);
+        assert_eq!(
+            ids(&order),
+            vec!["a", "b"],
+            "force_cheapest must keep primary/cheapest first, not affinity provider"
+        );
+        // 对照：若误传 affinity sid，会把 b 提到队首——证明 None 是有效开关。
+        let order_with_aff = build_attempt_order(&cands, "a", true, false, Some("sa_budget_force"));
+        assert_eq!(ids(&order_with_aff), vec!["b", "a"]);
+        crate::gateway::session_affinity::clear();
+    }
 }

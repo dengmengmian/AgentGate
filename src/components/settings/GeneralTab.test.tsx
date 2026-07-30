@@ -87,11 +87,15 @@ describe("GeneralTab 成本预警", () => {
     expect(screen.queryByText("settings.body_filter")).toBeNull();
   });
 
-  it("开启开关 → 保存 cost_alert_enabled:true(cost_alert 是最后一个 toggle)", () => {
+  it("开启开关 → 保存 cost_alert_enabled:true", () => {
     const { handleUpdateCostAlert } = setup();
     openAdvanced();
+    // cost_alert is the penultimate cost-related toggle; cost_budget is last.
+    fireEvent.click(screen.getByText("settings.cost_alert"));
+    // Click the toggle control next to cost_alert row — use checkbox index of alert not budget.
     const boxes = screen.getAllByRole("checkbox");
-    fireEvent.click(boxes[boxes.length - 1]);
+    // body_filter, thinking, error_mapper, health_probe, cost_alert, cost_budget
+    fireEvent.click(boxes[boxes.length - 2]);
     expect(handleUpdateCostAlert).toHaveBeenCalledWith({
       cost_alert_enabled: true,
     });

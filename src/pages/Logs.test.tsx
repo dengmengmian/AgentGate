@@ -166,7 +166,9 @@ describe("Logs", () => {
     await waitFor(() =>
       expect(api.getRequestLogDetail).toHaveBeenCalledWith("a")
     );
-    expect(await screen.findByText("logs.raw_request")).toBeInTheDocument();
+    // Drawer now shows body Diff (raw vs converted) instead of a single raw_request block.
+    expect(await screen.findByText("logs.body_diff")).toBeInTheDocument();
+    expect(screen.getAllByText("logs.raw").length).toBeGreaterThan(0);
 
     await act(async () => {
       screen.getAllByTitle("common.copy")[0].click();

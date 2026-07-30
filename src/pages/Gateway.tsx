@@ -7,6 +7,8 @@ import {
   Settings,
   Save,
   AlertTriangle,
+  Copy,
+  Link2,
 } from "lucide-react";
 import { toast } from "@/components/common/Toast";
 import { useI18n } from "@/lib/i18n";
@@ -123,12 +125,22 @@ export function Gateway() {
     ? new Date(status.started_at).toLocaleTimeString()
     : null;
   const listenUrl = `http://${status.host}:${status.port}`;
+  const chatUrl = `${listenUrl}/v1/chat/completions`;
+  const responsesUrl = `${listenUrl}/v1/responses`;
+  const messagesUrl = `${listenUrl}/v1/messages`;
+
+  const copyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast("success", t("gateway.copied"));
+    } catch {
+      toast("error", text);
+    }
+  };
 
   return (
     <div className="space-y-4">
-      {/* ── 1. Status strip — endpoint, active provider, started_at, controls.
-              Topbar already shows running/stopped + host:port. Status badge
-              + decorative big icon dropped. ── */}
+      {/* ── 1. Status strip first — primary ops (run/stop/restart). ── */}
       <div
         className="relative overflow-hidden rounded-xl border border-accent/20 bg-card px-5 py-4"
         style={{
@@ -221,6 +233,79 @@ export function Gateway() {
             {t("gateway.settings_changed")}
           </p>
         )}
+      </div>
+
+      {/* Connection info below — copy endpoints after gateway is up. */}
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="flex items-start gap-3 border-b border-border px-5 py-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft">
+            <Link2 className="h-4 w-4 text-accent" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-semibold text-text-primary">
+              {t("gateway.connection_info")}
+            </h3>
+            <p className="mt-0.5 text-xs text-text-muted">
+              {t("gateway.connection_info_hint")}
+            </p>
+          </div>
+        </div>
+        <div className="divide-y divide-border">
+          {(
+            [
+              {
+                label: t("gateway.base_url"),
+                value: `${listenUrl}/v1`,
+                primary: true,
+              },
+              {
+                label: t("gateway.base_url_chat"),
+                value: chatUrl,
+                primary: false,
+              },
+              {
+                label: t("gateway.base_url_responses"),
+                value: responsesUrl,
+                primary: false,
+              },
+              {
+                label: t("gateway.base_url_messages"),
+                value: messagesUrl,
+                primary: false,
+              },
+            ] as const
+          ).map((row) => (
+            <div
+              key={row.value}
+              className="flex items-center gap-3 px-5 py-2.5 hover:bg-hover/40"
+            >
+              <div className="min-w-0 flex-1">
+                <p
+                  className={`text-[10px] font-medium uppercase tracking-wide ${
+                    row.primary ? "text-accent" : "text-text-muted"
+                  }`}
+                >
+                  {row.label}
+                </p>
+                <p
+                  className="mt-0.5 truncate font-mono text-[12px] text-text-primary"
+                  title={row.value}
+                >
+                  {row.value}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => copyText(row.value)}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-card-secondary px-2.5 py-1.5 text-[11px] font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-accent"
+                title={t("common.copy")}
+              >
+                <Copy className="h-3 w-3" />
+                {t("common.copy")}
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* 已保存的设置 != 运行中的设置时显示重启 banner——避免用户改了 port

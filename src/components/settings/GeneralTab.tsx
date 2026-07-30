@@ -25,6 +25,11 @@ interface Props {
   handleUpdateCostAlert: (patch: {
     cost_alert_enabled?: boolean;
     cost_alert_threshold?: number;
+    cost_budget_enabled?: boolean;
+    cost_budget_threshold?: number;
+    cost_budget_strategy?: string;
+    auto_compact_enabled?: boolean;
+    auto_compact_usage_percent?: number;
   }) => Promise<void>;
   handleUpdateRequestBodyLimit: (mb: number) => Promise<void>;
   wakeStatus: WakeStatus | null;
@@ -161,6 +166,52 @@ export function GeneralTab({
           t={t}
           ToggleSwitch={ToggleSwitch}
         />
+
+        <SettingsGroup title={t("settings.auto_compact")}>
+          <SettingRow
+            title={t("settings.auto_compact.enabled")}
+            description={t("settings.auto_compact.enabled_desc")}
+            control={
+              <ToggleSwitch
+                checked={settings.auto_compact_enabled ?? true}
+                onChange={(v) =>
+                  handleUpdateCostAlert({ auto_compact_enabled: v })
+                }
+              />
+            }
+          />
+          {(settings.auto_compact_enabled ?? true) && (
+            <SettingRow
+              title={t("settings.auto_compact.usage_percent")}
+              description={t("settings.auto_compact.usage_percent_desc")}
+              control={
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={95}
+                    defaultValue={settings.auto_compact_usage_percent ?? 85}
+                    onBlur={(e) => {
+                      const v = Math.floor(Number(e.target.value));
+                      if (
+                        Number.isFinite(v) &&
+                        v >= 1 &&
+                        v <= 95 &&
+                        v !== settings.auto_compact_usage_percent
+                      ) {
+                        handleUpdateCostAlert({
+                          auto_compact_usage_percent: v,
+                        });
+                      }
+                    }}
+                    className="form-input w-16"
+                  />
+                  <span className="text-xs text-text-muted">%</span>
+                </div>
+              }
+            />
+          )}
+        </SettingsGroup>
 
         <SettingsGroup title={t("settings.general.appearance")}>
           <div>
@@ -322,6 +373,80 @@ export function GeneralTab({
                         </div>
                       }
                     />
+                  )}
+                  <SettingRow
+                    title={t("settings.cost_budget")}
+                    description={t("settings.cost_budget_desc")}
+                    control={
+                      <ToggleSwitch
+                        checked={settings.cost_budget_enabled ?? false}
+                        onChange={(v) =>
+                          handleUpdateCostAlert({ cost_budget_enabled: v })
+                        }
+                      />
+                    }
+                  />
+                  {settings.cost_budget_enabled && (
+                    <>
+                      <SettingRow
+                        title={t("settings.cost_budget_threshold")}
+                        description={t("settings.cost_budget_desc")}
+                        control={
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm text-text-muted">$</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.5"
+                              defaultValue={
+                                settings.cost_budget_threshold ?? ""
+                              }
+                              onBlur={(e) => {
+                                const v = parseFloat(e.target.value);
+                                if (
+                                  !Number.isNaN(v) &&
+                                  v > 0 &&
+                                  v !== settings.cost_budget_threshold
+                                ) {
+                                  handleUpdateCostAlert({
+                                    cost_budget_threshold: v,
+                                  });
+                                }
+                              }}
+                              placeholder="10"
+                              className="form-input w-20"
+                            />
+                          </div>
+                        }
+                      />
+                      <SettingRow
+                        title={t("settings.cost_budget_strategy")}
+                        description={t("settings.cost_budget_desc")}
+                        control={
+                          <select
+                            value={
+                              settings.cost_budget_strategy ?? "notify_only"
+                            }
+                            onChange={(e) =>
+                              handleUpdateCostAlert({
+                                cost_budget_strategy: e.target.value,
+                              })
+                            }
+                            className="rounded-md border border-border bg-card-secondary px-2 py-1.5 text-xs"
+                          >
+                            <option value="notify_only">
+                              {t("settings.cost_budget_notify_only")}
+                            </option>
+                            <option value="block">
+                              {t("settings.cost_budget_block")}
+                            </option>
+                            <option value="force_cheapest">
+                              {t("settings.cost_budget_force_cheapest")}
+                            </option>
+                          </select>
+                        }
+                      />
+                    </>
                   )}
                 </div>
               </div>

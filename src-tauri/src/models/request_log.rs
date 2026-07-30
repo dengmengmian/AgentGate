@@ -72,6 +72,8 @@ pub struct SessionUsageSummary {
     /// 该 session 多数请求的 source。混合时填 'mixed'。
     pub source: String,
     pub provider: Option<String>,
+    /// 该会话用过的全部 provider（去重，按出现顺序近似）。
+    pub providers: Vec<String>,
     pub model: Option<String>,
     pub first_seen: String,
     pub last_seen: String,

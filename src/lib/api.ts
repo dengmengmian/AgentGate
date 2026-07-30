@@ -77,6 +77,7 @@ export type {
   ClaudeDesktopApplyResult,
   CodexRestartResult,
   RunningProcess,
+  LocalEndpoint,
   HistoryEntry as ClientApplyHistoryEntry,
   McpServer,
   McpEnvVar,
@@ -185,6 +186,10 @@ export const seedModelCapabilities = (
 /// Returns the number of rows added.
 export const autofillProviderCapabilities = (id: string) =>
   unwrap(bindings.autofillProviderCapabilities(id));
+export const discoverLocalEndpoints = () =>
+  unwrap(bindings.discoverLocalEndpoints());
+export const getRefinerHint = (providerType: string) =>
+  unwrap(bindings.getRefinerHint(providerType));
 
 // ── Gateway ────────────────────────────────────────────────────
 
@@ -528,6 +533,14 @@ export interface ConnectionTestResult {
   config_ok: boolean;
   gateway_ok: boolean;
   provider_ok: boolean;
+  /** 第四步：已接入客户端是否有进程在跑（null = 未检测 / 无已接入客户端）。 */
+  client_process_ok?: boolean | null;
+  /** 各已接入客户端的进程摘要，供 UI 展示。 */
+  client_processes?: Array<{
+    client_id: string;
+    running: boolean;
+    count: number;
+  }>;
   test_model?: string;
   error?: string;
 }

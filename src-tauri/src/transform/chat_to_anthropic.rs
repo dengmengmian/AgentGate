@@ -11,7 +11,9 @@ use crate::protocol::chat_completions::ChatCompletionsRequest;
 /// - `tool_choice` 反向映射（参考 protocol::anthropic_messages::tool_choice_to_chat）
 /// - `reasoning_effort` 字符串 → `thinking.budget_tokens` 数值
 /// - `messages[role=="tool"]` → `{role:"user", content:[{type:"tool_result", ...}]}`
-/// - 图像 `{type:"image_url", image_url:{url:"data:..."}}` → `{type:"image", source:{type:"base64", media_type, data}}`
+/// - 图像 `{type:"image_url", image_url:{url:"data:..."}}` → `{type:"image", source:{type:"base64", ...}}`
+/// - 图像 `http(s)://...` → `{type:"image", source:{type:"url", url}}`（Anthropic 官方支持）
+/// - 其它 URL 形态：插入 text 提示，避免静默丢图
 /// - `max_tokens` Anthropic 必填，缺省给 8192
 /// - `temperature` Anthropic 上限 1.0，超过 clamp
 pub fn convert(req: &ChatCompletionsRequest) -> Result<Value, AppError> {
@@ -195,18 +197,18 @@ fn user_content_to_blocks(content: Option<&Value>) -> Vec<Value> {
                             .and_then(|u| u.get("url"))
                             .and_then(|u| u.as_str())
                             .unwrap_or("");
-                        if let Some((media_type, data)) = parse_data_url(url) {
+                        if let Some(block) = image_url_to_anthropic_block(url) {
+                            out.push(block);
+                        } else if !url.is_empty() {
+                            // 无法转换时显式提示，禁止静默丢图。
                             out.push(json!({
-                                "type": "image",
-                                "source": {
-                                    "type": "base64",
-                                    "media_type": media_type,
-                                    "data": data,
-                                },
+                                "type": "text",
+                                "text": format!(
+                                    "[Note: image omitted — AgentGate could not convert this image URL for Anthropic. Use a data: base64 URL or http(s) URL. Original: {}]",
+                                    truncate_for_notice(url, 120)
+                                ),
                             }));
                         }
-                        // 非 data: URL 的 image 暂不支持（Anthropic 也只接 base64 / url 两种 source，
-                        // 后者较少见；保守不传，避免上游 400）
                     }
                     _ => {
                         // 未知 part：text 字段如果有就保留
@@ -222,6 +224,45 @@ fn user_content_to_blocks(content: Option<&Value>) -> Vec<Value> {
         }
         _ => Vec::new(),
     }
+}
+
+/// Chat `image_url` → Anthropic image block。
+/// - `data:<media>;base64,<data>` → base64 source
+/// - `http://` / `https://` → url source（Anthropic 官方支持）
+fn image_url_to_anthropic_block(url: &str) -> Option<Value> {
+    if let Some((media_type, data)) = parse_data_url(url) {
+        return Some(json!({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": media_type,
+                "data": data,
+            },
+        }));
+    }
+    if is_http_url(url) {
+        return Some(json!({
+            "type": "image",
+            "source": {
+                "type": "url",
+                "url": url,
+            },
+        }));
+    }
+    None
+}
+
+fn is_http_url(url: &str) -> bool {
+    let lower = url.to_ascii_lowercase();
+    lower.starts_with("https://") || lower.starts_with("http://")
+}
+
+fn truncate_for_notice(s: &str, max: usize) -> String {
+    if s.chars().count() <= max {
+        return s.to_string();
+    }
+    let truncated: String = s.chars().take(max).collect();
+    format!("{truncated}…")
 }
 
 /// `data:<media_type>;base64,<data>` 解析。
@@ -507,6 +548,50 @@ mod tests {
         assert_eq!(blocks[1]["source"]["type"], "base64");
         assert_eq!(blocks[1]["source"]["media_type"], "image/png");
         assert_eq!(blocks[1]["source"]["data"], "abc123");
+    }
+
+    #[test]
+    fn image_url_https_converted_to_anthropic_url_source() {
+        let mut req = base_req();
+        req.messages = vec![ChatMessage {
+            role: "user".into(),
+            content: Some(json!([
+                {"type": "text", "text": "describe"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/a.png"}}
+            ])),
+            reasoning_content: None,
+            tool_calls: None,
+            tool_call_id: None,
+            name: None,
+        }];
+        let body = convert(&req).unwrap();
+        let blocks = body["messages"][0]["content"].as_array().unwrap();
+        assert_eq!(blocks[1]["type"], "image");
+        assert_eq!(blocks[1]["source"]["type"], "url");
+        assert_eq!(blocks[1]["source"]["url"], "https://example.com/a.png");
+    }
+
+    #[test]
+    fn image_url_unsupported_scheme_emits_notice_not_silent_drop() {
+        let mut req = base_req();
+        req.messages = vec![ChatMessage {
+            role: "user".into(),
+            content: Some(json!([
+                {"type": "text", "text": "see"},
+                {"type": "image_url", "image_url": {"url": "file:///tmp/x.png"}}
+            ])),
+            reasoning_content: None,
+            tool_calls: None,
+            tool_call_id: None,
+            name: None,
+        }];
+        let body = convert(&req).unwrap();
+        let blocks = body["messages"][0]["content"].as_array().unwrap();
+        assert_eq!(blocks.len(), 2);
+        assert_eq!(blocks[1]["type"], "text");
+        let notice = blocks[1]["text"].as_str().unwrap();
+        assert!(notice.contains("image omitted"), "notice={notice}");
+        assert!(notice.contains("file:///tmp/x.png"), "notice={notice}");
     }
 
     #[test]

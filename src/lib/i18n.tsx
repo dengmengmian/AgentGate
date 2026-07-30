@@ -726,6 +726,23 @@ const translations: Record<string, Record<Locale, string>> = {
   "tools.step_config": { en: "Config", zh: "配置" },
   "tools.step_gateway": { en: "Gateway", zh: "网关" },
   "tools.step_provider": { en: "Provider", zh: "供应商" },
+  "tools.step_client_process": { en: "Client process", zh: "客户端进程" },
+  "tools.client_process_running": {
+    en: "Process running — restart if config just changed",
+    zh: "进程在跑 — 若刚改过配置请重启客户端",
+  },
+  "tools.client_process_idle": {
+    en: "Not running — start the client to use the config",
+    zh: "未运行 — 启动客户端后配置才会生效",
+  },
+  "tools.client_process_unknown": {
+    en: "Process status unknown",
+    zh: "无法探测进程",
+  },
+  "tools.client_process_ok": {
+    en: "Active clients: process check done",
+    zh: "已接入客户端：进程状态已检查",
+  },
   "tools.gateway_running": { en: "Gateway is running at", zh: "网关已运行：" },
   "tools.gateway_not_running_hint": {
     en: "Gateway is not running. Clients will show network connection errors until it starts.",
@@ -1909,6 +1926,8 @@ const translations: Record<string, Record<Locale, string>> = {
   "logs.session_col_in_out": { en: "Input / Output", zh: "输入 / 输出" },
   "logs.session_col_cache_read": { en: "Cache read", zh: "缓存读" },
   "logs.session_col_cost": { en: "Cost", zh: "费用" },
+  "logs.session_usage_tokens": { en: "Tokens", zh: "Token" },
+  "logs.session_usage_providers": { en: "Providers", zh: "供应商" },
   "logs.session_view_convo": { en: "View conversation", zh: "查看对话" },
   "logs.session_delete": { en: "Delete session", zh: "删除会话" },
   "logs.session_delete_title": { en: "Delete session", zh: "删除会话" },
@@ -2022,6 +2041,139 @@ const translations: Record<string, Record<Locale, string>> = {
     en: "Maximum inbound request size accepted by the gateway, capped at 128 MB. Takes effect after restarting the gateway; AGENTGATE_REQUEST_BODY_LIMIT_MB overrides this value.",
     zh: "网关接收单次请求的最大体积，最高 128 MB。重启网关后生效；AGENTGATE_REQUEST_BODY_LIMIT_MB 会覆盖此设置。",
   },
+  "logs.body_diff": { en: "Request / response Diff", zh: "请求/响应 Diff" },
+  "logs.diff_request": { en: "Request", zh: "请求" },
+  "logs.diff_response": { en: "Response", zh: "响应" },
+  "logs.diff_side": { en: "Side by side", zh: "并排" },
+  "logs.raw": { en: "Raw", zh: "原始" },
+  "logs.converted": { en: "Converted", zh: "转换后" },
+  "logs.body_empty": { en: "(empty)", zh: "（空）" },
+  "logs.export_repro": { en: "Export repro", zh: "导出复现包" },
+  "logs.export_include_bodies": {
+    en: "Include bodies",
+    zh: "包含请求体",
+  },
+  "logs.export_repro_copied": {
+    en: "Redacted repro package copied",
+    zh: "脱敏复现包已复制",
+  },
+  "logs.export_repro_downloaded": {
+    en: "Redacted repro package downloaded",
+    zh: "脱敏复现包已下载",
+  },
+  "settings.cost_budget": { en: "Daily spend budget", zh: "每日花费预算" },
+  "settings.cost_budget_desc": {
+    en: "Hard gate after today's cost exceeds the threshold. Separate from the alert below.",
+    zh: "今日花费超过阈值后硬闸（拦截或强制最便宜）。与下方预警独立。",
+  },
+  "settings.cost_budget_threshold": {
+    en: "Budget threshold (USD)",
+    zh: "预算阈值（USD）",
+  },
+  "settings.cost_budget_strategy": {
+    en: "Over-budget strategy",
+    zh: "超预算策略",
+  },
+  "settings.cost_budget_notify_only": {
+    en: "Notify only (no hard gate)",
+    zh: "仅提醒（不硬拦）",
+  },
+  "settings.cost_budget_block": {
+    en: "Block new requests",
+    zh: "拦截新请求",
+  },
+  "settings.cost_budget_force_cheapest": {
+    en: "Force cheapest routing",
+    zh: "强制最便宜路由",
+  },
+  "stats.no_price_set": { en: "Set price", zh: "去补价" },
+  "stats.cache_savings": { en: "Est. cache savings", zh: "缓存节省估算" },
+  "stats.cache_savings_tip": {
+    en: "Shown only when real cache-read tokens exist. Uses ~90% of base input price for Anthropic-style cache hits.",
+    zh: "仅在有真实 cache-read token 时显示；按 Anthropic 风格约 90% 输入价估算节省。",
+  },
+  "gateway.connection_info": {
+    en: "Connection info",
+    zh: "连接信息",
+  },
+  "gateway.connection_info_hint": {
+    en: "Point any OpenAI-compatible client at this local endpoint. Use the local token as the API key.",
+    zh: "把任意 OpenAI 兼容客户端指到本机端点；API key 填本地 token。",
+  },
+  "gateway.base_url": { en: "Base URL", zh: "Base URL" },
+  "gateway.copy_base_url": { en: "Copy Base URL", zh: "复制 Base URL" },
+  "gateway.copied": { en: "Copied", zh: "已复制" },
+  "gateway.base_url_chat": {
+    en: "Chat Completions",
+    zh: "Chat Completions",
+  },
+  "gateway.base_url_responses": { en: "Responses", zh: "Responses" },
+  "gateway.base_url_messages": {
+    en: "Messages (Anthropic)",
+    zh: "Messages（Anthropic）",
+  },
+  "onboarding.incomplete": {
+    en: "Setup incomplete — fix the failed step before finishing.",
+    zh: "尚未完成 — 请先处理失败步骤再结束。",
+  },
+  "onboarding.next_retry": { en: "Retry setup", zh: "重试设置" },
+  "onboarding.next_providers": { en: "Open Providers", zh: "打开供应商" },
+  "onboarding.next_clients": { en: "Open Clients", zh: "打开客户端" },
+  "onboarding.next_logs": { en: "Open Logs", zh: "打开日志" },
+  "onboarding.scenario_title": {
+    en: "Quick scenarios",
+    zh: "场景快捷入口",
+  },
+  "onboarding.scenario_codex_deepseek": {
+    en: "Codex + DeepSeek",
+    zh: "Codex + DeepSeek",
+  },
+  "onboarding.scenario_claude_chat": {
+    en: "Claude Code + Chat model",
+    zh: "Claude Code + Chat 模型",
+  },
+  "settings.auto_compact": {
+    en: "Long-session auto-compact",
+    zh: "长会话自压缩",
+  },
+  "settings.auto_compact.enabled": {
+    en: "Enable auto-compact",
+    zh: "启用自压缩",
+  },
+  "settings.auto_compact.enabled_desc": {
+    en: "When history exceeds the model window threshold, summarize the middle (keep system + recent turns). Visible in request logs.",
+    zh: "历史超过模型窗口阈值时摘要中间段（保留 system 与最近轮次）。可在请求日志中看到。",
+  },
+  "settings.auto_compact.usage_percent": {
+    en: "History threshold (% of context window)",
+    zh: "历史阈值（占上下文窗口 %）",
+  },
+  "settings.auto_compact.usage_percent_desc": {
+    en: "Default 85 leaves room for reasoning/output. Env AGENTGATE_AUTO_COMPACT_TOKENS still overrides.",
+    zh: "默认 85，留给 reasoning/输出余量。环境变量 AGENTGATE_AUTO_COMPACT_TOKENS 仍可覆盖。",
+  },
+  "settings.wake.unsupported_short": { en: "unsupported", zh: "不支持" },
+  "settings.wake.cooldown_left": {
+    en: "Cooldown remaining",
+    zh: "冷却剩余",
+  },
+  "providers.local_discover": {
+    en: "Local models",
+    zh: "本地模型",
+  },
+  "providers.local_discover_hint": {
+    en: "Scan common ports (Ollama, LM Studio). Unreachable endpoints stay listed so you can still add them.",
+    zh: "扫描本机常见端口（Ollama、LM Studio）。未启动的也会列出，方便手动添加。",
+  },
+  "providers.local_scan": { en: "Scan", zh: "扫描" },
+  "providers.local_add": { en: "Add", zh: "添加" },
+  "providers.local_reachable": { en: "Online", zh: "在线" },
+  "providers.local_offline": { en: "Offline", zh: "未检测到" },
+  "providers.local_added": {
+    en: "Local provider added",
+    zh: "已添加本地供应商",
+  },
+  "providers.refiner_hint": { en: "Refiner tip", zh: "精炼层建议" },
   "settings.cost_alert": { en: "Daily cost alert", zh: "今日花费预警" },
   "settings.cost_alert_desc": {
     en: "When today's total spend exceeds your threshold, send a system notification + pet bubble. At most once per day.",

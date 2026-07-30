@@ -36,8 +36,34 @@ use crate::providers::capabilities;
 
 /// 未收录窗口的模型退回的默认触发阈值(绝对 token 数)。按 128K 上游留余量。
 const DEFAULT_THRESHOLD_TOKENS: usize = 110_000;
-/// 上下文窗口的可用比例:留 15% 给 reasoning + output,其余可装 history。
+/// 上下文窗口的可用比例默认:留 15% 给 reasoning + output,其余可装 history。
 const CONTEXT_WINDOW_USAGE_PERCENT: usize = 85;
+
+/// Settings-driven compact policy. Env vars still win when set.
+#[derive(Debug, Clone, Copy)]
+pub struct CompactPolicy {
+    pub enabled: bool,
+    /// 1–95, percent of context window used as history threshold.
+    pub usage_percent: usize,
+}
+
+impl Default for CompactPolicy {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            usage_percent: CONTEXT_WINDOW_USAGE_PERCENT,
+        }
+    }
+}
+
+impl CompactPolicy {
+    pub fn from_settings(enabled: bool, usage_percent: i64) -> Self {
+        Self {
+            enabled,
+            usage_percent: (usage_percent.clamp(1, 95) as usize),
+        }
+    }
+}
 /// tail 预算:保留多少 token 的最近历史 verbatim。
 const TAIL_BUDGET_TOKENS: usize = 40_000;
 /// 单次摘要调用的 middle 输入分块预算(token)。须远小于上游上限,留空间给提示词+输出。
@@ -477,11 +503,11 @@ pub(crate) async fn summarize_chunk(
 
 /// 判断该请求是否启用自压缩,并返回触发阈值(token 数)。
 /// 默认开启;返回 None 表示本次不压缩。
-fn threshold_for(config: &ProviderConfig, model: &str) -> Option<usize> {
-    if auto_compact_disabled() || !provider_allowed(config) {
+fn threshold_for(config: &ProviderConfig, model: &str, policy: CompactPolicy) -> Option<usize> {
+    if !policy.enabled || auto_compact_disabled() || !provider_allowed(config) {
         return None;
     }
-    Some(resolve_threshold(config, model))
+    Some(resolve_threshold(config, model, policy.usage_percent))
 }
 
 /// `AGENTGATE_AUTO_COMPACT=off|0|false|no` 显式全关。
@@ -514,9 +540,9 @@ fn provider_allowed(config: &ProviderConfig) -> bool {
     })
 }
 
-/// 阈值优先级:`AGENTGATE_AUTO_COMPACT_TOKENS` 显式覆盖 > 用户配置的模型窗口 ×85%
-/// > catalog 内置窗口 ×85% > 默认 110K。
-fn resolve_threshold(config: &ProviderConfig, model: &str) -> usize {
+/// 阈值优先级:`AGENTGATE_AUTO_COMPACT_TOKENS` 显式覆盖 > 用户/模型窗口 × usage%
+/// > catalog 内置窗口 × usage% > 默认 110K。
+fn resolve_threshold(config: &ProviderConfig, model: &str, usage_percent: usize) -> usize {
     if let Some(explicit) = std::env::var("AGENTGATE_AUTO_COMPACT_TOKENS")
         .ok()
         .and_then(|v| v.trim().parse::<usize>().ok())
@@ -524,12 +550,13 @@ fn resolve_threshold(config: &ProviderConfig, model: &str) -> usize {
     {
         return explicit;
     }
+    let pct = usage_percent.clamp(1, 95);
     config
         .model_context_windows
         .get(model)
         .copied()
         .or_else(|| capabilities::context_window_for(&config.provider_type, model))
-        .map(|window| (window as usize) * CONTEXT_WINDOW_USAGE_PERCENT / 100)
+        .map(|window| (window as usize) * pct / 100)
         .unwrap_or(DEFAULT_THRESHOLD_TOKENS)
 }
 
@@ -540,7 +567,17 @@ pub async fn maybe_compact(
     config: &ProviderConfig,
     chat_req: &mut ChatCompletionsRequest,
 ) {
-    let Some(threshold) = threshold_for(config, &chat_req.model) else {
+    maybe_compact_with_policy(client, config, chat_req, CompactPolicy::default()).await;
+}
+
+/// Same as [`maybe_compact`] with settings-driven policy.
+pub async fn maybe_compact_with_policy(
+    client: &Client,
+    config: &ProviderConfig,
+    chat_req: &mut ChatCompletionsRequest,
+    policy: CompactPolicy,
+) {
+    let Some(threshold) = threshold_for(config, &chat_req.model, policy) else {
         return;
     };
 
@@ -594,19 +631,28 @@ pub async fn maybe_compact(
         (
             "[摘要生成失败,早前历史已省略]".to_string(),
             "auto_compact_truncated",
-            format!("auto_compact 摘要失败,硬截断 ~{original_tokens} tok 历史(保留 head+tail)"),
+            format!(
+                "auto_compact 摘要失败,硬截断 ~{original_tokens}→tail 历史(threshold={threshold})"
+            ),
         )
     } else {
         (
             summaries.join("\n\n---\n\n"),
             "auto_compact",
-            format!("auto_compact 压缩 {chunk_count} 段中段历史,原始 ~{original_tokens} tok"),
+            format!(
+                "auto_compact 压缩 {chunk_count} 段: ~{original_tokens} tok → 阈值 {threshold}"
+            ),
         )
     };
 
     chat_req.messages = splice(&plan.head, &summary_text, &plan.tail);
 
     let compacted_tokens = estimate_tokens(&chat_req.messages);
+    // reason 用可解析字段，Logs 详情能展示阈值/前后 token。
+    let reason = format!(
+        "threshold={threshold};original={original_tokens};compacted={compacted_tokens};chunks={chunk_count};ok={}",
+        !failed
+    );
     chat_req.diagnostic_events.push(CapabilityDegradationEvent {
         kind: kind.to_string(),
         capability: "context".to_string(),
@@ -615,14 +661,16 @@ pub async fn maybe_compact(
         model: Some(model),
         message,
         count: Some(compacted_tokens),
-        reason: Some(format!("threshold={threshold}")),
+        reason: Some(reason),
     });
 
     tracing::info!(
         provider = %config.name,
         original_tokens,
         compacted_tokens,
+        threshold,
         chunks = chunk_count,
+        failed,
         "auto_compact: 历史已压缩"
     );
 }
@@ -719,6 +767,68 @@ mod tests {
         assert_eq!(blocks[2].len(), 2);
         assert_eq!(blocks[2][0].role, "assistant");
         assert_eq!(blocks[2][1].role, "tool");
+    }
+
+    #[test]
+    fn threshold_respects_usage_percent() {
+        // 纯函数路径:无 catalog 时退回 DEFAULT;有窗口时按 percent 算。
+        // 构造假 ProviderConfig 很难(api keys),直接测 resolve_threshold 用假 map。
+        let mut cfg = ProviderConfig {
+            name: "t".into(),
+            provider_type: "custom_openai_compatible".into(),
+            base_url: "http://127.0.0.1".into(),
+            api_keys: vec!["k".into()],
+            default_model: "m".into(),
+            reasoning_model: None,
+            timeout_seconds: 30,
+            extra_headers: Default::default(),
+            anthropic_base_url: None,
+            responses_base_url: None,
+            model_context_windows: Default::default(),
+        };
+        cfg.model_context_windows.insert("m".into(), 100_000);
+        assert_eq!(resolve_threshold(&cfg, "m", 85), 85_000);
+        assert_eq!(resolve_threshold(&cfg, "m", 50), 50_000);
+    }
+
+    #[test]
+    fn policy_disabled_skips_threshold() {
+        let cfg = ProviderConfig {
+            name: "t".into(),
+            provider_type: "custom".into(),
+            base_url: "http://x".into(),
+            api_keys: vec!["k".into()],
+            default_model: "m".into(),
+            reasoning_model: None,
+            timeout_seconds: 30,
+            extra_headers: Default::default(),
+            anthropic_base_url: None,
+            responses_base_url: None,
+            model_context_windows: Default::default(),
+        };
+        assert!(threshold_for(
+            &cfg,
+            "m",
+            CompactPolicy {
+                enabled: false,
+                usage_percent: 85
+            }
+        )
+        .is_none());
+    }
+
+    #[test]
+    fn long_history_plans_compaction() {
+        // 回归:超大历史必须产出 plan,不能 panic / 假成功空过。
+        let mut messages = vec![msg("system", "sys")];
+        for i in 0..80 {
+            messages.push(msg("user", &format!("turn {i} {}", "x".repeat(3000))));
+            messages.push(msg("assistant", &format!("reply {i} {}", "y".repeat(3000))));
+        }
+        let total = estimate_tokens(&messages);
+        assert!(total > 50_000, "fixture must be large, got {total}");
+        let plan = plan_compaction(&messages, 20_000);
+        assert!(plan.is_some(), "oversize history must compact");
     }
 
     #[test]
@@ -899,31 +1009,38 @@ mod tests {
         std::env::remove_var("AGENTGATE_AUTO_COMPACT");
         std::env::remove_var("AGENTGATE_AUTO_COMPACT_PROVIDERS");
         std::env::remove_var("AGENTGATE_AUTO_COMPACT_TOKENS");
-        assert_eq!(threshold_for(&config, "m"), Some(DEFAULT_THRESHOLD_TOKENS));
+        let pol = CompactPolicy::default();
+        assert_eq!(
+            threshold_for(&config, "m", pol),
+            Some(DEFAULT_THRESHOLD_TOKENS)
+        );
 
         // 2. 显式全关
         std::env::set_var("AGENTGATE_AUTO_COMPACT", "off");
-        assert!(threshold_for(&config, "m").is_none());
+        assert!(threshold_for(&config, "m", pol).is_none());
         std::env::remove_var("AGENTGATE_AUTO_COMPACT");
 
         // 3. 白名单收窄:在名单内 → 开启
         std::env::set_var("AGENTGATE_AUTO_COMPACT_PROVIDERS", "openai");
-        assert_eq!(threshold_for(&config, "m"), Some(DEFAULT_THRESHOLD_TOKENS));
+        assert_eq!(
+            threshold_for(&config, "m", pol),
+            Some(DEFAULT_THRESHOLD_TOKENS)
+        );
 
         // 4. 白名单收窄:不在名单内 → 关闭
         std::env::set_var("AGENTGATE_AUTO_COMPACT_PROVIDERS", "deepseek");
-        assert!(threshold_for(&config, "m").is_none());
+        assert!(threshold_for(&config, "m", pol).is_none());
         std::env::remove_var("AGENTGATE_AUTO_COMPACT_PROVIDERS");
 
         // 5. 显式 tokens 覆盖
         std::env::set_var("AGENTGATE_AUTO_COMPACT_TOKENS", "50000");
-        assert_eq!(threshold_for(&config, "m"), Some(50000));
+        assert_eq!(threshold_for(&config, "m", pol), Some(50000));
         std::env::remove_var("AGENTGATE_AUTO_COMPACT_TOKENS");
 
         // 6. 窗口自适应:catalog 收录的模型按窗口 ×85%
         let mimo = test_config("mimo", "mimo");
         assert_eq!(
-            threshold_for(&mimo, "mimo-v2.5-pro"),
+            threshold_for(&mimo, "mimo-v2.5-pro", pol),
             Some(128_000 * CONTEXT_WINDOW_USAGE_PERCENT / 100)
         );
 
@@ -933,7 +1050,7 @@ mod tests {
             .model_context_windows
             .insert("mimo-v2.5-pro".to_string(), 256_000);
         assert_eq!(
-            threshold_for(&custom, "mimo-v2.5-pro"),
+            threshold_for(&custom, "mimo-v2.5-pro", pol),
             Some(256_000 * CONTEXT_WINDOW_USAGE_PERCENT / 100)
         );
     }

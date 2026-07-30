@@ -274,6 +274,11 @@ fn build_candidates(
 /// "cheapest"：模型单价(input+output)升序；"fastest"：近 24h 平均延迟升序；
 /// 其它（含 "priority"）：保持手工顺序不动。查不到价格/延迟的候选排末尾，
 /// 平手按原 priority。
+/// Re-order candidates by unit price (public for daily budget force_cheapest).
+pub fn force_cheapest_order(conn: &Connection, candidates: &mut [ProviderCandidate]) {
+    sort_candidates_by_strategy(conn, candidates, "cheapest");
+}
+
 fn sort_candidates_by_strategy(
     conn: &Connection,
     candidates: &mut [ProviderCandidate],

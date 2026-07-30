@@ -54,16 +54,30 @@ export function WakeSettings({
     }
     return t(`settings.wake.status.${statusKey}`);
   })();
+  const platformLabel = status?.platform
+    ? `${status.platform}${status.supported ? "" : ` · ${t("settings.wake.unsupported_short")}`}`
+    : null;
 
   return (
     <SettingsGroup title={t("settings.wake")}>
-      <div className="flex items-center gap-2 rounded-md border border-border bg-card-secondary px-3 py-2">
-        <span
-          className={`h-2 w-2 rounded-full ${
-            status?.active ? "bg-success" : "bg-text-muted"
-          }`}
-        />
-        <span className="text-xs text-text-secondary">{statusDetail}</span>
+      <div className="flex flex-col gap-1 rounded-md border border-border bg-card-secondary px-3 py-2">
+        <div className="flex items-center gap-2">
+          <span
+            className={`h-2 w-2 rounded-full ${
+              status?.active ? "bg-success" : "bg-text-muted"
+            }`}
+          />
+          <span className="text-xs text-text-secondary">{statusDetail}</span>
+        </div>
+        {platformLabel && (
+          <p className="pl-4 text-[11px] text-text-muted">{platformLabel}</p>
+        )}
+        {status?.mode === "cooldown" && status.cooldown_remaining > 0 && (
+          <p className="pl-4 text-[11px] font-mono text-text-muted">
+            {t("settings.wake.cooldown_left")}:{" "}
+            {formatDuration(status.cooldown_remaining)}
+          </p>
+        )}
       </div>
 
       <SettingRow

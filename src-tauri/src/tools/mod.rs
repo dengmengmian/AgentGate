@@ -7,6 +7,7 @@ pub mod config_verify;
 pub mod gemini_cli;
 pub mod instructions;
 pub mod instructions_templates;
+pub mod local_discovery;
 pub mod mcp;
 pub mod opencode;
 pub mod process_detect;

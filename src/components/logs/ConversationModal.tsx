@@ -5,7 +5,10 @@ import { toast } from "@/components/common/Toast";
 import { useI18n } from "@/lib/i18n";
 import { MarkdownContent } from "@/components/common/MarkdownContent";
 import * as api from "@/lib/api";
-import type { ConversationMessage } from "@/types/request-log";
+import type {
+  ConversationMessage,
+  SessionUsageSummary,
+} from "@/types/request-log";
 
 /// 按会话来源生成恢复命令。网关请求没有「会话恢复」概念，返回 null。
 export function resumeCommand(
@@ -33,16 +36,22 @@ export function getConversationMessageKind(
 export function ConversationModal({
   sessionId,
   source,
+  usage,
   onClose,
 }: {
   sessionId: string;
   source: string;
+  /** 可选：会话聚合用量（token / 成本 / provider），不传则弹窗内按 session 再拉一次。 */
+  usage?: SessionUsageSummary | null;
   onClose: () => void;
 }) {
   const { t } = useI18n();
   const [msgs, setMsgs] = useState<ConversationMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
+  const [usageSummary, setUsageSummary] = useState<SessionUsageSummary | null>(
+    usage ?? null
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -64,7 +73,33 @@ export function ConversationModal({
     };
   }, [sessionId]);
 
+  useEffect(() => {
+    if (usage) {
+      setUsageSummary(usage);
+      return;
+    }
+    let cancelled = false;
+    api
+      .aggregateRequestLogsBySession({ session_id: sessionId }, 1)
+      .then((rows) => {
+        if (!cancelled) setUsageSummary(rows[0] ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setUsageSummary(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, usage]);
+
   const cmd = resumeCommand(sessionId, source);
+  const providersLabel =
+    usageSummary?.providers?.filter(Boolean).join(", ") ||
+    usageSummary?.provider ||
+    null;
+  const totalTokens = usageSummary
+    ? usageSummary.input_tokens + usageSummary.output_tokens
+    : null;
 
   return (
     <div
@@ -94,6 +129,43 @@ export function ConversationModal({
             <X className="h-4 w-4" />
           </button>
         </div>
+        {usageSummary && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-border bg-card-secondary/40 px-5 py-2 text-[11px] text-text-secondary">
+            <span>
+              {t("logs.session_col_requests")}:{" "}
+              <span className="font-mono text-text-primary">
+                {usageSummary.request_count.toLocaleString()}
+              </span>
+            </span>
+            <span>
+              {t("logs.session_usage_tokens")}:{" "}
+              <span className="font-mono text-text-primary">
+                {totalTokens?.toLocaleString() ?? "—"}
+              </span>
+              <span className="text-text-muted">
+                {" "}
+                ({usageSummary.input_tokens.toLocaleString()} /{" "}
+                {usageSummary.output_tokens.toLocaleString()})
+              </span>
+            </span>
+            <span>
+              {t("logs.session_col_cost")}:{" "}
+              <span className="font-mono text-text-primary">
+                {usageSummary.cost > 0
+                  ? `$${usageSummary.cost.toFixed(4)}`
+                  : "—"}
+              </span>
+            </span>
+            {providersLabel && (
+              <span className="min-w-0 truncate" title={providersLabel}>
+                {t("logs.session_usage_providers")}:{" "}
+                <span className="font-mono text-text-primary">
+                  {providersLabel}
+                </span>
+              </span>
+            )}
+          </div>
+        )}
         {cmd && (
           <div className="flex items-center justify-between gap-3 border-b border-border bg-card-secondary/50 px-5 py-2.5">
             <div className="flex min-w-0 items-center gap-2">

@@ -24,6 +24,7 @@ pub fn aggregate_by_session(
         session_id,
         GROUP_CONCAT(DISTINCT source) AS sources,
         MAX(provider) AS provider,
+        GROUP_CONCAT(DISTINCT provider) AS providers,
         MAX(model) AS model,
         MIN(timestamp) AS first_seen,
         MAX(timestamp) AS last_seen,
@@ -50,6 +51,13 @@ pub fn aggregate_by_session(
     let rows = stmt.query_map(params_ref.as_slice(), |r| {
         let sources: String = r.get::<_, Option<String>>(1)?.unwrap_or_default();
         let single_source = !sources.contains(',');
+        let providers_raw: String = r.get::<_, Option<String>>(3)?.unwrap_or_default();
+        let providers: Vec<String> = providers_raw
+            .split(',')
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(str::to_string)
+            .collect();
         Ok(crate::models::request_log::SessionUsageSummary {
             session_id: r.get(0)?,
             source: if single_source {
@@ -58,15 +66,16 @@ pub fn aggregate_by_session(
                 "mixed".to_string()
             },
             provider: r.get(2)?,
-            model: r.get(3)?,
-            first_seen: r.get(4)?,
-            last_seen: r.get(5)?,
-            request_count: r.get(6)?,
-            input_tokens: r.get(7)?,
-            output_tokens: r.get(8)?,
-            cache_read_tokens: r.get(9)?,
-            cache_write_tokens: r.get(10)?,
-            cost: r.get(11)?,
+            providers,
+            model: r.get(4)?,
+            first_seen: r.get(5)?,
+            last_seen: r.get(6)?,
+            request_count: r.get(7)?,
+            input_tokens: r.get(8)?,
+            output_tokens: r.get(9)?,
+            cache_read_tokens: r.get(10)?,
+            cache_write_tokens: r.get(11)?,
+            cost: r.get(12)?,
         })
     })?;
     let mut out = Vec::new();

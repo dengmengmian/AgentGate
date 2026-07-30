@@ -1,5 +1,23 @@
 # Changelog / 更新日志
 
+## [1.6.0] - 2026-07-30
+
+### Added / 新增
+
+- **Session affinity / 会话亲和** —— Same conversation sticks to the same upstream provider when routing would otherwise rotate (failover and cheapest-override still apply when required). 同一会话在正常选路下会粘在同一上游；失败转移与预算强制最便宜策略仍可覆盖。
+- **Daily budget gate / 日预算闸** —— Optional daily spend limit with `notify_only` / `block` / `force_cheapest` policies; new requests are gated, in-flight streams are not cut mid-response. 可选日花费上限，支持仅提醒 / 拦截 / 强制最便宜选路；只卡新请求，不中途掐断流式响应。
+- **Request Diff + redacted repro export / 请求 Diff 与脱敏复现包** —— Logs detail drawer compares raw vs converted bodies and can copy or download a redacted repro package for issue reports. 日志详情可对比原始与转换后 body，并可复制/下载脱敏复现包便于提 issue。
+- **Local model discovery / 本地模型发现** —— Providers page can scan Ollama / LM Studio (and common local OpenAI-compatible ports) and one-click add them. 供应商页可扫描 Ollama / LM Studio 等常见本地 OpenAI 兼容端口并一键添加。
+- **Client process detection / 客户端进程探测** —— Clients step and list surface whether configured tools appear to be running. 客户端配置步骤与列表展示对应工具是否在运行。
+- **Gateway connection card + editor guides / 网关连接卡片与编辑器指南** —— Gateway page shows local Base URL / token usage; guides cover Cursor / Continue / Cline and local models. 网关页展示本机 Base URL 与 token 用法；新增 Cursor / Continue / Cline 与本地模型接入指南。
+- **Onboarding completion hardening / 引导完成条件收紧** —— Setup wizard requires real provider success and clearer next actions on failure. 引导向导要求真实供应商连通成功，失败时给出明确主操作。
+
+### Improvements / 改进
+
+- **Session cost & cache savings / 会话成本与缓存节省** —— Session views aggregate tokens/cost; dashboard highlights cache savings and missing pricing more clearly. 会话视图汇总 token/成本；概览更清楚展示缓存节省与缺价状态。
+- **Provider refiner hints / 供应商适配提示** —— Provider cards surface protocol/refiner tips for the selected provider type. 供应商卡片展示该类型的协议/适配提示。
+- **Auto-compact settings / 自动压缩设置** —— Compact policy settings for long contexts are exposed in Settings / gateway config. 长上下文自动压缩策略可在设置/网关配置中调整。
+
 ## [1.5.1] - 2026-07-17
 
 ### Added / 新增

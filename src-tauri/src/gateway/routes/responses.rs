@@ -40,6 +40,8 @@ pub async fn handle_responses(
 ) -> Result<Response, GatewayError> {
     let body = request_body_or_gateway_error(body)?;
     validate_auth(&headers)?;
+    let force_cheapest =
+        crate::gateway::budget::check_new_request(&state.db).map_err(GatewayError)?;
     let start = Instant::now();
     let request_id = format!(
         "req_{}",
@@ -87,7 +89,7 @@ pub async fn handle_responses(
     req.hoist_additional_tools();
 
     // 2. Select provider via route profile (with failover candidates)
-    let selection = crate::gateway::provider_selector::select_for_failover(
+    let mut selection = crate::gateway::provider_selector::select_for_failover(
         &state.db,
         "openai_responses",
         req.model.as_deref(),
@@ -106,6 +108,9 @@ pub async fn handle_responses(
         );
         GatewayError(e)
     })?;
+    if force_cheapest {
+        let _ = crate::gateway::budget::apply_force_cheapest(&state.db, &mut selection);
+    }
 
     let is_failover = selection.mode == "failover" && selection.candidates.len() > 1;
     let candidates = selection.candidates.clone();
@@ -114,7 +119,13 @@ pub async fn handle_responses(
     // Derive a stable session-affinity key. Used at two points: candidate
     // reordering (prefer the provider that hit the upstream prompt cache last
     // time) and post-response recording (write affinity when cached_tokens>0).
+    // force_cheapest 时禁用亲和重排，避免把贵上游提到队首。
     let session_id = crate::gateway::session_affinity::derive_from_responses(&req);
+    let affinity_sid = if force_cheapest {
+        None
+    } else {
+        session_id.as_deref()
+    };
 
     // Detect if request contains images (for vision-aware routing)
     let request_has_images = request_contains_images(&req);
@@ -125,7 +136,7 @@ pub async fn handle_responses(
         &selection.provider.id,
         is_failover,
         request_has_images,
-        session_id.as_deref(),
+        affinity_sid,
     );
 
     let mut last_error: Option<AppError> = None;
@@ -172,6 +183,8 @@ pub async fn handle_responses(
                 start,
                 &client_type,
                 Some(&headers),
+                session_id.as_deref(),
+                Some(candidate.provider_id.as_str()),
             )
             .await
             .map_err(GatewayError)
@@ -300,9 +313,23 @@ pub async fn handle_responses(
                 }
             };
             // 长历史自压缩:超阈值时摘要中段历史,落回上游窗口内。默认开启,阈值按模型
-            // 上下文窗口 ×85% 自适应(详见 auto_compact),内部按需额外调一次上游。
-            crate::gateway::auto_compact::maybe_compact(&state.http_client, &config, &mut chat_req)
-                .await;
+            // 上下文窗口 × usage% 自适应(详见 auto_compact),内部按需额外调一次上游。
+            let compact_policy = lock_db(&state.db)
+                .and_then(|conn| crate::storage::gateway_settings::get(&conn).ok())
+                .map(|s| {
+                    crate::gateway::auto_compact::CompactPolicy::from_settings(
+                        s.auto_compact_enabled,
+                        s.auto_compact_usage_percent,
+                    )
+                })
+                .unwrap_or_default();
+            crate::gateway::auto_compact::maybe_compact_with_policy(
+                &state.http_client,
+                &config,
+                &mut chat_req,
+                compact_policy,
+            )
+            .await;
             let _refiner_log = refine_struct_body(&state.db, &provider, &mut chat_req);
             let converted_json = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
             let is_stream = chat_req.stream;

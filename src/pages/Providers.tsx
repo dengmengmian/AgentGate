@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Inbox, Search, Zap } from "lucide-react";
+import { Plus, Inbox, Search, Zap, Loader2 } from "lucide-react";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { ProviderFormDialog } from "@/components/providers/ProviderFormDialog";
 import { TestConnectionDialog } from "@/components/providers/TestConnectionDialog";
@@ -37,6 +37,8 @@ export function Providers() {
   );
   const [search, setSearch] = useState("");
   const [speedtestOpen, setSpeedtestOpen] = useState(false);
+  const [localEndpoints, setLocalEndpoints] = useState<api.LocalEndpoint[]>([]);
+  const [scanningLocal, setScanningLocal] = useState(false);
 
   // 过滤：name / provider_type / default_model 任一匹配（大小写不敏感）。
   // provider 数少时不显示搜索框（减少视觉噪音），>= 5 个才出现。
@@ -99,6 +101,17 @@ export function Providers() {
   // 失败被 cooldown）能实时反映到这页的 badge 上。
   usePolling(loadProviders);
 
+  const scanLocal = useCallback(async () => {
+    setScanningLocal(true);
+    try {
+      setLocalEndpoints(await api.discoverLocalEndpoints());
+    } catch (err) {
+      toast("error", (err as api.AppError).message);
+    } finally {
+      setScanningLocal(false);
+    }
+  }, []);
+
   const handleCreate = async (
     input: CreateProviderInput | UpdateProviderInput
   ) => {
@@ -148,6 +161,20 @@ export function Providers() {
     } catch (err) {
       toast("error", (err as api.AppError).message);
     }
+  };
+
+  const addLocalEndpoint = async (ep: api.LocalEndpoint) => {
+    const defaultModel = ep.models[0] ?? "local-model";
+    await handleCreate({
+      name: ep.name,
+      provider_type: ep.provider_type,
+      base_url: ep.base_url,
+      api_key: "local",
+      default_model: defaultModel,
+      protocol: JSON.stringify(["openai_chat_completions"]),
+      timeout_seconds: 120,
+      enabled: true,
+    });
   };
 
   const handleEdit = (provider: ProviderView) => {
@@ -253,6 +280,76 @@ export function Providers() {
             {t("providers.add")}
           </button>
         </div>
+      </div>
+
+      {/* B2: local model discovery */}
+      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-text-primary">
+              {t("providers.local_discover")}
+            </h3>
+            <p className="mt-0.5 text-xs text-text-muted">
+              {t("providers.local_discover_hint")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={scanLocal}
+            disabled={scanningLocal}
+            className="btn-secondary text-xs"
+          >
+            {scanningLocal ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : null}
+            {t("providers.local_scan")}
+          </button>
+        </div>
+        {localEndpoints.length > 0 && (
+          <ul className="mt-3 divide-y divide-border rounded-lg border border-border">
+            {localEndpoints.map((ep) => (
+              <li
+                key={`${ep.name}-${ep.port}`}
+                className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-xs"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-text-primary">
+                      {ep.name}
+                    </span>
+                    <span
+                      className={
+                        ep.reachable
+                          ? "text-[10px] text-success"
+                          : "text-[10px] text-text-muted"
+                      }
+                    >
+                      {ep.reachable
+                        ? t("providers.local_reachable")
+                        : t("providers.local_offline")}
+                    </span>
+                  </div>
+                  <p className="truncate font-mono text-[11px] text-text-secondary">
+                    {ep.base_url}
+                  </p>
+                  {ep.models.length > 0 && (
+                    <p className="mt-0.5 text-[10px] text-text-muted">
+                      {ep.models.slice(0, 4).join(", ")}
+                      {ep.models.length > 4 ? "…" : ""}
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="btn-primary shrink-0 text-[11px]"
+                  onClick={() => addLocalEndpoint(ep)}
+                >
+                  {t("providers.local_add")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {loading ? (

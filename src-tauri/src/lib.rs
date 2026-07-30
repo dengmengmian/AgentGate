@@ -270,6 +270,8 @@ fn build_specta() -> tauri_specta::Builder<tauri::Wry> {
             commands::open_app_data_dir,
             // Tool Connection Test
             commands::test_tool_connection,
+            commands::discover_local_endpoints,
+            commands::get_refiner_hint,
             // Pet
             commands::get_pet_settings,
             commands::update_pet_settings,
@@ -822,6 +824,8 @@ pub fn run() {
             commands::open_app_data_dir,
             // Tool Connection Test
             commands::test_tool_connection,
+            commands::discover_local_endpoints,
+            commands::get_refiner_hint,
             // Pet
             commands::get_pet_settings,
             commands::update_pet_settings,

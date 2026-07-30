@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Info, MessageSquare } from "lucide-react";
+import { Download, Info, MessageSquare } from "lucide-react";
 import { DetailDrawer } from "@/components/layout/DetailDrawer";
 import { ConversationModal } from "@/components/logs/ConversationModal";
 import { JsonCodeBlock } from "@/components/common/JsonCodeBlock";
 import { ErrorExplanationCard } from "@/components/common/ErrorExplanationCard";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { toast } from "@/components/common/Toast";
 import { formatTimestamp, formatOptionalLatency } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { sourceLabel } from "@/components/logs/RequestLogTable";
+import { buildReproPackage, pairBodies } from "@/lib/requestLogDebug";
 import type { RequestLogDetail } from "@/types/request-log";
 
 interface RouteDecisionTrace {
@@ -64,6 +66,11 @@ export function RequestDetailDrawer({
 }: RequestDetailDrawerProps) {
   const { t } = useI18n();
   const [convoOpen, setConvoOpen] = useState(false);
+  const [bodyTab, setBodyTab] = useState<"request" | "response">("request");
+  const [diffMode, setDiffMode] = useState<"side" | "raw" | "converted">(
+    "side"
+  );
+  const [includeBodiesInExport, setIncludeBodiesInExport] = useState(true);
 
   if (!request) return null;
 
@@ -74,6 +81,44 @@ export function RequestDetailDrawer({
   const routeDecision = trace?.route_decision ?? null;
   const totalTokens =
     (request.input_tokens ?? 0) + (request.output_tokens ?? 0);
+  const bodyPairs = pairBodies(request);
+  const activePair =
+    bodyPairs.find((p) => p.label === bodyTab) ?? bodyPairs[0] ?? null;
+
+  const handleExportRepro = async () => {
+    const pkg = buildReproPackage({
+      request_id: request.request_id,
+      timestamp: request.timestamp,
+      client: request.client,
+      provider: request.provider,
+      model: request.model,
+      route: request.route,
+      status_code: request.status_code,
+      latency_ms: request.latency_ms,
+      error_message: request.error_message,
+      trace_json: request.trace_json,
+      raw_request: request.raw_request,
+      converted_request: request.converted_request,
+      raw_response: request.raw_response,
+      converted_response: request.converted_response,
+      app_version: "1.5.1",
+      include_bodies: includeBodiesInExport,
+    });
+    try {
+      await navigator.clipboard.writeText(pkg);
+      toast("success", t("logs.export_repro_copied"));
+    } catch {
+      // Fallback download if clipboard blocked
+      const blob = new Blob([pkg], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `agentgate-repro-${request.request_id}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast("success", t("logs.export_repro_downloaded"));
+    }
+  };
 
   return (
     <DetailDrawer
@@ -145,30 +190,100 @@ export function RequestDetailDrawer({
 
         {routeDecision && <RouteDecisionCard decision={routeDecision} />}
 
-        {request.raw_request && (
-          <JsonCodeBlock
-            title={t("logs.raw_request")}
-            content={request.raw_request}
-          />
+        {/* A2: export always available (route decision / error / version even without bodies). */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card-secondary px-3 py-2">
+          <span className="text-[11px] text-text-muted">
+            {t("logs.export_repro")}
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-1 text-[10px] text-text-muted">
+              <input
+                type="checkbox"
+                checked={includeBodiesInExport}
+                onChange={(e) => setIncludeBodiesInExport(e.target.checked)}
+              />
+              {t("logs.export_include_bodies")}
+            </label>
+            <button
+              type="button"
+              onClick={handleExportRepro}
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-text-secondary hover:text-accent"
+            >
+              <Download className="h-3 w-3" />
+              {t("logs.export_repro")}
+            </button>
+          </div>
+        </div>
+
+        {/* A2: raw vs converted Diff when bodies exist */}
+        {bodyPairs.length > 0 && (
+          <div className="space-y-2 rounded-lg border border-border bg-card-secondary p-3">
+            <h4 className="text-xs font-semibold text-text-primary">
+              {t("logs.body_diff")}
+            </h4>
+            <div className="flex flex-wrap gap-1">
+              {bodyPairs.map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => setBodyTab(p.label as "request" | "response")}
+                  className={`rounded px-2 py-0.5 text-[11px] ${
+                    activePair?.label === p.label
+                      ? "bg-accent/15 text-accent"
+                      : "text-text-muted hover:bg-hover"
+                  }`}
+                >
+                  {p.label === "request"
+                    ? t("logs.diff_request")
+                    : t("logs.diff_response")}
+                </button>
+              ))}
+              {(["side", "raw", "converted"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setDiffMode(m)}
+                  className={`rounded px-2 py-0.5 text-[11px] ${
+                    diffMode === m
+                      ? "bg-card text-text-primary"
+                      : "text-text-muted hover:bg-hover"
+                  }`}
+                >
+                  {m === "side"
+                    ? t("logs.diff_side")
+                    : m === "raw"
+                      ? t("logs.raw")
+                      : t("logs.converted")}
+                </button>
+              ))}
+            </div>
+            {activePair && diffMode === "side" && (
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                <JsonCodeBlock
+                  title={t("logs.raw")}
+                  content={activePair.raw ?? t("logs.body_empty")}
+                />
+                <JsonCodeBlock
+                  title={t("logs.converted")}
+                  content={activePair.converted ?? t("logs.body_empty")}
+                />
+              </div>
+            )}
+            {activePair && diffMode === "raw" && (
+              <JsonCodeBlock
+                title={t("logs.raw")}
+                content={activePair.raw ?? t("logs.body_empty")}
+              />
+            )}
+            {activePair && diffMode === "converted" && (
+              <JsonCodeBlock
+                title={t("logs.converted")}
+                content={activePair.converted ?? t("logs.body_empty")}
+              />
+            )}
+          </div>
         )}
-        {request.converted_request && (
-          <JsonCodeBlock
-            title={t("logs.converted_request")}
-            content={request.converted_request}
-          />
-        )}
-        {request.raw_response && (
-          <JsonCodeBlock
-            title={t("logs.raw_response")}
-            content={request.raw_response}
-          />
-        )}
-        {request.converted_response && (
-          <JsonCodeBlock
-            title={t("logs.converted_response")}
-            content={request.converted_response}
-          />
-        )}
+
         {request.tool_calls && (
           <JsonCodeBlock
             title={t("logs.tool_calls")}

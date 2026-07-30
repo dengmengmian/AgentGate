@@ -66,6 +66,10 @@ export function Tools() {
     null
   );
   const [testing, setTesting] = useState(false);
+  /// 各客户端当前是否有进程在跑（best-effort）。key 与 ClientId / detect 参数对齐。
+  const [processRunning, setProcessRunning] = useState<
+    Partial<Record<ClientId, number>>
+  >({});
   const [openCodeStatus, setOpenCodeStatus] =
     useState<OpenCodeConfigStatus | null>(null);
   const [geminiStatus, setGeminiStatus] =
@@ -159,6 +163,53 @@ export function Tools() {
   }, [load]);
   // window focus 时刷新——从终端切回时立刻看到 Codex 应用配置后的状态变化
   usePolling(load, 15_000);
+
+  // 客户端进程探测：配置已写盘后，进程仍跑旧配置是常见坑。
+  // 只对已接入的客户端查 pgrep/tasklist，失败当 unknown（count 不写）。
+  const refreshProcessStatus = useCallback(async () => {
+    const detectId = (id: ClientId): string | null => {
+      if (id === "claude_desktop") return null; // GUI，basename 不稳
+      if (id === "gemini_cli") return "gemini";
+      return id;
+    };
+    const activeIds = (
+      [
+        ["codex", codexStatus?.has_agentgate],
+        ["claude_code", claudeEnv?.has_agentgate],
+        ["opencode", openCodeStatus?.has_agentgate],
+        ["gemini_cli", geminiStatus?.has_agentgate],
+        ["atomcode", atomCodeStatus?.has_agentgate],
+      ] as const
+    )
+      .filter(([, ok]) => !!ok)
+      .map(([id]) => id as ClientId);
+
+    const next: Partial<Record<ClientId, number>> = {};
+    await Promise.all(
+      activeIds.map(async (id) => {
+        const needle = detectId(id);
+        if (!needle) return;
+        try {
+          const procs = await api.detectClientRunning(needle);
+          next[id] = procs.length;
+        } catch {
+          // 探测失败不写 key → UI 显示 unknown
+        }
+      })
+    );
+    setProcessRunning(next);
+  }, [
+    codexStatus?.has_agentgate,
+    claudeEnv?.has_agentgate,
+    openCodeStatus?.has_agentgate,
+    geminiStatus?.has_agentgate,
+    atomCodeStatus?.has_agentgate,
+  ]);
+
+  useEffect(() => {
+    refreshProcessStatus();
+  }, [refreshProcessStatus]);
+  usePolling(refreshProcessStatus, 15_000);
 
   const handleApplyCodex = async () => {
     try {
@@ -521,6 +572,16 @@ export function Tools() {
               ok={testResult?.provider_ok ?? null}
               testing={testing}
             />
+            <div className="h-px w-6 bg-border" />
+            <ConnectionStep
+              label={t("tools.step_client_process")}
+              ok={
+                testResult?.client_process_ok === undefined
+                  ? null
+                  : testResult.client_process_ok
+              }
+              testing={testing}
+            />
           </div>
           <button
             onClick={handleTestConnection}
@@ -569,6 +630,23 @@ export function Tools() {
         {testResult?.error && (
           <p className="mt-2 text-xs text-error">{testResult.error}</p>
         )}
+        {testResult?.client_processes &&
+          testResult.client_processes.length > 0 && (
+            <ul className="mt-2 space-y-1 text-[11px] text-text-muted">
+              {testResult.client_processes.map((c) => (
+                <li key={c.client_id}>
+                  <span className="font-medium text-text-secondary">
+                    {c.client_id}
+                  </span>
+                  {": "}
+                  {c.running
+                    ? t("tools.client_process_running")
+                    : t("tools.client_process_idle")}
+                  {c.running ? ` (${c.count})` : ""}
+                </li>
+              ))}
+            </ul>
+          )}
       </div>
 
       {/* Master-detail */}
@@ -626,6 +704,26 @@ export function Tools() {
                           ? t("tools.drifted_label")
                           : presenceLabel(row.presence, t)}
                       </div>
+                      {row.presence === "active" &&
+                        processRunning[row.id] !== undefined && (
+                          <div
+                            className={
+                              "truncate text-[10px] " +
+                              (processRunning[row.id]! > 0
+                                ? "text-warning"
+                                : "text-text-muted")
+                            }
+                            title={
+                              processRunning[row.id]! > 0
+                                ? t("tools.client_process_running")
+                                : t("tools.client_process_idle")
+                            }
+                          >
+                            {processRunning[row.id]! > 0
+                              ? t("tools.client_process_running")
+                              : t("tools.client_process_idle")}
+                          </div>
+                        )}
                     </div>
                   </button>
                 </li>

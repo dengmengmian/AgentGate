@@ -4,7 +4,7 @@ use crate::errors::AppError;
 
 /// 当前 schema 版本。每加一段新迁移就 +1,放到 `run_versioned_migrations`
 /// 里 match 上对应的 version。读 `PRAGMA user_version` 决定该跑哪些。
-const CURRENT_SCHEMA_VERSION: u32 = 8;
+const CURRENT_SCHEMA_VERSION: u32 = 10;
 
 fn get_user_version(conn: &Connection) -> Result<u32, AppError> {
     let v: u32 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
@@ -138,6 +138,34 @@ fn run_versioned_migrations(conn: &Connection, from_version: u32) -> Result<(), 
             )?;
         }
         set_user_version(conn, 8)?;
+    }
+    if from_version < 9 {
+        // v9: daily spend hard gate (block / force_cheapest). Separate from cost_alert
+        // (notify-only). Idempotent for DBs that already got manual columns.
+        let has_budget = conn
+            .prepare("SELECT cost_budget_enabled FROM gateway_settings LIMIT 0")
+            .is_ok();
+        if !has_budget {
+            conn.execute_batch(
+                "ALTER TABLE gateway_settings ADD COLUMN cost_budget_enabled INTEGER NOT NULL DEFAULT 0;
+                 ALTER TABLE gateway_settings ADD COLUMN cost_budget_threshold REAL;
+                 ALTER TABLE gateway_settings ADD COLUMN cost_budget_strategy TEXT NOT NULL DEFAULT 'notify_only';",
+            )?;
+        }
+        set_user_version(conn, 9)?;
+    }
+    if from_version < 10 {
+        // v10: auto-compact user knobs (enabled + context usage %). Env vars still override.
+        let has_compact = conn
+            .prepare("SELECT auto_compact_enabled FROM gateway_settings LIMIT 0")
+            .is_ok();
+        if !has_compact {
+            conn.execute_batch(
+                "ALTER TABLE gateway_settings ADD COLUMN auto_compact_enabled INTEGER NOT NULL DEFAULT 1;
+                 ALTER TABLE gateway_settings ADD COLUMN auto_compact_usage_percent INTEGER NOT NULL DEFAULT 85;",
+            )?;
+        }
+        set_user_version(conn, 10)?;
     }
     Ok(())
 }

@@ -46,6 +46,8 @@ describe("Providers", () => {
       h24_avg_latency_ms: 0,
       recent_errors: [],
     } as any);
+    vi.mocked(api.getRefinerHint).mockResolvedValue(null);
+    vi.mocked(api.discoverLocalEndpoints).mockResolvedValue([]);
     vi.mocked(api.createProvider).mockResolvedValue(provider("new"));
     vi.mocked(api.updateProvider).mockResolvedValue(provider("upd"));
     vi.mocked(api.deleteProvider).mockResolvedValue(true);

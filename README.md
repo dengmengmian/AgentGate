@@ -28,17 +28,17 @@
   <img src="docs/demo-header-v2.gif" width="800" alt="AgentGate intercepts requests from Claude Code, Codex, and Gemini CLI at a local gateway — converting, passing through, routing, or failing over to 26 providers, with every request traced live">
 </p>
 
-> **New in v1.5.1 — Kimi K3:** Built-in support for Moonshot Kimi K3 (`kimi-k3` / Code `k3`, 1M context), highspeed coding models, correct `reasoning_effort: max`, and automatic routing for `sk-kimi-…` membership keys to the Kimi Code endpoint. [See the v1.5.1 release notes](./docs/release-notes/1.5.1.md).
+> **New in v1.6.0 — Session affinity, budget gate, local models:** Stick multi-turn chats to one upstream, cap daily spend (notify / block / force cheapest), Diff raw vs converted request bodies with redacted repro export, and one-click scan for Ollama / LM Studio. [See the v1.6.0 release notes](./docs/release-notes/1.6.0.md) · [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate.md) · [Local models](./docs/use-local-models-with-agentgate.md).
 
 ## Download
 
 | Your machine | Download |
 |---|---|
-| macOS Apple Silicon | [AgentGate_1.5.1_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.5.1/AgentGate_1.5.1_aarch64.dmg) |
-| macOS Intel | [AgentGate_1.5.1_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.5.1/AgentGate_1.5.1_x64.dmg) |
-| Windows 10 / 11 | [AgentGate_1.5.1_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.5.1/AgentGate_1.5.1_x64-setup.exe) |
-| Debian / Ubuntu | [AgentGate_1.5.1_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.5.1/AgentGate_1.5.1_amd64.deb) |
-| Other Linux distros | [AgentGate_1.5.1_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.5.1/AgentGate_1.5.1_amd64.AppImage) |
+| macOS Apple Silicon | [AgentGate_1.6.0_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_aarch64.dmg) |
+| macOS Intel | [AgentGate_1.6.0_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_x64.dmg) |
+| Windows 10 / 11 | [AgentGate_1.6.0_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_x64-setup.exe) |
+| Debian / Ubuntu | [AgentGate_1.6.0_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_amd64.deb) |
+| Other Linux distros | [AgentGate_1.6.0_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_amd64.AppImage) |
 
 **Windows install note:** Edge/Chrome may say the file is “usually not downloaded,” and SmartScreen may show **Windows protected your PC**. That is expected: the installer is not Authenticode-signed. There is no free, widely trusted Windows code-signing certificate (Let’s Encrypt only covers HTTPS, not `.exe`), so open-source builds often ship unsigned — this is **not** a virus report. Download only from [GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases). In the browser choose **Keep** / **Keep anyway**, then when SmartScreen appears click **More info** → **Run anyway**.
 

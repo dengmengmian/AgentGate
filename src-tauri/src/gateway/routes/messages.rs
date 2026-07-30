@@ -93,6 +93,8 @@ pub async fn handle_messages(
 ) -> Result<Response, GatewayError> {
     let body = request_body_or_gateway_error(body)?;
     validate_auth(&headers)?;
+    let force_cheapest =
+        crate::gateway::budget::check_new_request(&state.db).map_err(GatewayError)?;
     let start = Instant::now();
     let request_id = format!(
         "req_{}",
@@ -147,17 +149,29 @@ pub async fn handle_messages(
         GatewayError(e)
     })?;
 
-    // 带图请求跳过显式不支持 vision 的 provider(与 /v1/responses 对齐)。
-    // messages 入口无 failover 循环、直接用 selection.provider,故在此就近用统一排序
-    // 选出支持 vision 的候选替换掉选中的 provider/model。
-    if anthropic_request_has_images(&body) {
-        let is_failover = selection.mode == "failover" && selection.candidates.len() > 1;
+    // 会话亲和 + vision 过滤：messages 入口无完整 failover 循环，用统一排序
+    // 选出队首候选替换 selection.provider（与 /v1/chat 粘住 cache-hit 上游一致）。
+    if force_cheapest {
+        let _ = crate::gateway::budget::apply_force_cheapest(&state.db, &mut selection);
+    }
+    let body_json: serde_json::Value =
+        serde_json::from_str(&body).unwrap_or_else(|_| serde_json::json!({}));
+    let session_id = crate::gateway::session_affinity::derive_from_anthropic_body(&body_json);
+    // force_cheapest 时禁用亲和重排，避免把贵上游提到队首。
+    let affinity_sid = if force_cheapest {
+        None
+    } else {
+        session_id.as_deref()
+    };
+    let request_has_images = anthropic_request_has_images(&body);
+    let is_failover = selection.mode == "failover" && selection.candidates.len() > 1;
+    if request_has_images || affinity_sid.is_some() || is_failover || force_cheapest {
         let order = crate::gateway::failover::build_attempt_order(
             &selection.candidates,
             &selection.provider.id,
             is_failover,
-            true,
-            None,
+            request_has_images,
+            affinity_sid,
         );
         if let Some(top) = order.first() {
             if top.provider_id != selection.provider.id {
@@ -209,6 +223,8 @@ pub async fn handle_messages(
                 start,
                 &client_type,
                 Some(&headers),
+                session_id.as_deref(),
+                Some(selection.provider.id.as_str()),
             )
             .await
             .map_err(|e| {
@@ -322,6 +338,8 @@ pub async fn handle_messages(
             converted_json,
             start,
             client_type,
+            session_id,
+            selection.provider.id.clone(),
         )
         .await;
     }
@@ -338,6 +356,15 @@ pub async fn handle_messages(
                 .get("usage")
                 .map(crate::storage::request_logs::extract_cache_tokens)
                 .unwrap_or((None, None));
+            if let Some(ref sid) = session_id {
+                if let Some(usage) = upstream_json.get("usage") {
+                    crate::gateway::session_affinity::record_if_cache_hit(
+                        sid,
+                        &selection.provider.id,
+                        usage,
+                    );
+                }
+            }
             let trace = trace_with_degradation_events(
                 json!({"mode": "transform", "protocol": "anthropic_messages", "stream": false}),
                 &chat_req.diagnostic_events,
@@ -399,6 +426,8 @@ async fn handle_anthropic_fallback_stream(
     mut converted_request: String,
     start: Instant,
     client_type: String,
+    session_id: Option<String>,
+    provider_id: String,
 ) -> Result<Response, GatewayError> {
     use futures::StreamExt;
 
@@ -454,6 +483,8 @@ async fn handle_anthropic_fallback_stream(
     let model_clone = model.clone();
     let client_type_owned = client_type.clone();
     let diagnostic_events = chat_req.diagnostic_events.clone();
+    let session_id_owned = session_id;
+    let provider_id_owned = provider_id;
 
     tokio::spawn(async move {
         use crate::transform::chat_to_anthropic_stream::ChatToAnthropicStream;
@@ -583,6 +614,9 @@ async fn handle_anthropic_fallback_stream(
             .as_ref()
             .map(crate::storage::request_logs::extract_cache_tokens)
             .unwrap_or((None, None));
+        if let (Some(sid), Some(usage)) = (session_id_owned.as_deref(), final_usage_json.as_ref()) {
+            crate::gateway::session_affinity::record_if_cache_hit(sid, &provider_id_owned, usage);
+        }
         let trace = trace_with_degradation_events(
             json!({"mode": "transform", "protocol": "anthropic_messages", "stream": true}),
             &diagnostic_events,

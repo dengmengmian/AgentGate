@@ -10,6 +10,8 @@ mod gemini;
 mod kimi;
 mod mimo;
 mod minimax;
+#[cfg(test)]
+mod quirk_matrix;
 mod sensenova;
 
 pub use anthropic::AnthropicProvider;

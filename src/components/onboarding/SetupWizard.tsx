@@ -50,6 +50,14 @@ export function SetupWizard({ onComplete }: Props) {
   } | null>(null);
   const [tools, setTools] = useState<ToolDetection[]>([]);
   const [setupLog, setSetupLog] = useState<SetupLogEntry[]>([]);
+  /** Completion criteria: gateway + provider + (≥1 client if any selected). Probe failure must not green. */
+  const [criteria, setCriteria] = useState({
+    provider: false,
+    gateway: false,
+    client: false,
+    probeOk: true,
+    hadClientTarget: false,
+  });
 
   const quickProviderTypes = PROVIDER_TYPES.filter(
     (tp) => PROVIDER_PRESETS[tp.value]
@@ -58,6 +66,14 @@ export function SetupWizard({ onComplete }: Props) {
   const selectProvider = (type: string) => {
     const label = PROVIDER_TYPES.find((tp) => tp.value === type)?.label ?? type;
     setDetectedProvider(type ? { type, name: label } : null);
+  };
+
+  const applyScenario = (scenario: "codex_deepseek" | "claude_chat") => {
+    if (scenario === "codex_deepseek") {
+      selectProvider("deepseek");
+    } else {
+      selectProvider("deepseek");
+    }
   };
 
   // Step 1: detect provider from key
@@ -166,6 +182,8 @@ export function SetupWizard({ onComplete }: Props) {
   const handleSetup = async () => {
     setStep("setup");
     const log: typeof setupLog = [];
+    const checkedTools = tools.filter((tl) => tl.checked);
+    const hadClientTarget = checkedTools.length > 0;
     const addLog = (
       label: string,
       status: "pending" | "running" | "ok" | "error",
@@ -225,25 +243,53 @@ export function SetupWizard({ onComplete }: Props) {
       }
     } catch {
       addLog(t("onboarding.creating_provider"), "error");
+      setCriteria({
+        provider: false,
+        gateway: false,
+        client: false,
+        probeOk: false,
+        hadClientTarget,
+      });
       setStep("done");
       return;
     }
+    // Reachable only if create succeeded (failure returns above).
+    const providerOk = true;
 
     // 2. Start gateway
     addLog(t("onboarding.starting_gateway"), "running");
+    let gatewayOk = false;
     try {
       await api.startGateway();
       addLog(t("onboarding.starting_gateway"), "ok");
+      gatewayOk = true;
     } catch {
-      // Maybe already running
-      addLog(t("onboarding.starting_gateway"), "ok");
+      // Maybe already running — verify status
+      try {
+        const st = await api.getGatewayStatus();
+        if (st.running) {
+          addLog(t("onboarding.starting_gateway"), "ok");
+          gatewayOk = true;
+        } else {
+          addLog(t("onboarding.starting_gateway"), "error", "not running");
+        }
+      } catch {
+        addLog(t("onboarding.starting_gateway"), "error");
+      }
     }
 
     // Small delay for gateway to be ready
     await new Promise((r) => setTimeout(r, 500));
 
-    // 3. Apply tool configs
-    const checkedTools = tools.filter((t) => t.checked);
+    // 3. Apply tool configs — B4.1 要求至少成功 apply 一个客户端，未勾选不算完成。
+    let anyClientOk = false;
+    if (!hadClientTarget) {
+      addLog(
+        t("onboarding.configuring") + " client",
+        "error",
+        "Select and apply at least one client"
+      );
+    }
     for (const tool of checkedTools) {
       addLog(`${t("onboarding.configuring")} ${tool.name}`, "running");
       try {
@@ -265,13 +311,16 @@ export function SetupWizard({ onComplete }: Props) {
             break;
         }
         addLog(`${t("onboarding.configuring")} ${tool.name}`, "ok");
+        anyClientOk = true;
       } catch {
         addLog(`${t("onboarding.configuring")} ${tool.name}`, "error");
       }
     }
+    const clientOk = hadClientTarget && anyClientOk;
 
-    // 4. Test connection
+    // 4. Test connection — failure must not silently green
     addLog(t("onboarding.testing"), "running");
+    let probeOk: boolean;
     try {
       const test = await api.testToolConnection();
       const detail = test.provider_ok
@@ -282,25 +331,54 @@ export function SetupWizard({ onComplete }: Props) {
         test.provider_ok ? "ok" : "error",
         detail
       );
+      probeOk = !!test.provider_ok;
     } catch (err) {
       addLog(
         t("onboarding.testing"),
         "error",
         err instanceof Error ? err.message : String(err)
       );
+      probeOk = false;
     }
 
+    setCriteria({
+      provider: providerOk,
+      gateway: gatewayOk,
+      client: clientOk,
+      probeOk,
+      hadClientTarget,
+    });
     setStep("done");
   };
 
-  const allOk = setupLog.length > 0 && setupLog.every((l) => l.status === "ok");
-  const hasErrors = setupLog.some((l) => l.status === "error");
+  // Complete only when gateway + provider + ≥1 client applied + probe ok.
+  const setupComplete =
+    criteria.provider &&
+    criteria.gateway &&
+    criteria.hadClientTarget &&
+    criteria.client &&
+    criteria.probeOk;
+  const allOk =
+    setupComplete &&
+    setupLog.length > 0 &&
+    setupLog.every((l) => l.status === "ok");
+  const hasErrors =
+    setupLog.some((l) => l.status === "error") || !setupComplete;
+  const primaryFailureCta = !criteria.provider
+    ? "providers"
+    : !criteria.gateway
+      ? "retry"
+      : !criteria.hadClientTarget || !criteria.client
+        ? "clients"
+        : !criteria.probeOk
+          ? "logs"
+          : "retry";
   const goToClients = () => {
-    onComplete();
+    if (setupComplete) onComplete();
     navigate("/tools");
   };
   const closeToOverview = () => {
-    onComplete();
+    if (setupComplete) onComplete();
     navigate("/");
   };
 
@@ -342,6 +420,28 @@ export function SetupWizard({ onComplete }: Props) {
                 {t("onboarding.detected")} {detectedProvider.name}
               </div>
             )}
+
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-text-secondary">
+                {t("onboarding.scenario_title")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="btn-secondary text-[11px]"
+                  onClick={() => applyScenario("codex_deepseek")}
+                >
+                  {t("onboarding.scenario_codex_deepseek")}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary text-[11px]"
+                  onClick={() => applyScenario("claude_chat")}
+                >
+                  {t("onboarding.scenario_claude_chat")}
+                </button>
+              </div>
+            </div>
 
             {apiKey.trim() && (
               <div className="space-y-1.5">
@@ -502,7 +602,7 @@ export function SetupWizard({ onComplete }: Props) {
 
             {step === "done" && (
               <div className="space-y-4">
-                {allOk ? (
+                {setupComplete ? (
                   <div className="rounded-lg border border-success/30 bg-success-soft p-3">
                     <p className="text-xs font-medium text-success">
                       {t("onboarding.next_step_title")}
@@ -514,7 +614,7 @@ export function SetupWizard({ onComplete }: Props) {
                 ) : (
                   <div className="rounded-lg border border-warning/30 bg-warning-soft p-3">
                     <p className="text-xs font-medium text-warning">
-                      {t("onboarding.recovery_title")}
+                      {t("onboarding.incomplete")}
                     </p>
                     <p className="mt-1 text-[11px] leading-relaxed text-text-secondary">
                       {t("onboarding.recovery_desc")}
@@ -524,25 +624,57 @@ export function SetupWizard({ onComplete }: Props) {
                 <div className="flex flex-wrap justify-end gap-2">
                   {hasErrors && (
                     <>
+                      {primaryFailureCta === "retry" && (
+                        <button onClick={handleSetup} className="btn-primary">
+                          {t("onboarding.next_retry")}
+                        </button>
+                      )}
+                      {primaryFailureCta === "providers" && (
+                        <button
+                          onClick={() => {
+                            navigate("/providers");
+                          }}
+                          className="btn-primary"
+                        >
+                          {t("onboarding.next_providers")}
+                        </button>
+                      )}
+                      {primaryFailureCta === "clients" && (
+                        <button onClick={goToClients} className="btn-primary">
+                          {t("onboarding.next_clients")}
+                        </button>
+                      )}
+                      {primaryFailureCta === "logs" && (
+                        <button
+                          onClick={() => navigate("/logs")}
+                          className="btn-primary"
+                        >
+                          {t("onboarding.next_logs")}
+                        </button>
+                      )}
                       <button
                         onClick={() => setStep("key")}
                         className="btn-secondary"
                       >
                         {t("onboarding.edit_key")}
                       </button>
-                      <button onClick={handleSetup} className="btn-secondary">
-                        {t("onboarding.retry")}
+                    </>
+                  )}
+                  {setupComplete && (
+                    <>
+                      <button
+                        onClick={closeToOverview}
+                        className="btn-secondary"
+                      >
+                        {t("onboarding.back_to_overview")}
+                      </button>
+                      <button onClick={goToClients} className="btn-primary">
+                        {allOk
+                          ? t("onboarding.go_to_clients")
+                          : t("onboarding.review_clients")}
                       </button>
                     </>
                   )}
-                  <button onClick={closeToOverview} className="btn-secondary">
-                    {t("onboarding.back_to_overview")}
-                  </button>
-                  <button onClick={goToClients} className="btn-primary">
-                    {allOk
-                      ? t("onboarding.go_to_clients")
-                      : t("onboarding.review_clients")}
-                  </button>
                 </div>
               </div>
             )}
