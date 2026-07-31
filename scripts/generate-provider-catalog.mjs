@@ -17,6 +17,8 @@ function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
+const KNOWN_PROTOCOLS = ["openai_chat_completions", "openai_responses", "anthropic_messages"];
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);
@@ -60,6 +62,34 @@ function validateProvider(provider, file) {
   }
   for (const id of provider.supportedModels) {
     assert(typeof id === "string", `${file}: supported model ids must be strings`);
+  }
+  for (const protocol of provider.protocols) {
+    assert(KNOWN_PROTOCOLS.includes(protocol), `${file}: unknown protocol ${protocol}`);
+  }
+  if (provider.protocols.includes("openai_responses")) {
+    assert(
+      typeof provider.endpoints?.responsesBaseUrl === "string" && provider.endpoints.responsesBaseUrl,
+      `${file}: openai_responses requires endpoints.responsesBaseUrl`,
+    );
+  }
+  // responsesModels / responsesCustomTools 声明的是「上游 Responses API 能吃下
+  // 什么」,与我们默不默认走直通无关 —— 用户手动填 responses base URL 时,网关
+  // 靠这两张表决定该直通还是回落,所以不要求 protocols 里有 openai_responses。
+  if (provider.responsesCustomTools !== undefined) {
+    assert(
+      Array.isArray(provider.responsesCustomTools),
+      `${file}: responsesCustomTools must be an array`,
+    );
+  }
+  if (provider.responsesModels !== undefined) {
+    assert(
+      Array.isArray(provider.responsesModels) && provider.responsesModels.length > 0,
+      `${file}: responsesModels must be a non-empty array`,
+    );
+    const known = new Set([...provider.supportedModels, ...provider.models.map((model) => model.id)]);
+    for (const id of provider.responsesModels) {
+      assert(known.has(id), `${file}: responsesModels entry ${id} is not a known model`);
+    }
   }
   for (const model of provider.models) {
     assert(typeof model.id === "string" && model.id, `${file}: model id is required`);
@@ -168,6 +198,20 @@ function renderRust(providers) {
         ${rustStr(urls.anthropicBaseUrl)},
     ),`)
     .join("\n");
+  const responsesModelTuples = providers
+    .filter((provider) => provider.responsesModels)
+    .map((provider) => `    (
+        ${rustStr(provider.type)},
+        ${rustStringArrayMultiline(provider.responsesModels, "        ")},
+    ),`)
+    .join("\n");
+  const responsesCustomToolTuples = providers
+    .filter((provider) => provider.responsesCustomTools)
+    .map((provider) => `    (
+        ${rustStr(provider.type)},
+        ${rustStringArrayMultiline(provider.responsesCustomTools, "        ")},
+    ),`)
+    .join("\n");
   const capabilityTuples = providers
     .flatMap((provider) => provider.models
       .filter((model) => model.capabilities)
@@ -225,6 +269,21 @@ pub const DEEPSEEK_BASE_URL: &str = ${rustStr(byType.deepseek.endpoints.baseUrl)
 pub const DEEPSEEK_ANTHROPIC_URL: &str = ${rustStr(byType.deepseek.endpoints.anthropicBaseUrl)};
 pub const DEEPSEEK_REASONING_MODEL: &str = ${rustStr(byType.deepseek.reasoningModel)};
 pub const DEEPSEEK_SUPPORTED_MODELS_JSON: &str = ${rustStr(JSON.stringify(byType.deepseek.supportedModels))};
+
+/// Models that can be passed through natively to the provider's Responses API.
+/// A provider listed here is restricted to these models; providers absent from
+/// this table have no restriction.
+pub const RESPONSES_NATIVE_MODELS: &[(&str, &[&str])] = &[
+${responsesModelTuples}
+];
+
+/// Custom tools (\`{"type":"custom"}\`) the provider's Responses API accepts.
+/// A request carrying any other custom tool is rejected upstream, so it must
+/// fall back to the conversion path. Providers absent from this table are
+/// assumed to accept anything.
+pub const RESPONSES_NATIVE_CUSTOM_TOOLS: &[(&str, &[&str])] = &[
+${responsesCustomToolTuples}
+];
 
 pub const MODEL_CAPABILITIES: &[(&str, &str, &[&str])] = &[
 ${capabilityTuples}

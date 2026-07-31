@@ -557,11 +557,14 @@ fn with_route_decision(
 /// usage 做 token/成本统计——不碰转发、解析失败返回 None 保持现状。
 fn parse_chat_usage(sse_tail: &str) -> Option<(i64, i64)> {
     let usage = parse_chat_usage_value(sse_tail)?;
+    // Chat Completions 用 prompt_/completion_tokens,Responses 用 input_/output_tokens。
     let inp = usage
         .get("prompt_tokens")
+        .or_else(|| usage.get("input_tokens"))
         .and_then(serde_json::Value::as_i64);
     let out = usage
         .get("completion_tokens")
+        .or_else(|| usage.get("output_tokens"))
         .and_then(serde_json::Value::as_i64);
     if inp.is_some() || out.is_some() {
         Some((inp.unwrap_or(0), out.unwrap_or(0)))
@@ -581,7 +584,12 @@ fn parse_chat_usage_value(sse_tail: &str) -> Option<serde_json::Value> {
             continue;
         }
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(data) {
-            if let Some(usage) = v.get("usage").filter(|u| !u.is_null()) {
+            // Chat 的 usage 在帧顶层;Responses 的在 response.completed 帧的 response 下。
+            if let Some(usage) = v
+                .get("usage")
+                .or_else(|| v.pointer("/response/usage"))
+                .filter(|u| !u.is_null())
+            {
                 return Some(usage.clone());
             }
         }
@@ -1030,6 +1038,22 @@ mod tests {
     fn parse_usage_none_when_all_null() {
         let sse = "data: {\"usage\":null}\n\ndata: [DONE]\n\n";
         assert_eq!(parse_chat_usage(sse), None);
+    }
+
+    // Responses API 直通：usage 在 response.completed 帧的 `response.usage` 下,
+    // 字段名是 input_tokens / output_tokens（不是 Chat 的 prompt_/completion_）。
+    #[test]
+    fn parse_usage_reads_responses_completed_frame() {
+        let sse = "event: response.created\n\
+                   data: {\"type\":\"response.created\",\"response\":{\"usage\":null}}\n\n\
+                   event: response.completed\n\
+                   data: {\"type\":\"response.completed\",\"response\":{\"usage\":{\"input_tokens\":88,\"input_tokens_details\":{\"cached_tokens\":64},\"output_tokens\":17,\"output_tokens_details\":{\"reasoning_tokens\":15},\"total_tokens\":105}}}\n\n";
+        assert_eq!(parse_chat_usage(sse), Some((88, 17)));
+        let usage = parse_chat_usage_value(sse).expect("usage value");
+        assert_eq!(
+            usage.pointer("/input_tokens_details/cached_tokens"),
+            Some(&serde_json::json!(64))
+        );
     }
 
     #[test]

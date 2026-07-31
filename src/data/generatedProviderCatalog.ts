@@ -157,6 +157,8 @@ export const GENERATED_PROVIDER_CATALOG = {
       baseUrl: "https://api.deepseek.com",
       anthropicBaseUrl: "https://api.deepseek.com/anthropic",
     },
+    responsesModels: ["deepseek-v4-flash"],
+    responsesCustomTools: ["apply_patch"],
     defaultModel: "deepseek-v4-flash",
     reasoningModel: "deepseek-v4-pro",
     recommendedMapping: {

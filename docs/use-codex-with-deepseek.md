@@ -44,6 +44,47 @@ Codex -> http://127.0.0.1:9090/v1/responses -> AgentGate -> DeepSeek
 
 你不需要长期手改 Codex 配置文件，也不需要在 DeepSeek、MiMo、OpenAI 等 Provider 之间来回改模型名。AgentGate 会通过 Provider、Route Profile、Model Mapping 和 `agentgate` 虚拟模型处理这些差异。
 
+## Why AgentGate does not pass through to DeepSeek's Responses API
+
+`deepseek-v4-flash` officially supports the Responses API, so in principle Codex could talk to it without any conversion. In practice direct pass-through produces noticeably worse results, so AgentGate ships no Responses endpoint for DeepSeek and keeps converting Codex's Responses requests into Chat Completions.
+
+Four reasons, all reproducible:
+
+**1. Every tool is dropped, and the model starts fabricating tool calls.**
+Codex gpt-5.6+ puts tool definitions in an `additional_tools` item inside the `input` array rather than in top-level `tools`. DeepSeek only reads top-level `tools`, so on a direct connection it sees no tools at all. The model knows it is supposed to call one, has no usable definition, and emits raw DSML markup into its answer instead:
+
+```text
+<|DSML|tool_calls>
+<|DSML|invoke name="exec_command">
+<|DSML|parameter name="cmd" string="true">cat README.md</|DSML|parameter>
+```
+
+Codex cannot parse that, so the model appears to be talking nonsense.
+
+**2. Codex's `exec` tool is rejected outright.**
+DeepSeek's Responses API accepts exactly one custom tool, `apply_patch`. Anything else returns 400:
+
+```text
+Unsupported custom tool: 'exec'. Only 'apply_patch' is supported.
+```
+
+Codex always sends `exec`, so even with the tools intact a direct connection fails.
+
+**3. Reasoning continuity breaks silently across turns.**
+Codex sends `include: ["reasoning.encrypted_content"]` on every turn to carry the previous reasoning chain forward. DeepSeek does not support `include` or `encrypted_content` and **ignores them silently** — no error, every turn simply starts from scratch. The conversion path compensates with DeepSeek V4 thinking-history backfill; pass-through has no such compensation.
+
+**4. Pass-through skips all DeepSeek-specific handling.**
+Image stripping with an explicit notice, schema cleaning, message reordering, and V4 thinking-history reasoning backfill all live on the conversion path. Going direct means giving up every one of them.
+
+### If you still want to pass through
+
+Fill in a Responses endpoint on the provider and the gateway will try. To keep the problems above from wasting requests, two gates are built in — hitting either one falls back to protocol conversion:
+
+- The target model is not on the upstream Responses API's supported list (DeepSeek: `deepseek-v4-flash` only).
+- The request carries a custom tool the upstream does not accept (DeepSeek: `apply_patch` only).
+
+In other words, Codex falls back to conversion even with a pass-through endpoint configured. That is deliberate and no further handling is planned.
+
 ## Troubleshooting
 
 | Symptom | Check |

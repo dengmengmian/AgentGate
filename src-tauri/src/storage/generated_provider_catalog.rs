@@ -29,6 +29,17 @@ pub const DEEPSEEK_ANTHROPIC_URL: &str = "https://api.deepseek.com/anthropic";
 pub const DEEPSEEK_REASONING_MODEL: &str = "deepseek-v4-pro";
 pub const DEEPSEEK_SUPPORTED_MODELS_JSON: &str = "[\"deepseek-v4-flash\",\"deepseek-v4-pro\"]";
 
+/// Models that can be passed through natively to the provider's Responses API.
+/// A provider listed here is restricted to these models; providers absent from
+/// this table have no restriction.
+pub const RESPONSES_NATIVE_MODELS: &[(&str, &[&str])] = &[("deepseek", &["deepseek-v4-flash"])];
+
+/// Custom tools (`{"type":"custom"}`) the provider's Responses API accepts.
+/// A request carrying any other custom tool is rejected upstream, so it must
+/// fall back to the conversion path. Providers absent from this table are
+/// assumed to accept anything.
+pub const RESPONSES_NATIVE_CUSTOM_TOOLS: &[(&str, &[&str])] = &[("deepseek", &["apply_patch"])];
+
 pub const MODEL_CAPABILITIES: &[(&str, &str, &[&str])] = &[
     (
         "mimo",

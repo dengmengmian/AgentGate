@@ -34,11 +34,11 @@
 
 | Your machine | Download |
 |---|---|
-| macOS Apple Silicon | [AgentGate_1.6.0_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_aarch64.dmg) |
-| macOS Intel | [AgentGate_1.6.0_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_x64.dmg) |
-| Windows 10 / 11 | [AgentGate_1.6.0_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_x64-setup.exe) |
-| Debian / Ubuntu | [AgentGate_1.6.0_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_amd64.deb) |
-| Other Linux distros | [AgentGate_1.6.0_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.0/AgentGate_1.6.0_amd64.AppImage) |
+| macOS Apple Silicon | [AgentGate_1.6.1_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_aarch64.dmg) |
+| macOS Intel | [AgentGate_1.6.1_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_x64.dmg) |
+| Windows 10 / 11 | [AgentGate_1.6.1_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_x64-setup.exe) |
+| Debian / Ubuntu | [AgentGate_1.6.1_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_amd64.deb) |
+| Other Linux distros | [AgentGate_1.6.1_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_amd64.AppImage) |
 
 **Windows install note:** Edge/Chrome may say the file is “usually not downloaded,” and SmartScreen may show **Windows protected your PC**. That is expected: the installer is not Authenticode-signed. There is no free, widely trusted Windows code-signing certificate (Let’s Encrypt only covers HTTPS, not `.exe`), so open-source builds often ship unsigned — this is **not** a virus report. Download only from [GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases). In the browser choose **Keep** / **Keep anyway**, then when SmartScreen appears click **More info** → **Run anyway**.
 

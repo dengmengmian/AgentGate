@@ -31,6 +31,60 @@ use anthropic::*;
 use chat::*;
 use gemini::*;
 
+/// Whether a request may be passed through to the provider's native Responses
+/// API. Providers listed in `RESPONSES_NATIVE_MODELS` only support a subset of
+/// their models there (DeepSeek: `deepseek-v4-flash` only), and none of them
+/// accept images natively — those requests fall back to the Responses→Chat
+/// conversion path, which strips images with an explicit notice. Providers
+/// absent from the table (OpenAI) keep the previous unrestricted behaviour.
+///
+/// 工具同理：DeepSeek 的 Responses API 只接受 `apply_patch` 这一个 custom 工具,
+/// 其它一律 400（实测 `{"type":"custom","name":"exec"}` → "Unsupported custom
+/// tool"）。Codex gpt-5.6+ 就会发 `exec`,所以带不支持的 custom 工具时必须回落
+/// 到转换路径,而不是直通过去挨 400。
+fn native_responses_allowed(
+    provider_type: &str,
+    model: &str,
+    has_images: bool,
+    tools: Option<&[Value]>,
+) -> bool {
+    use crate::storage::generated_provider_catalog as catalog;
+    let Some((_, models)) = catalog::RESPONSES_NATIVE_MODELS
+        .iter()
+        .find(|(ty, _)| *ty == provider_type)
+    else {
+        return true;
+    };
+    if has_images || !models.contains(&model) {
+        return false;
+    }
+    let Some((_, allowed)) = catalog::RESPONSES_NATIVE_CUSTOM_TOOLS
+        .iter()
+        .find(|(ty, _)| *ty == provider_type)
+    else {
+        return true;
+    };
+    !tools.unwrap_or(&[]).iter().any(|tool| {
+        tool.get("type").and_then(Value::as_str) == Some("custom")
+            && tool
+                .get("name")
+                .and_then(Value::as_str)
+                .is_none_or(|name| !allowed.contains(&name))
+    })
+}
+
+/// The model that `pass_through::handle` will actually send upstream:
+/// explicit override (model_mapping / virtual model) > client model > provider default.
+fn native_pass_through_model<'a>(
+    model_override: Option<&'a str>,
+    requested: Option<&'a str>,
+    default_model: &'a str,
+) -> &'a str {
+    model_override
+        .or_else(|| requested.filter(|m| !m.trim().is_empty()))
+        .unwrap_or(default_model)
+}
+
 // ── POST /v1/responses ─────────────────────────────────────────
 
 pub async fn handle_responses(
@@ -87,6 +141,15 @@ pub async fn handle_responses(
     // Codex gpt-5.6+ 把工具放在 input 的 additional_tools 项里,提升到顶层
     // tools,让下游 chat/anthropic/gemini 转换无感支持(否则工具整批丢失)。
     req.hoist_additional_tools();
+    // 原生直通转发的是 body 原文,结构体上的提升对它无效 —— 同一份提升要落到
+    // body 上,否则上游看不到任何工具,模型只会在正文里编造工具调用。
+    let body = match serde_json::from_str::<Value>(&body) {
+        Ok(mut v) => {
+            crate::protocol::openai_responses::hoist_additional_tools_in_body(&mut v);
+            v.to_string()
+        }
+        Err(_) => body,
+    };
 
     // 2. Select provider via route profile (with failover candidates)
     let mut selection = crate::gateway::provider_selector::select_for_failover(
@@ -165,11 +228,23 @@ pub async fn handle_responses(
 
         let model = candidate.model.clone();
 
-        let result = if config.has_responses_url() {
+        let model_override = native_model_override(&provider, req.model.as_deref(), Some(&model));
+        let native_model = native_pass_through_model(
+            model_override.as_deref(),
+            req.model.as_deref(),
+            &config.default_model,
+        );
+        let native_responses = config.has_responses_url()
+            && native_responses_allowed(
+                &provider.provider_type,
+                native_model,
+                request_has_images,
+                req.tools.as_deref(),
+            );
+
+        let result = if native_responses {
             // Pass-through: provider has explicit Responses API endpoint
             let target_url = config.responses_url();
-            let model_override =
-                native_model_override(&provider, req.model.as_deref(), Some(&model));
             crate::gateway::pass_through::handle(
                 &state.http_client,
                 &state.db,
@@ -448,6 +523,115 @@ mod tests {
     use super::*;
     use crate::protocol::chat_completions::{CompletionChoice, CompletionMessage};
     use serde_json::json;
+
+    // ── native Responses pass-through gating ──────────────────────
+
+    #[test]
+    fn native_responses_allowed_for_whitelisted_model() {
+        assert!(native_responses_allowed(
+            "deepseek",
+            "deepseek-v4-flash",
+            false,
+            None
+        ));
+    }
+
+    #[test]
+    fn native_responses_blocked_for_unlisted_model_of_restricted_provider() {
+        // deepseek-v4-pro has no Responses API support yet → must fall back
+        // to the Responses→Chat conversion path instead of passing through.
+        assert!(!native_responses_allowed(
+            "deepseek",
+            "deepseek-v4-pro",
+            false,
+            None
+        ));
+    }
+
+    #[test]
+    fn native_responses_blocked_for_image_request_of_restricted_provider() {
+        assert!(!native_responses_allowed(
+            "deepseek",
+            "deepseek-v4-flash",
+            true,
+            None
+        ));
+    }
+
+    // Codex gpt-5.6+ 发的 `exec` 是 custom 工具,DeepSeek 只收 apply_patch,
+    // 直通会被上游 400 —— 必须回落到转换路径。
+    #[test]
+    fn native_responses_blocked_for_unsupported_custom_tool() {
+        let tools = vec![
+            json!({"type": "function", "name": "shell"}),
+            json!({"type": "custom", "name": "exec"}),
+        ];
+        assert!(!native_responses_allowed(
+            "deepseek",
+            "deepseek-v4-flash",
+            false,
+            Some(&tools)
+        ));
+    }
+
+    #[test]
+    fn native_responses_allows_supported_custom_tool() {
+        let tools = vec![
+            json!({"type": "function", "name": "shell"}),
+            json!({"type": "custom", "name": "apply_patch"}),
+        ];
+        assert!(native_responses_allowed(
+            "deepseek",
+            "deepseek-v4-flash",
+            false,
+            Some(&tools)
+        ));
+    }
+
+    #[test]
+    fn native_responses_custom_tool_rule_skips_unrestricted_provider() {
+        let tools = vec![json!({"type": "custom", "name": "exec"})];
+        assert!(native_responses_allowed(
+            "openai",
+            "gpt-5.6-terra",
+            false,
+            Some(&tools)
+        ));
+    }
+
+    #[test]
+    fn native_responses_unrestricted_provider_always_allowed() {
+        // Providers without a responsesModels entry keep the previous behaviour.
+        assert!(native_responses_allowed(
+            "openai",
+            "gpt-5.6-terra",
+            false,
+            None
+        ));
+        assert!(native_responses_allowed(
+            "openai",
+            "gpt-5.6-terra",
+            true,
+            None
+        ));
+    }
+
+    #[test]
+    fn native_pass_through_model_prefers_override_then_request_then_default() {
+        assert_eq!(
+            native_pass_through_model(Some("mapped"), Some("requested"), "default"),
+            "mapped"
+        );
+        assert_eq!(
+            native_pass_through_model(None, Some("requested"), "default"),
+            "requested"
+        );
+        assert_eq!(
+            native_pass_through_model(None, Some("  "), "default"),
+            "default"
+        );
+        assert_eq!(native_pass_through_model(None, None, "default"), "default");
+    }
 
     #[test]
     fn chat_non_stream_response_envelope_preserves_responses_metadata() {

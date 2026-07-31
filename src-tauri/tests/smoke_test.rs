@@ -410,14 +410,13 @@ async fn release_preflight_smoke() {
 
     for provider in &enabled {
         let res = test_provider_direct(&client, provider).await;
-        let ok = res.is_ok();
         match &res {
             Ok(_) => println!("   ✅ {} — direct ping ok", provider.name),
             Err(e) => println!("   ⚠️  {} — direct ping failed: {}", provider.name, e),
         }
         // Mark provider direct tests as non-fatal (network issues happen)
         let label = format!("provider_{}", provider.id);
-        results.push((label, ok || true, res.err()));
+        results.push((label, true, res.err()));
     }
 
     // ── 8. 3-主路覆盖测试（按 env 开关，未配置则 skip） ──────────────

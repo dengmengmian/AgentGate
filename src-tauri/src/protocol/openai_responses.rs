@@ -36,40 +36,66 @@ impl ResponsesRequest {
     /// `tools`，不提升则工具整批丢失，模型只能在正文里输出假 `<tool_call>`。
     /// 同名工具以顶层 `tools` 里已有的为准，不重复追加。
     pub fn hoist_additional_tools(&mut self) {
-        let Value::Array(items) = &mut self.input else {
-            return;
-        };
-
-        let mut hoisted: Vec<Value> = Vec::new();
-        items.retain(|item| {
-            let is_additional =
-                item.get("type").and_then(|t| t.as_str()) == Some("additional_tools");
-            if is_additional {
-                if let Some(Value::Array(tools)) = item.get("tools") {
-                    hoisted.extend(tools.iter().cloned());
-                }
-            }
-            !is_additional
-        });
+        let hoisted = take_additional_tools(&mut self.input);
         if hoisted.is_empty() {
             return;
         }
-
-        let tools = self.tools.get_or_insert_with(Vec::new);
-        let existing: std::collections::HashSet<&str> = tools
-            .iter()
-            .filter_map(|t| t.get("name").and_then(|n| n.as_str()))
-            .collect();
-        let fresh: Vec<Value> = hoisted
-            .into_iter()
-            .filter(|t| {
-                t.get("name")
-                    .and_then(|n| n.as_str())
-                    .is_none_or(|n| !existing.contains(n))
-            })
-            .collect();
-        tools.extend(fresh);
+        merge_tools(self.tools.get_or_insert_with(Vec::new), hoisted);
     }
+}
+
+/// 与 [`ResponsesRequest::hoist_additional_tools`] 同一套语义，但作用在**原始
+/// 请求 JSON** 上。原生直通把 body 原样转发给上游，结构体上的提升对它无效——
+/// 上游只认顶层 `tools`，不在 body 上做同样的提升就等于没带工具。
+/// 在 Value 上改而不是重新序列化结构体，是为了保住 client_metadata / include
+/// 这类结构体没有显式建模的字段。
+pub fn hoist_additional_tools_in_body(body: &mut Value) {
+    let Some(input) = body.get_mut("input") else {
+        return;
+    };
+    let hoisted = take_additional_tools(input);
+    if hoisted.is_empty() {
+        return;
+    }
+    let tools = match body.get_mut("tools") {
+        Some(Value::Array(existing)) => existing,
+        _ => {
+            body["tools"] = Value::Array(Vec::new());
+            body["tools"].as_array_mut().expect("just inserted")
+        }
+    };
+    merge_tools(tools, hoisted);
+}
+
+/// 摘出 input 数组里 `additional_tools` 项携带的工具，并把这些项从 input 移除。
+fn take_additional_tools(input: &mut Value) -> Vec<Value> {
+    let Value::Array(items) = input else {
+        return Vec::new();
+    };
+    let mut hoisted: Vec<Value> = Vec::new();
+    items.retain(|item| {
+        let is_additional = item.get("type").and_then(|t| t.as_str()) == Some("additional_tools");
+        if is_additional {
+            if let Some(Value::Array(tools)) = item.get("tools") {
+                hoisted.extend(tools.iter().cloned());
+            }
+        }
+        !is_additional
+    });
+    hoisted
+}
+
+/// 合并工具，同名以 `tools` 里已有的为准。
+fn merge_tools(tools: &mut Vec<Value>, hoisted: Vec<Value>) {
+    let existing: std::collections::HashSet<String> = tools
+        .iter()
+        .filter_map(|t| t.get("name").and_then(|n| n.as_str()).map(str::to_string))
+        .collect();
+    tools.extend(hoisted.into_iter().filter(|t| {
+        t.get("name")
+            .and_then(|n| n.as_str())
+            .is_none_or(|n| !existing.contains(n))
+    }));
 }
 
 #[cfg(test)]
@@ -167,6 +193,57 @@ mod tests {
         req.hoist_additional_tools();
         assert!(req.tools.is_none());
         assert_eq!(req.input, json!("hello"));
+    }
+
+    // ── 直通用的 body 级提升 ──────────────────────────────────────
+
+    #[test]
+    fn hoist_in_body_moves_tools_to_top_level_and_keeps_unmodeled_fields() {
+        let mut body = json!({
+            "model": "deepseek-v4-flash",
+            "client_metadata": {"session_id": "s1"},
+            "include": ["reasoning.encrypted_content"],
+            "input": [
+                {"type": "additional_tools", "role": "developer",
+                 "tools": [{"type": "function", "name": "shell"}]},
+                {"type": "message", "role": "user", "content": "hi"}
+            ]
+        });
+        hoist_additional_tools_in_body(&mut body);
+        assert_eq!(
+            body["tools"],
+            json!([{"type": "function", "name": "shell"}])
+        );
+        assert_eq!(body["input"].as_array().unwrap().len(), 1);
+        assert_eq!(body["input"][0]["type"], "message");
+        // 结构体没建模的字段必须原样保留,直通才是直通
+        assert_eq!(body["client_metadata"]["session_id"], "s1");
+        assert_eq!(body["include"], json!(["reasoning.encrypted_content"]));
+    }
+
+    #[test]
+    fn hoist_in_body_merges_with_existing_tools_without_duplicates() {
+        let mut body = json!({
+            "tools": [{"type": "function", "name": "shell", "description": "keep me"}],
+            "input": [
+                {"type": "additional_tools",
+                 "tools": [{"type": "function", "name": "shell", "description": "drop me"},
+                           {"type": "custom", "name": "apply_patch"}]}
+            ]
+        });
+        hoist_additional_tools_in_body(&mut body);
+        let tools = body["tools"].as_array().unwrap();
+        assert_eq!(tools.len(), 2);
+        assert_eq!(tools[0]["description"], "keep me");
+        assert_eq!(tools[1]["name"], "apply_patch");
+    }
+
+    #[test]
+    fn hoist_in_body_is_noop_without_additional_tools() {
+        let mut body = json!({"input": [{"type": "message", "role": "user", "content": "hi"}]});
+        let before = body.clone();
+        hoist_additional_tools_in_body(&mut body);
+        assert_eq!(body, before);
     }
 
     #[test]

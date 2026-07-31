@@ -44,6 +44,47 @@ Codex -> http://127.0.0.1:9090/v1/responses -> AgentGate -> DeepSeek
 
 你不需要长期手改 Codex 配置文件，也不需要在 DeepSeek、MiMo、OpenAI 等 Provider 之间来回改模型名。AgentGate 会通过 Provider、Route Profile、Model Mapping 和 `agentgate` 虚拟模型处理这些差异。
 
+## 为什么默认不直连 DeepSeek 的 Responses API
+
+`deepseek-v4-flash` 已经正式支持 Responses API，理论上 Codex 可以不经转换直连。但实测下来，直连的实际效果反而明显更差，所以 AgentGate 不为 DeepSeek 预置 Responses 端点，默认仍然把 Codex 的 Responses 请求转换成 Chat Completions。
+
+原因有四条，都可复现：
+
+**1. 工具会整批丢失，模型转而"编造"工具调用。**
+Codex gpt-5.6+ 把工具定义放在请求 `input` 数组的 `additional_tools` 项里，而不是顶层 `tools`。DeepSeek 只读顶层 `tools`，直连时它一个工具都看不到。模型知道自己应该调用工具，却拿不到可用的工具定义，于是在正文里输出裸的 DSML 标记当作调用：
+
+```text
+<|DSML|tool_calls>
+<|DSML|invoke name="exec_command">
+<|DSML|parameter name="cmd" string="true">cat README.md</|DSML|parameter>
+```
+
+Codex 解析不了这种正文内容，表现就是模型"开始胡说八道"。
+
+**2. Codex 的 `exec` 工具会被上游直接拒绝。**
+DeepSeek 的 Responses API 只接受一个自定义工具 `apply_patch`，其余一律返回 400：
+
+```text
+Unsupported custom tool: 'exec'. Only 'apply_patch' is supported.
+```
+
+Codex 必发 `exec`，因此即使工具没丢，直连也会被拒。
+
+**3. 跨轮思维链断掉，而且不报错。**
+Codex 每轮都会带 `include: ["reasoning.encrypted_content"]`，用于把上一轮的推理链带回下一轮。DeepSeek 明确不支持 `include` 与 `encrypted_content`，且是**静默忽略**——不报错，只是每轮推理都从零开始。转换路径里 AgentGate 会做 DeepSeek V4 thinking 历史回填来补偿，直连没有这层补偿。
+
+**4. 直连绕过全部 DeepSeek 专属处理。**
+图片剥离并注入可解释提示、schema 清洗、消息重排、V4 thinking 历史 reasoning 回填，这些都发生在转换路径上。直连意味着全部放弃。
+
+### 如果你仍然想直连
+
+在 Provider 里手动填 Responses 端点即可，网关会尝试直连。为避免上述问题把请求打废，网关内置两道判定，命中任意一条就自动回落到协议转换：
+
+- 目标模型不在上游 Responses API 的支持列表内（DeepSeek 目前仅 `deepseek-v4-flash`）。
+- 请求里带了上游不接受的自定义工具（DeepSeek 仅接受 `apply_patch`）。
+
+也就是说，Codex 即使配了直连端点，实际仍会走转换路径。这是有意为之，不做进一步处理。
+
 ## 排查
 
 | 现象 | 检查 |

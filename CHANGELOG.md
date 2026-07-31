@@ -1,5 +1,20 @@
 # Changelog / 更新日志
 
+## [1.6.1] - 2026-07-31
+
+### Fixed / 修复
+
+- **Responses pass-through dropped every tool / 原生 Responses 直通丢工具** —— Codex gpt-5.6+ puts tool definitions inside an `additional_tools` item in `input` instead of top-level `tools`. Pass-through forwards the raw body, but the hoist only ran on the parsed struct, so upstreams received no tools at all and the model fabricated tool calls in plain text. The same hoist now runs on the forwarded body. Codex gpt-5.6+ 把工具定义放在 `input` 的 `additional_tools` 项里而非顶层 `tools`；直通转发的是 body 原文，而提升只作用于解析后的结构体，导致上游收不到任何工具、模型在正文里编造工具调用。现在 body 上也做同样提升。
+- **Responses pass-through token accounting / 原生 Responses 直通用量统计** —— The pass-through usage sidecar only understood Chat Completions field names, so Responses-shaped usage (`response.usage` with `input_tokens` / `output_tokens`) produced empty token and cost records. Both shapes are now parsed. 直通的 usage 旁路解析只认 Chat Completions 字段名，Responses 形态（`response.usage` 下的 `input_tokens` / `output_tokens`）解析不出来，token 与成本记录为空。现已兼容两种形态。
+
+### Improvements / 改进
+
+- **Upstream capability gate for Responses pass-through / 直通前的上游能力判定** —— Pass-through now falls back to protocol conversion when the target model or a requested custom tool is outside what the upstream Responses API accepts, instead of sending a request that is bound to fail. 目标模型或请求里的自定义工具超出上游 Responses API 的接受范围时，直通会自动回落到协议转换，而不是把注定失败的请求发出去。
+
+### Docs / 文档
+
+- **Why AgentGate does not pass through to DeepSeek Responses / 为什么不直连 DeepSeek Responses** —— The Codex + DeepSeek guides now document, with measured evidence, why direct pass-through degrades output quality and why conversion stays the default. Codex + DeepSeek 教程补充实测依据，说明直连为何会让效果明显变差，以及为什么默认保持协议转换。
+
 ## [1.6.0] - 2026-07-30
 
 ### Added / 新增

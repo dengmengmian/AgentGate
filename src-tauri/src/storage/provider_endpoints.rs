@@ -479,5 +479,74 @@ mod tests {
             input.supported_models.as_deref(),
             Some(r#"["custom-deepseek"]"#)
         );
+        // 自定义代理不注入官方 Responses 端点,否则会绕过代理直连 DeepSeek
+        assert_eq!(input.responses_base_url.as_deref(), None);
+        assert!(!input.protocol.contains("openai_responses"));
+    }
+
+    fn deepseek_create_input() -> CreateProviderInput {
+        CreateProviderInput {
+            name: "DeepSeek".into(),
+            provider_type: "deepseek".into(),
+            base_url: DEEPSEEK_BASE_URL.into(),
+            api_key: Some("sk-test".into()),
+            default_model: "deepseek-v4-flash".into(),
+            reasoning_model: None,
+            supported_models: None,
+            model_mapping: None,
+            extra_headers: None,
+            anthropic_base_url: None,
+            responses_base_url: None,
+            protocol: "openai_chat_completions".into(),
+            timeout_seconds: Some(120),
+            auto_cache_control: None,
+            model_capabilities: None,
+            provider_quirks: None,
+            body_filter_enabled: None,
+            thinking_rectifier_enabled: None,
+            error_mapper_enabled: None,
+            model_degradation_chain: None,
+            model_context_windows: None,
+            enabled: Some(true),
+        }
+    }
+
+    // Responses 直通不是默认能力:catalog 不给 DeepSeek 配 responsesBaseUrl,
+    // 这里也不许偷偷补 —— 想直通得用户自己在 provider 里填。
+    #[test]
+    fn deepseek_create_does_not_add_responses_endpoint() {
+        let mut input = deepseek_create_input();
+        apply_to_create_input(&mut input);
+        assert_eq!(input.responses_base_url.as_deref(), None);
+        assert!(!input.protocol.contains("openai_responses"));
+    }
+
+    #[test]
+    fn deepseek_create_preserves_custom_responses_endpoint() {
+        let mut input = deepseek_create_input();
+        input.responses_base_url = Some("https://proxy.example.com/responses".into());
+        apply_to_create_input(&mut input);
+        assert_eq!(
+            input.responses_base_url.as_deref(),
+            Some("https://proxy.example.com/responses")
+        );
+    }
+
+    #[test]
+    fn deepseek_update_does_not_add_responses_endpoint() {
+        let mut input = UpdateProviderInput::default();
+        apply_to_update_input(
+            "deepseek",
+            Some("sk-test"),
+            DEEPSEEK_BASE_URL,
+            Some(DEEPSEEK_ANTHROPIC_URL),
+            r#"["openai_chat_completions","anthropic_messages"]"#,
+            &mut input,
+        );
+        assert_eq!(input.responses_base_url.as_deref(), None);
+        assert_eq!(
+            input.protocol.as_deref(),
+            Some(r#"["openai_chat_completions","anthropic_messages"]"#)
+        );
     }
 }
