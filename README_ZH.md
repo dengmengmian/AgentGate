@@ -29,8 +29,6 @@
 </p>
 
 > **v1.6.1 修复原生 Responses 直通：** Codex gpt-5.6+ 把工具定义藏在 `input.additional_tools` 里，直通会把它丢掉，导致上游收不到工具、模型在正文里编造工具调用，现已修复；直通同时能正确统计 Responses 形态的 token 与成本，遇到上游不支持的模型或自定义工具会自动回落到协议转换。DeepSeek 说明：`deepseek-v4-flash` 已正式支持 Responses API，但实测直连的输出效果明显更差（降智），因此 AgentGate 暂不为 DeepSeek 开放 Responses 直通，默认仍转换成 Chat Completions。[查看 v1.6.1 更新说明](./docs/release-notes/1.6.1.md) · [Codex + DeepSeek](./docs/use-codex-with-deepseek-zh.md)。
->
-> **v1.6.0 新增会话亲和、日预算闸、本地模型：** 多轮对话粘同一上游、日花费可仅提醒/拦截/强制最便宜、日志 Diff 与脱敏复现包、一键扫描 Ollama / LM Studio。[v1.6.0 更新说明](./docs/release-notes/1.6.0.md) · [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate-zh.md) · [本地模型](./docs/use-local-models-with-agentgate-zh.md)。
 
 ## 下载
 

@@ -29,8 +29,6 @@
 </p>
 
 > **New in v1.6.1 — native Responses pass-through fixes:** Codex gpt-5.6+ hides tool definitions inside `input.additional_tools`, which pass-through was dropping, so upstreams saw no tools and the model wrote fake tool calls as plain text — now fixed. Pass-through also records Responses-shaped token usage and cost correctly, and falls back to protocol conversion when the upstream cannot accept the model or a custom tool. Note on DeepSeek: `deepseek-v4-flash` officially supports the Responses API, but in our tests direct pass-through produced noticeably worse output, so AgentGate ships no Responses endpoint for DeepSeek and keeps converting to Chat Completions. [See the v1.6.1 release notes](./docs/release-notes/1.6.1.md) · [Codex + DeepSeek](./docs/use-codex-with-deepseek.md).
->
-> **v1.6.0 added session affinity, budget gate, and local models:** Stick multi-turn chats to one upstream, cap daily spend (notify / block / force cheapest), Diff raw vs converted request bodies with redacted repro export, and one-click scan for Ollama / LM Studio. [v1.6.0 release notes](./docs/release-notes/1.6.0.md) · [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate.md) · [Local models](./docs/use-local-models-with-agentgate.md).
 
 ## Download
 
