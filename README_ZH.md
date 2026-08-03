@@ -28,7 +28,9 @@
   <img src="docs/demo-header-v2.gif" width="800" alt="AgentGate 在本地网关截获 Claude Code、Codex、Gemini CLI 的请求——转换 / 直连 / 路由 / 故障转移到 26 家上游，每条请求都在本地可追踪">
 </p>
 
-> **v1.6.0 新增会话亲和、日预算闸、本地模型：** 多轮对话粘同一上游、日花费可仅提醒/拦截/强制最便宜、日志 Diff 与脱敏复现包、一键扫描 Ollama / LM Studio。[查看 v1.6.0 更新说明](./docs/release-notes/1.6.0.md) · [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate-zh.md) · [本地模型](./docs/use-local-models-with-agentgate-zh.md)。
+> **v1.6.1 修复原生 Responses 直通：** Codex gpt-5.6+ 把工具定义藏在 `input.additional_tools` 里，直通会把它丢掉，导致上游收不到工具、模型在正文里编造工具调用，现已修复；直通同时能正确统计 Responses 形态的 token 与成本，遇到上游不支持的模型或自定义工具会自动回落到协议转换。DeepSeek 说明：`deepseek-v4-flash` 已正式支持 Responses API，但实测直连的输出效果明显更差（降智），因此 AgentGate 暂不为 DeepSeek 开放 Responses 直通，默认仍转换成 Chat Completions。[查看 v1.6.1 更新说明](./docs/release-notes/1.6.1.md) · [Codex + DeepSeek](./docs/use-codex-with-deepseek-zh.md)。
+>
+> **v1.6.0 新增会话亲和、日预算闸、本地模型：** 多轮对话粘同一上游、日花费可仅提醒/拦截/强制最便宜、日志 Diff 与脱敏复现包、一键扫描 Ollama / LM Studio。[v1.6.0 更新说明](./docs/release-notes/1.6.0.md) · [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate-zh.md) · [本地模型](./docs/use-local-models-with-agentgate-zh.md)。
 
 ## 下载
 
@@ -88,7 +90,10 @@ Provider 预设会填好常见 base URL、协议、默认模型和能力矩阵�
 | 让 Claude Code 使用 DeepSeek / MiMo / Copilot | 支持 Anthropic 兼容直通、模型名映射，以及可选 GitHub Copilot Provider。 |
 | 避免 Provider 挂掉或额度卡住 | 按状态码、错误关键词、超时和冷却状态尝试故障转移 Provider。 |
 | 防止长时间 AI 任务被系统休眠打断 | macOS 和 Windows 默认防休眠，也可按 AI 请求智能控制，并通过系统托盘快速切换。 |
-| 看清每一次请求 | 记录原始/转换后请求、路由决策、上游错误、Token、延迟和预估成本。 |
+| 看清每一次请求 | 记录原始/转换后请求、路由决策、上游错误、Token、延迟和预估成本；可对比原始与转换后 body，并导出脱敏复现包用于提 issue。 |
+| 控制每天花多少钱 | 可选日预算闸，支持仅提醒 / 拦截 / 强制最便宜三种策略；只卡新请求，不会把正在跑的流式响应掐断。 |
+| 让一轮对话固定走同一个上游 | 会话亲和让多轮对话粘在最初命中的上游，缓存命中和模型表现更稳定；故障转移与强制最便宜仍可覆盖。 |
+| 跑本地模型 | 扫描 Ollama / LM Studio 及常见本地 OpenAI 兼容端口，一键添加为 Provider。 |
 
 <details>
 <summary>支持的 Provider</summary>
@@ -136,6 +141,8 @@ Provider 预设会填好常见 base URL、协议、默认模型和能力矩阵�
 - [Claude Code + GitHub Copilot](./docs/use-claude-code-with-github-copilot.md)
 - [Gemini CLI](./docs/use-gemini-cli-with-agentgate.md)
 - [OpenCode](./docs/use-opencode-with-agentgate.md)
+- [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate-zh.md)
+- [本地模型（Ollama / LM Studio）](./docs/use-local-models-with-agentgate-zh.md)
 - [完整参考](./docs/full-reference.md)
 
 ## 截图

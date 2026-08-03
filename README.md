@@ -28,7 +28,9 @@
   <img src="docs/demo-header-v2.gif" width="800" alt="AgentGate intercepts requests from Claude Code, Codex, and Gemini CLI at a local gateway — converting, passing through, routing, or failing over to 26 providers, with every request traced live">
 </p>
 
-> **New in v1.6.0 — Session affinity, budget gate, local models:** Stick multi-turn chats to one upstream, cap daily spend (notify / block / force cheapest), Diff raw vs converted request bodies with redacted repro export, and one-click scan for Ollama / LM Studio. [See the v1.6.0 release notes](./docs/release-notes/1.6.0.md) · [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate.md) · [Local models](./docs/use-local-models-with-agentgate.md).
+> **New in v1.6.1 — native Responses pass-through fixes:** Codex gpt-5.6+ hides tool definitions inside `input.additional_tools`, which pass-through was dropping, so upstreams saw no tools and the model wrote fake tool calls as plain text — now fixed. Pass-through also records Responses-shaped token usage and cost correctly, and falls back to protocol conversion when the upstream cannot accept the model or a custom tool. Note on DeepSeek: `deepseek-v4-flash` officially supports the Responses API, but in our tests direct pass-through produced noticeably worse output, so AgentGate ships no Responses endpoint for DeepSeek and keeps converting to Chat Completions. [See the v1.6.1 release notes](./docs/release-notes/1.6.1.md) · [Codex + DeepSeek](./docs/use-codex-with-deepseek.md).
+>
+> **v1.6.0 added session affinity, budget gate, and local models:** Stick multi-turn chats to one upstream, cap daily spend (notify / block / force cheapest), Diff raw vs converted request bodies with redacted repro export, and one-click scan for Ollama / LM Studio. [v1.6.0 release notes](./docs/release-notes/1.6.0.md) · [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate.md) · [Local models](./docs/use-local-models-with-agentgate.md).
 
 ## Download
 
@@ -89,7 +91,10 @@ Provider presets fill common base URLs, protocols, model defaults, and capabilit
 | Use Claude Code with DeepSeek / MiMo / Copilot | Supports Anthropic-compatible pass-through, model-name mapping, and optional GitHub Copilot provider setup. |
 | Avoid provider outages or quota stalls | Tries failover providers on configured status codes, keywords, timeouts, and cooldown state. |
 | Keep long AI tasks running unattended | Prevents automatic sleep on macOS and Windows by default, with optional request-aware control and quick system-tray toggles. |
-| Understand every request | Stores raw and converted payloads, route decisions, upstream errors, token counts, latency, and estimated cost. |
+| Understand every request | Stores raw and converted payloads, route decisions, upstream errors, token counts, latency, and estimated cost. Diff raw vs converted bodies and export a redacted repro package for issue reports. |
+| Cap daily spend | Optional daily budget gate with `notify only` / `block` / `force cheapest` policies. Only new requests are gated; in-flight streams are never cut mid-response. |
+| Keep a conversation on one provider | Session affinity sticks a multi-turn chat to the upstream it started on, so cache hits and behavior stay consistent. Failover and force-cheapest still override it. |
+| Run local models | Scans Ollama / LM Studio and other common local OpenAI-compatible ports, then adds them as providers in one click. |
 
 <details>
 <summary>Supported providers</summary>
@@ -137,6 +142,8 @@ Provider presets fill common base URLs, protocols, model defaults, and capabilit
 - [Claude Code + GitHub Copilot](./docs/use-claude-code-with-github-copilot.md)
 - [Gemini CLI](./docs/use-gemini-cli-with-agentgate.md)
 - [OpenCode](./docs/use-opencode-with-agentgate.md)
+- [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate.md)
+- [Local models (Ollama / LM Studio)](./docs/use-local-models-with-agentgate.md)
 - [Full reference](./docs/full-reference.md)
 
 ## Screenshots
