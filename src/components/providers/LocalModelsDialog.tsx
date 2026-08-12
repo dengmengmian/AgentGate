@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { X, Loader2, HardDrive } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "@/components/common/Toast";
@@ -22,7 +22,7 @@ export function LocalModelsDialog({
   const [scanning, setScanning] = useState(false);
   const [addingKey, setAddingKey] = useState<string | null>(null);
 
-  const scan = async () => {
+  const scan = useCallback(async () => {
     setScanning(true);
     try {
       setEndpoints(await api.discoverLocalEndpoints());
@@ -31,14 +31,13 @@ export function LocalModelsDialog({
     } finally {
       setScanning(false);
     }
-  };
+  }, []);
 
   // Auto-scan each time the dialog opens.
   useEffect(() => {
     if (!open) return;
     void scan();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-scan on open
-  }, [open]);
+  }, [open, scan]);
 
   if (!open) return null;
 
