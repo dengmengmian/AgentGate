@@ -79,12 +79,16 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "可以发起第一次请求了",
   },
   "dashboard.no_requests_ready_desc": {
-    en: "Gateway is running and at least one client config exists. Open your terminal and run Codex, Claude Code, or another configured client.",
-    zh: "网关已运行，且已有客户端配置。打开终端运行 Codex、Claude Code 或其它已配置客户端即可。",
+    en: "Gateway is running and at least one client config exists. Copy a launch command below, run it in your terminal, then come back — the request will show up in Logs.",
+    zh: "网关已运行，且已有客户端配置。复制下方启动命令，在终端运行后回到这里——请求会出现在日志里。",
   },
   "dashboard.no_requests_ready_cta": {
-    en: "Open request logs",
-    zh: "查看请求日志",
+    en: "Open Clients",
+    zh: "打开客户端",
+  },
+  "dashboard.no_requests_ready_logs": {
+    en: "Open logs",
+    zh: "查看日志",
   },
   "dashboard.no_requests_config_title": {
     en: "Connect a coding client",
@@ -1695,6 +1699,18 @@ const translations: Record<string, Record<Locale, string>> = {
     en: "AgentGate is listening locally and your clients (Codex / Claude Code / …) are wired. Open your terminal and run your agent — requests will flow through.",
     zh: "AgentGate 本地服务已经在监听，客户端（Codex / Claude Code 等）也已配置完毕。打开终端跑你的命令，请求会自动通过。",
   },
+  "onboarding.first_request_title": {
+    en: "Send your first request",
+    zh: "发起第一条请求",
+  },
+  "onboarding.first_request_desc": {
+    en: "Copy a command, run it in your terminal, then return to Overview or Logs to confirm traffic.",
+    zh: "复制命令到终端运行，再回到概览或日志确认请求是否经过 AgentGate。",
+  },
+  "onboarding.first_request_after": {
+    en: "After the first reply appears, open Logs to inspect the route, tokens, and cost.",
+    zh: "收到第一条回复后，打开日志可查看路由、token 与成本。",
+  },
   "onboarding.recovery_title": {
     en: "Some steps need attention",
     zh: "还有几步需要处理",
@@ -1836,8 +1852,16 @@ const translations: Record<string, Record<Locale, string>> = {
   },
   "logs.query_builder": { en: "Query Builder", zh: "查询构建器" },
   "logs.query_builder_hint": {
-    en: "Narrow logs by status, provider, model, route, client, source, or session.",
-    zh: "按状态、供应商、模型、路由、客户端、来源或会话缩小范围。",
+    en: "Narrow requests by status, provider, model, route, client, or source.",
+    zh: "按状态、供应商、模型、路由、客户端或来源缩小请求范围。",
+  },
+  "logs.query_builder_hint_session": {
+    en: "Find conversations by keyword, client, source, or provider. Open a card to read the chat.",
+    zh: "按关键词、客户端、来源或供应商找会话。点卡片打开对话。",
+  },
+  "logs.search_session": {
+    en: "Search session id / model…",
+    zh: "搜索会话 ID / 模型…",
   },
   "logs.summary_matched": { en: "Matched", zh: "筛选命中" },
   "logs.summary_page_errors": { en: "Page errors", zh: "本页错误" },
@@ -1912,13 +1936,28 @@ const translations: Record<string, Record<Locale, string>> = {
   "logs.page_next": { en: "Next", zh: "下一页" },
   "logs.session_deleted": { en: "Session deleted", zh: "会话已删除" },
   "logs.session_empty_title": {
-    en: "No session-level data yet",
-    zh: "还没有会话级数据",
+    en: "No sessions yet",
+    zh: "还没有会话",
   },
   "logs.session_empty_desc": {
-    en: "Gateway requests are aggregated by session_id automatically; client local logs appear here after syncing.",
-    zh: "网关请求会按 session_id 自动聚合；客户端本地日志在「同步」之后也会出现在这里。",
+    en: "After you chat in Codex / Claude Code through AgentGate, sessions show up here. You can also sync client local history.",
+    zh: "用 Codex / Claude Code 经 AgentGate 对话后，会话会出现在这里。也可以从本地同步客户端历史。",
   },
+  "logs.session_empty_cta": {
+    en: "Sync client history",
+    zh: "同步客户端历史",
+  },
+  "logs.session_list_count": {
+    en: "{n} sessions",
+    zh: "{n} 个会话",
+  },
+  "logs.session_list_hint": {
+    en: "Click a card to open the conversation",
+    zh: "点击卡片打开对话",
+  },
+  "logs.session_open_convo": { en: "Conversation", zh: "打开对话" },
+  "logs.session_view_requests": { en: "Requests", zh: "请求明细" },
+  "logs.resume_copy": { en: "Resume cmd", zh: "复制恢复命令" },
   "logs.session_col_session": { en: "Session", zh: "会话" },
   "logs.session_col_source": { en: "Source", zh: "来源" },
   "logs.session_col_last_seen": { en: "Last seen", zh: "最后活跃" },
@@ -2166,6 +2205,15 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "扫描本机常见端口（Ollama、LM Studio）。未启动的也会列出，方便手动添加。",
   },
   "providers.local_scan": { en: "Scan", zh: "扫描" },
+  "providers.local_scanning": { en: "Scanning local ports…", zh: "正在扫描本机端口…" },
+  "providers.local_scan_done": {
+    en: "Results below. Offline entries can still be added if you start the app later.",
+    zh: "结果如下。未检测到的也可以先添加，稍后再启动对应服务。",
+  },
+  "providers.local_empty": {
+    en: "No local endpoints found. Try Scan again.",
+    zh: "没有发现本机端点，可点「扫描」重试。",
+  },
   "providers.local_add": { en: "Add", zh: "添加" },
   "providers.local_reachable": { en: "Online", zh: "在线" },
   "providers.local_offline": { en: "Offline", zh: "未检测到" },
@@ -2174,6 +2222,50 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "已添加本地供应商",
   },
   "providers.refiner_hint": { en: "Refiner tip", zh: "精炼层建议" },
+  "providers.compat_tip_title": {
+    en: "If requests return 400",
+    zh: "如果请求报 400",
+  },
+  "providers.compat_tip.deepseek": {
+    en: "In Settings → Gateway Refiner, try “Request field filtering” (strips image/tool fields DeepSeek rejects) and “Reasoning param correction” (fixes thinking parameter shape). Leave both off while things work.",
+    zh: "去「设置 → 网关精炼层」：上游因图片/工具字段报错时，可打开「请求字段过滤」；思考参数格式不对时，可打开「推理参数校正」。正常使用时保持关闭即可。",
+  },
+  "providers.compat_tip.kimi": {
+    en: "In Settings → Gateway Refiner, “Reasoning param correction” helps with reasoning_effort / thinking shape; turn on field filtering only if the model rejects temperature.",
+    zh: "去「设置 → 网关精炼层」：思考参数不兼容时打开「推理参数校正」；模型拒 temperature 时再开「请求字段过滤」。",
+  },
+  "providers.compat_tip.moonshot": {
+    en: "In Settings → Gateway Refiner, “Reasoning param correction” helps with reasoning_effort / thinking shape; turn on field filtering only if the model rejects temperature.",
+    zh: "去「设置 → 网关精炼层」：思考参数不兼容时打开「推理参数校正」；模型拒 temperature 时再开「请求字段过滤」。",
+  },
+  "providers.compat_tip.mimo": {
+    en: "In Settings → Gateway Refiner, field filtering can help with web_search / tool_choice quirks. Leave it off if the native path is stable.",
+    zh: "去「设置 → 网关精炼层」：web_search / 工具选择异常时可试「请求字段过滤」。原生路径稳定时不必开。",
+  },
+  "providers.compat_tip.minimax": {
+    en: "In Settings → Gateway Refiner, “Request field filtering” strips parameters MiniMax often rejects (e.g. reasoning_effort / response_format).",
+    zh: "去「设置 → 网关精炼层」：打开「请求字段过滤」可去掉 MiniMax 常拒的参数（如 reasoning_effort / response_format）。",
+  },
+  "providers.compat_tip.sensenova": {
+    en: "In Settings → Gateway Refiner, field filtering merges system messages and drops tool fields SenseNova does not accept.",
+    zh: "去「设置 → 网关精炼层」：「请求字段过滤」会合并 system 消息并去掉 SenseNova 不支持的工具字段。",
+  },
+  "providers.compat_tip.glm": {
+    en: "In Settings → Gateway Refiner, enable field filtering only if the upstream returns 400 on extra request fields.",
+    zh: "去「设置 → 网关精炼层」：只有上游因多余字段报 400 时，再打开「请求字段过滤」。",
+  },
+  "providers.compat_tip.dashscope": {
+    en: "In Settings → Gateway Refiner, enable field filtering only if the upstream returns 400 on extra request fields.",
+    zh: "去「设置 → 网关精炼层」：只有上游因多余字段报 400 时，再打开「请求字段过滤」。",
+  },
+  "providers.compat_tip.volcengine": {
+    en: "In Settings → Gateway Refiner, enable field filtering only if the upstream returns 400 on extra request fields.",
+    zh: "去「设置 → 网关精炼层」：只有上游因多余字段报 400 时，再打开「请求字段过滤」。",
+  },
+  "providers.compat_tip.custom_openai_compatible": {
+    en: "In Settings → Gateway Refiner, try “Request field filtering” if the server rejects unknown request fields.",
+    zh: "去「设置 → 网关精炼层」：若服务端拒不认识的字段，可试「请求字段过滤」。",
+  },
   "settings.cost_alert": { en: "Daily cost alert", zh: "今日花费预警" },
   "settings.cost_alert_desc": {
     en: "When today's total spend exceeds your threshold, send a system notification + pet bubble. At most once per day.",

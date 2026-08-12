@@ -76,11 +76,45 @@ describe("Providers", () => {
     expect(
       await screen.findByText("providers.no_providers")
     ).toBeInTheDocument();
+    // Local models is a toolbar entry, not an always-on panel listing endpoints.
+    expect(screen.getByText("providers.local_discover")).toBeInTheDocument();
+    expect(screen.queryByText("Ollama")).toBeNull();
 
     const addButtons = screen.getAllByText("providers.add");
     await act(async () => addButtons[addButtons.length - 1].click());
 
     expect(await screen.findByText("providers.create")).toBeInTheDocument();
+  });
+
+  it("opens local models dialog and scans on demand", async () => {
+    vi.mocked(api.discoverLocalEndpoints).mockResolvedValue([
+      {
+        name: "Ollama",
+        port: 11434,
+        base_url: "http://127.0.0.1:11434/v1",
+        provider_type: "custom_openai_compatible",
+        reachable: false,
+        models: [],
+      },
+    ] as any);
+
+    render(
+      <MemoryRouter>
+        <Providers />
+      </MemoryRouter>
+    );
+
+    await screen.findByText("providers.no_providers");
+    expect(api.discoverLocalEndpoints).not.toHaveBeenCalled();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText("providers.local_discover"));
+    });
+
+    await waitFor(() =>
+      expect(api.discoverLocalEndpoints).toHaveBeenCalled()
+    );
+    expect(await screen.findByText("Ollama")).toBeInTheDocument();
   });
 
   it("lists providers and fetches runtime status", async () => {

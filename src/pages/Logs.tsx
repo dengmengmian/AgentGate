@@ -298,70 +298,98 @@ export function Logs() {
       </div>
 
       <div className="space-y-3">
-        <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="mb-3">
-            <h3 className="text-sm font-semibold text-text-primary">
-              {t("logs.traffic_snapshot")}
-            </h3>
-            <p className="mt-0.5 text-xs text-text-muted">
-              {t("logs.traffic_snapshot_hint")}
-            </p>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-            <LogSummaryItem
-              label={t("logs.summary_matched")}
-              value={total.toLocaleString()}
-              hint={t("logs.requests")}
-            />
-            <LogSummaryItem
-              label={t("logs.summary_page_errors")}
-              value={pageErrorCount.toLocaleString()}
-              hint={`${knownStatusLogs.length.toLocaleString()} ${t("logs.summary_with_status")}`}
-            />
-            <LogSummaryItem
-              label={t("logs.summary_page_success_rate")}
-              value={pageSuccessRate}
-              hint={`${pageSuccessCount.toLocaleString()} ${t("logs.summary_succeeded")}`}
-            />
-            <LogSummaryItem
-              label={t("logs.summary_page_avg_latency")}
-              value={formatOptionalLatency(pageAvgLatency)}
-              hint={`${pageRecordedLatencies.length.toLocaleString()} ${t("logs.summary_recorded")}`}
-            />
-          </div>
-        </section>
+        {/* 请求视图才展示页级流量快照；会话视图不相关，省掉整块空白。 */}
+        {viewMode === "list" && (
+          <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-text-primary">
+                {t("logs.traffic_snapshot")}
+              </h3>
+              <p className="mt-0.5 text-xs text-text-muted">
+                {t("logs.traffic_snapshot_hint")}
+              </p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+              <LogSummaryItem
+                label={t("logs.summary_matched")}
+                value={total.toLocaleString()}
+                hint={t("logs.requests")}
+              />
+              <LogSummaryItem
+                label={t("logs.summary_page_errors")}
+                value={pageErrorCount.toLocaleString()}
+                hint={`${knownStatusLogs.length.toLocaleString()} ${t("logs.summary_with_status")}`}
+              />
+              <LogSummaryItem
+                label={t("logs.summary_page_success_rate")}
+                value={pageSuccessRate}
+                hint={`${pageSuccessCount.toLocaleString()} ${t("logs.summary_succeeded")}`}
+              />
+              <LogSummaryItem
+                label={t("logs.summary_page_avg_latency")}
+                value={formatOptionalLatency(pageAvgLatency)}
+                hint={`${pageRecordedLatencies.length.toLocaleString()} ${t("logs.summary_recorded")}`}
+              />
+            </div>
+          </section>
+        )}
 
-        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="mb-3">
-            <h3 className="text-sm font-semibold text-text-primary">
-              {t("logs.query_builder")}
-            </h3>
-            <p className="mt-0.5 text-xs text-text-muted">
-              {t("logs.query_builder_hint")}
-            </p>
-          </div>
+        <div className="rounded-xl border border-border bg-card px-3 py-2.5 shadow-sm">
+          {/* 单行工具条：视图切换 + 筛选 + 操作，避免上下两层大留白 */}
           <div className="flex flex-wrap items-center gap-2">
+            <div
+              className="flex shrink-0 items-center gap-0.5 rounded-lg bg-card-secondary p-0.5"
+              title={
+                viewMode === "session"
+                  ? t("logs.query_builder_hint_session")
+                  : t("logs.query_builder_hint")
+              }
+            >
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === "list" ? "bg-card text-text-primary shadow-sm" : "text-text-muted hover:text-text-primary"}`}
+              >
+                <LayoutList className="h-3.5 w-3.5" />
+                {t("logs.view_list")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("session")}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === "session" ? "bg-card text-text-primary shadow-sm" : "text-text-muted hover:text-text-primary"}`}
+              >
+                <Layers className="h-3.5 w-3.5" />
+                {t("logs.view_session")}
+              </button>
+            </div>
+
             <input
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder={t("logs.search")}
-              className="form-input min-w-[13rem] flex-1"
+              placeholder={
+                viewMode === "session"
+                  ? t("logs.search_session")
+                  : t("logs.search")
+              }
+              className="form-input min-w-[10rem] max-w-sm flex-1 !py-1.5 text-xs"
             />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="form-input !w-28 shrink-0"
-            >
-              <option value="">{t("logs.all")}</option>
-              <option value="success">{t("logs.success")}</option>
-              <option value="error">{t("logs.error")}</option>
-            </select>
+            {viewMode === "list" && (
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="form-input !w-28 shrink-0 !py-1.5 text-xs"
+              >
+                <option value="">{t("logs.all")}</option>
+                <option value="success">{t("logs.success")}</option>
+                <option value="error">{t("logs.error")}</option>
+              </select>
+            )}
             {providerOptions.length > 1 && (
               <select
                 value={providerFilter}
                 onChange={(e) => setProviderFilter(e.target.value)}
-                className="form-input !w-36 shrink-0"
+                className="form-input !w-32 shrink-0 !py-1.5 text-xs"
                 title={t("logs.filter_provider")}
               >
                 <option value="">{t("logs.all_providers")}</option>
@@ -372,11 +400,11 @@ export function Logs() {
                 ))}
               </select>
             )}
-            {modelOptions.length > 0 && (
+            {viewMode === "list" && modelOptions.length > 0 && (
               <select
                 value={modelFilter}
                 onChange={(e) => setModelFilter(e.target.value)}
-                className="form-input !w-40 shrink-0"
+                className="form-input !w-36 shrink-0 !py-1.5 text-xs"
                 title={t("logs.filter_model")}
               >
                 <option value="">{t("logs.all_models")}</option>
@@ -387,11 +415,11 @@ export function Logs() {
                 ))}
               </select>
             )}
-            {routeProfileOptions.length > 0 && (
+            {viewMode === "list" && routeProfileOptions.length > 0 && (
               <select
                 value={routeProfileFilter}
                 onChange={(e) => setRouteProfileFilter(e.target.value)}
-                className="form-input !w-40 shrink-0"
+                className="form-input !w-36 shrink-0 !py-1.5 text-xs"
                 title={t("logs.filter_route_profile")}
               >
                 <option value="">{t("logs.all_routes")}</option>
@@ -402,18 +430,96 @@ export function Logs() {
                 ))}
               </select>
             )}
-            <button
-              type="button"
-              onClick={() => setShowAdvancedFilters((v) => !v)}
-              className={`shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${showAdvancedFilters ? "bg-card-secondary text-text-primary" : "text-text-muted hover:bg-card-secondary hover:text-text-primary"}`}
-            >
-              {showAdvancedFilters
-                ? t("logs.filters_collapse")
-                : `${t("logs.filters_advanced")}${advancedFilterCount > 0 ? ` (${advancedFilterCount})` : ""}`}
-            </button>
+            {viewMode === "session" && (
+              <>
+                <select
+                  value={clientFilter}
+                  onChange={(e) => setClientFilter(e.target.value)}
+                  className="form-input !w-28 shrink-0 !py-1.5 text-xs"
+                  title={t("logs.filter_client")}
+                >
+                  <option value="">{t("logs.all_clients")}</option>
+                  {KNOWN_CLIENTS.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={sourceFilter}
+                  onChange={(e) => setSourceFilter(e.target.value)}
+                  className="form-input !w-32 shrink-0 !py-1.5 text-xs"
+                  title={t("logs.filter_source")}
+                >
+                  <option value="">{t("logs.all_sources")}</option>
+                  <option value="gateway">{sourceLabel("gateway", t)}</option>
+                  <option value="session_log">
+                    {t("logs.source_session_log")}
+                  </option>
+                  <option value="claude_session">
+                    {sourceLabel("claude_session", t)}
+                  </option>
+                  <option value="codex_session">
+                    {sourceLabel("codex_session", t)}
+                  </option>
+                  <option value="gemini_session">
+                    {sourceLabel("gemini_session", t)}
+                  </option>
+                </select>
+              </>
+            )}
+            {viewMode === "list" && (
+              <button
+                type="button"
+                onClick={() => setShowAdvancedFilters((v) => !v)}
+                className={`shrink-0 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${showAdvancedFilters ? "bg-card-secondary text-text-primary" : "text-text-muted hover:bg-card-secondary hover:text-text-primary"}`}
+              >
+                {showAdvancedFilters
+                  ? t("logs.filters_collapse")
+                  : `${t("logs.filters_advanced")}${advancedFilterCount > 0 ? ` (${advancedFilterCount})` : ""}`}
+              </button>
+            )}
+            {sessionIdFilter && (
+              <button
+                type="button"
+                onClick={() => setSessionIdFilter("")}
+                className="max-w-[200px] truncate rounded-md bg-accent/10 px-2 py-1 font-mono text-[11px] text-accent transition-colors hover:bg-accent/15"
+                title={sessionIdFilter}
+              >
+                session:{sessionIdFilter.slice(0, 12)}…
+                <span className="ml-1 opacity-70">×</span>
+              </button>
+            )}
+
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              <button
+                onClick={loadLogs}
+                disabled={loading}
+                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-text-secondary transition-colors hover:bg-card-secondary hover:text-text-primary"
+              >
+                <RefreshCcw
+                  className={`h-3 w-3 ${loading ? "animate-spin" : ""}`}
+                />
+                {t("common.refresh")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSyncActions((v) => !v)}
+                className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors ${showSyncActions ? "bg-card-secondary text-text-primary" : "text-text-muted hover:bg-card-secondary hover:text-text-primary"}`}
+              >
+                <Download className="h-3 w-3" />
+                {t("logs.sync_logs")}
+              </button>
+              <button
+                onClick={() => setConfirmClear(true)}
+                className="rounded-md px-2 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-card-secondary hover:text-text-primary"
+              >
+                {t("logs.clear")}
+              </button>
+            </div>
           </div>
 
-          {showAdvancedFilters && (
+          {viewMode === "list" && showAdvancedFilters && (
             <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
               <select
                 value={errorTypeFilter}
@@ -478,64 +584,8 @@ export function Logs() {
                   {sourceLabel("gemini_session", t)}
                 </option>
               </select>
-              {sessionIdFilter && (
-                <button
-                  type="button"
-                  onClick={() => setSessionIdFilter("")}
-                  className="max-w-[260px] truncate rounded-md bg-card-secondary px-2.5 py-1.5 font-mono text-[11px] text-text-secondary transition-colors hover:bg-border hover:text-text-primary"
-                  title={sessionIdFilter}
-                >
-                  session:{sessionIdFilter}
-                </button>
-              )}
             </div>
           )}
-
-          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
-            {/* 列表/会话两种视图切换——列表按时间逐条，会话按 session_id 聚合 */}
-            <div className="flex shrink-0 items-center rounded-md bg-card-secondary p-0.5">
-              <button
-                onClick={() => setViewMode("list")}
-                className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === "list" ? "bg-card text-text-primary" : "text-text-muted hover:text-text-primary"}`}
-                title={t("logs.view_list_hint")}
-              >
-                <LayoutList className="h-3 w-3" />
-                {t("logs.view_list")}
-              </button>
-              <button
-                onClick={() => setViewMode("session")}
-                className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === "session" ? "bg-card text-text-primary" : "text-text-muted hover:text-text-primary"}`}
-                title={t("logs.view_session_hint")}
-              >
-                <Layers className="h-3 w-3" />
-                {t("logs.view_session")}
-              </button>
-            </div>
-            <button
-              onClick={loadLogs}
-              disabled={loading}
-              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-card-secondary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-border hover:text-text-primary"
-            >
-              <RefreshCcw
-                className={`h-3 w-3 ${loading ? "animate-spin" : ""}`}
-              />
-              {t("common.refresh")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowSyncActions((v) => !v)}
-              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${showSyncActions ? "bg-card-secondary text-text-primary" : "text-text-muted hover:bg-card-secondary hover:text-text-primary"}`}
-            >
-              <Download className="h-3 w-3" />
-              {t("logs.sync_logs")}
-            </button>
-            <button
-              onClick={() => setConfirmClear(true)}
-              className="shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-card-secondary hover:text-text-primary"
-            >
-              {t("logs.clear")}
-            </button>
-          </div>
         </div>
 
         {showSyncActions && (
@@ -581,11 +631,7 @@ export function Logs() {
         <SessionGroupView
           filter={{
             keyword: debouncedKeyword || undefined,
-            status: statusFilter || undefined,
             provider: providerFilter || undefined,
-            model: modelFilter || undefined,
-            route_profile_id: routeProfileFilter || undefined,
-            error_type: errorTypeFilter || undefined,
             client: clientFilter || undefined,
             source: sourceFilter || undefined,
             session_id: sessionIdFilter || undefined,
@@ -594,6 +640,7 @@ export function Logs() {
             setViewMode("list");
             setSessionIdFilter(sid);
           }}
+          onEmptyAction={() => setShowSyncActions(true)}
         />
       ) : loading ? (
         <p className="text-xs text-text-muted">{t("common.loading")}</p>

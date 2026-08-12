@@ -73,14 +73,6 @@ export function ProviderCard({
   const { t } = useI18n();
   const [health, setHealth] = useState<ProviderHealth | null>(null);
   const [showDetails, setShowDetails] = useState(false);
-  const [refinerHint, setRefinerHint] = useState<string | null>(null);
-
-  useEffect(() => {
-    api
-      .getRefinerHint(provider.provider_type)
-      .then(setRefinerHint)
-      .catch(() => setRefinerHint(null));
-  }, [provider.provider_type]);
 
   useEffect(() => {
     api
@@ -88,6 +80,12 @@ export function ProviderCard({
       .then(setHealth)
       .catch(() => {});
   }, [provider.name]);
+
+  // 兼容提示：人话说明「出 400 时可以开哪些开关」。默认收在详情里，
+  // 不顶在卡片第一行用工程师术语吓人（精炼层 / budget_tokens 等）。
+  const compatTipKey = `providers.compat_tip.${provider.provider_type}`;
+  const compatTip = t(compatTipKey);
+  const hasCompatTip = compatTip !== compatTipKey;
 
   // ── status dot color ──
   const statusDotColor =
@@ -175,14 +173,6 @@ export function ProviderCard({
       className={`flex min-w-0 flex-col rounded-xl border bg-card p-4 ${provider.is_active ? "border-accent/50" : "border-border"}`}
       style={{ boxShadow: "var(--shadow-sm)" }}
     >
-      {refinerHint && (
-        <p className="mb-2 rounded-md border border-border/60 bg-card-secondary/60 px-2 py-1.5 text-[10px] leading-relaxed text-text-muted">
-          <span className="font-medium text-text-secondary">
-            {t("providers.refiner_hint")}:{" "}
-          </span>
-          {refinerHint}
-        </p>
-      )}
       {/* ── Header: icon + name + url ; status dot + capability icons ── */}
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
@@ -407,6 +397,16 @@ export function ProviderCard({
               </span>
               <p className="font-mono text-text-primary">
                 {provider.reasoning_model}
+              </p>
+            </div>
+          )}
+          {hasCompatTip && (
+            <div className="col-span-2 rounded-md border border-border/60 bg-card-secondary/50 px-2.5 py-2">
+              <p className="text-[11px] font-medium text-text-secondary">
+                {t("providers.compat_tip_title")}
+              </p>
+              <p className="mt-1 text-[11px] leading-relaxed text-text-muted">
+                {compatTip}
               </p>
             </div>
           )}

@@ -12,7 +12,6 @@ vi.mock("@/lib/api", async (importOriginal) => {
   return {
     ...actual,
     getProviderHealth: vi.fn(),
-    getRefinerHint: vi.fn(),
   };
 });
 
@@ -53,7 +52,6 @@ describe("ProviderCard", () => {
     vi.mocked(api.getProviderHealth).mockResolvedValue(
       null as unknown as ProviderHealth
     );
-    vi.mocked(api.getRefinerHint).mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -79,6 +77,33 @@ describe("ProviderCard", () => {
     await waitFor(() =>
       expect(api.getProviderHealth).toHaveBeenCalledWith("DeepSeek")
     );
+  });
+
+  it("does not put engineer refiner jargon on the card face", async () => {
+    const provider = makeProvider({ is_active: true });
+    renderWithProviders(
+      <ProviderCard
+        provider={provider}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        onSetActive={() => {}}
+        onTest={() => {}}
+      />
+    );
+
+    // Old always-on banner wording must stay gone by default.
+    expect(screen.queryByText(/精炼层建议/)).toBeNull();
+    expect(screen.queryByText(/budget_tokens/)).toBeNull();
+    expect(screen.queryByText(/Request field filter/i)).toBeNull();
+
+    // Plain-language tip only after expanding details.
+    fireEvent.click(screen.getByText("Details"));
+    expect(
+      await screen.findByText(/If requests return 400|如果请求报 400/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Settings|设置.*网关精炼层|Gateway Refiner/)
+    ).toBeInTheDocument();
   });
 
   it("fires edit, test, set active and delete callbacks", () => {

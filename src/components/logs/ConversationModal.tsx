@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { Loader2, X, Copy, Terminal, FileText } from "lucide-react";
+import {
+  Loader2,
+  X,
+  Copy,
+  Terminal,
+  FileText,
+  ChevronDown,
+  ChevronRight,
+  Wrench,
+} from "lucide-react";
 import { formatTimestamp } from "@/lib/utils";
 import { toast } from "@/components/common/Toast";
 import { useI18n } from "@/lib/i18n";
@@ -31,8 +40,12 @@ export function getConversationMessageKind(
   return "chat";
 }
 
+function shortId(id: string): string {
+  if (id.length <= 16) return id;
+  return `${id.slice(0, 8)}…${id.slice(-6)}`;
+}
+
 /// 会话对话弹窗：读 Claude Code / Codex 本地日志，渲染对话气泡 + 恢复命令。
-/// SessionGroupView 和 RequestDetailDrawer 共用。
 export function ConversationModal({
   sessionId,
   source,
@@ -41,7 +54,6 @@ export function ConversationModal({
 }: {
   sessionId: string;
   source: string;
-  /** 可选：会话聚合用量（token / 成本 / provider），不传则弹窗内按 session 再拉一次。 */
   usage?: SessionUsageSummary | null;
   onClose: () => void;
 }) {
@@ -101,101 +113,113 @@ export function ConversationModal({
     ? usageSummary.input_tokens + usageSummary.output_tokens
     : null;
 
+  const copyId = () => {
+    navigator.clipboard.writeText(sessionId);
+    toast("success", t("common.copied"));
+  };
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 sm:p-6"
       onClick={onClose}
     >
       <div
-        className="flex max-h-[86vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+        className="flex h-[min(90vh,880px)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-3">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-text-primary">
-              {t("logs.conversation_title")}
-            </h3>
-            <p
-              className="truncate font-mono text-[11px] text-text-muted"
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-base font-semibold text-text-primary">
+                {t("logs.conversation_title")}
+              </h3>
+              {usageSummary?.model && (
+                <span className="rounded-full bg-card-secondary px-2 py-0.5 font-mono text-[10px] text-text-secondary">
+                  {usageSummary.model}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={copyId}
+              className="mt-1 max-w-full truncate font-mono text-[11px] text-text-muted transition-colors hover:text-accent"
               title={sessionId}
             >
-              {sessionId}
-            </p>
+              {shortId(sessionId)}
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="shrink-0 text-text-muted hover:text-text-primary"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {cmd && (
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(cmd);
+                  toast("success", t("logs.resume_cmd_copied"));
+                }}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card-secondary px-2.5 py-1.5 text-[11px] font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-accent"
+                title={cmd}
+              >
+                <Terminal className="h-3.5 w-3.5" />
+                {t("logs.resume_copy")}
+                <Copy className="h-3 w-3 opacity-60" />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1.5 text-text-muted transition-colors hover:bg-card-secondary hover:text-text-primary"
+              aria-label="close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
+
+        {/* Compact stats */}
         {usageSummary && (
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-border bg-card-secondary/40 px-5 py-2 text-[11px] text-text-secondary">
-            <span>
-              {t("logs.session_col_requests")}:{" "}
-              <span className="font-mono text-text-primary">
-                {usageSummary.request_count.toLocaleString()}
-              </span>
-            </span>
-            <span>
-              {t("logs.session_usage_tokens")}:{" "}
-              <span className="font-mono text-text-primary">
-                {totalTokens?.toLocaleString() ?? "—"}
-              </span>
-              <span className="text-text-muted">
-                {" "}
-                ({usageSummary.input_tokens.toLocaleString()} /{" "}
-                {usageSummary.output_tokens.toLocaleString()})
-              </span>
-            </span>
-            <span>
-              {t("logs.session_col_cost")}:{" "}
-              <span className="font-mono text-text-primary">
-                {usageSummary.cost > 0
+          <div className="flex flex-wrap gap-2 border-b border-border bg-card-secondary/30 px-5 py-2.5">
+            <StatPill
+              label={t("logs.session_col_requests")}
+              value={usageSummary.request_count.toLocaleString()}
+            />
+            <StatPill
+              label={t("logs.session_usage_tokens")}
+              value={
+                totalTokens != null
+                  ? `${totalTokens.toLocaleString()} (${usageSummary.input_tokens.toLocaleString()}↑ / ${usageSummary.output_tokens.toLocaleString()}↓)`
+                  : "—"
+              }
+            />
+            <StatPill
+              label={t("logs.session_col_cost")}
+              value={
+                usageSummary.cost > 0
                   ? `$${usageSummary.cost.toFixed(4)}`
-                  : "—"}
-              </span>
-            </span>
+                  : "—"
+              }
+            />
             {providersLabel && (
-              <span className="min-w-0 truncate" title={providersLabel}>
-                {t("logs.session_usage_providers")}:{" "}
-                <span className="font-mono text-text-primary">
-                  {providersLabel}
-                </span>
-              </span>
+              <StatPill
+                label={t("logs.session_usage_providers")}
+                value={providersLabel}
+              />
             )}
           </div>
         )}
-        {cmd && (
-          <div className="flex items-center justify-between gap-3 border-b border-border bg-card-secondary/50 px-5 py-2.5">
-            <div className="flex min-w-0 items-center gap-2">
-              <Terminal className="h-3.5 w-3.5 shrink-0 text-text-muted" />
-              <code className="truncate font-mono text-[11px] text-text-secondary">
-                {cmd}
-              </code>
-            </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(cmd);
-                toast("success", t("logs.resume_cmd_copied"));
-              }}
-              className="shrink-0 rounded-md p-1.5 text-text-muted transition-colors hover:bg-card hover:text-accent"
-              title={t("common.copy")}
-            >
-              <Copy className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        )}
-        <div className="flex-1 space-y-4 overflow-y-auto bg-background/30 p-5">
+
+        {/* Messages */}
+        <div className="flex-1 space-y-3 overflow-y-auto bg-background/40 px-4 py-4 sm:px-5">
           {loading ? (
-            <div className="flex items-center gap-2 text-xs text-text-muted">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <div className="flex items-center justify-center gap-2 py-16 text-xs text-text-muted">
+              <Loader2 className="h-4 w-4 animate-spin" />
               {t("common.loading")}
             </div>
           ) : err ? (
-            <p className="text-xs text-error">{err}</p>
+            <p className="rounded-lg border border-error/30 bg-error/5 px-3 py-2 text-xs text-error">
+              {err}
+            </p>
           ) : msgs.length === 0 ? (
-            <p className="text-xs text-text-muted">
+            <p className="py-16 text-center text-xs text-text-muted">
               {t("logs.conversation_empty")}
             </p>
           ) : (
@@ -207,16 +231,30 @@ export function ConversationModal({
   );
 }
 
+function StatPill({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border/80 bg-card px-2.5 py-1 text-[11px]">
+      <span className="shrink-0 text-text-muted">{label}</span>
+      <span className="truncate font-mono text-text-primary" title={value}>
+        {value}
+      </span>
+    </span>
+  );
+}
+
 function MessageBubble({ msg }: { msg: ConversationMessage }) {
   const { t } = useI18n();
   const isUser = msg.role === "user";
   const kind = getConversationMessageKind(msg.text);
-  const meta = (
-    <div className="mb-1 text-[10px] text-text-muted">
-      {isUser ? t("logs.msg_user") : t("logs.msg_ai")}
-      {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ""}
-    </div>
-  );
+  const time = msg.timestamp ? formatTimestamp(msg.timestamp) : "";
+  const toolBody =
+    kind === "tool_result"
+      ? msg.text.replace(/^\[Tool result\]\s*/, "")
+      : "";
+  const toolResultLong =
+    toolBody.length > 280 || toolBody.split("\n").length > 6;
+  // Hooks must stay unconditional (even when not a tool_result bubble).
+  const [toolOpen, setToolOpen] = useState(!toolResultLong);
 
   if (kind === "tool_call") {
     const toolName = msg.text
@@ -224,14 +262,14 @@ function MessageBubble({ msg }: { msg: ConversationMessage }) {
       .replace(/^\[Tool:\s*/, "")
       .replace(/\]$/, "");
     return (
-      <div className="flex flex-col items-start">
-        {meta}
-        <div className="flex max-w-[72%] items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-text-secondary">
-          <Terminal className="h-3.5 w-3.5 shrink-0 text-text-muted" />
-          <span>{t("logs.tool_call")}</span>
-          <span className="rounded bg-card-secondary px-1.5 py-0.5 font-mono text-[10px] text-text-primary">
+      <div className="flex justify-start">
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-text-secondary shadow-sm">
+          <Wrench className="h-3.5 w-3.5 text-accent" />
+          <span className="text-text-muted">{t("logs.tool_call")}</span>
+          <span className="rounded-md bg-accent/10 px-1.5 py-0.5 font-mono text-[11px] font-medium text-accent">
             {toolName}
           </span>
+          {time && <span className="text-[10px] text-text-muted">{time}</span>}
         </div>
       </div>
     );
@@ -239,16 +277,31 @@ function MessageBubble({ msg }: { msg: ConversationMessage }) {
 
   if (kind === "tool_result") {
     return (
-      <div className="flex flex-col items-start">
-        {meta}
-        <div className="w-full max-w-[92%] rounded-lg border border-border bg-card">
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2 text-[11px] font-medium text-text-muted">
-            <FileText className="h-3.5 w-3.5" />
-            {t("logs.tool_result")}
-          </div>
-          <pre className="max-h-[22rem] overflow-auto whitespace-pre-wrap break-words px-3 py-2.5 font-mono text-[11px] leading-relaxed text-text-secondary">
-            {msg.text.replace(/^\[Tool result\]\s*/, "")}
-          </pre>
+      <div className="flex justify-start">
+        <div className="w-full max-w-[94%] overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+          <button
+            type="button"
+            onClick={() => setToolOpen((v) => !v)}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[11px] font-medium text-text-secondary hover:bg-hover"
+          >
+            {toolOpen ? (
+              <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+            )}
+            <FileText className="h-3.5 w-3.5 shrink-0 text-text-muted" />
+            <span>{t("logs.tool_result")}</span>
+            {time && (
+              <span className="ml-auto text-[10px] font-normal text-text-muted">
+                {time}
+              </span>
+            )}
+          </button>
+          {toolOpen && (
+            <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words border-t border-border bg-card-secondary/30 px-3 py-2.5 font-mono text-[11px] leading-relaxed text-text-secondary">
+              {toolBody}
+            </pre>
+          )}
         </div>
       </div>
     );
@@ -256,9 +309,16 @@ function MessageBubble({ msg }: { msg: ConversationMessage }) {
 
   return (
     <div className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}>
-      {meta}
+      <div className="mb-1 flex items-center gap-1.5 px-1 text-[10px] text-text-muted">
+        <span>{isUser ? t("logs.msg_user") : t("logs.msg_ai")}</span>
+        {time && <span>· {time}</span>}
+      </div>
       <div
-        className={`max-w-[76%] break-words rounded-xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm ${isUser ? "bg-accent/10 text-text-primary" : "bg-card text-text-primary"}`}
+        className={`max-w-[82%] break-words px-3.5 py-2.5 text-sm leading-relaxed shadow-sm ${
+          isUser
+            ? "rounded-2xl rounded-br-md bg-accent text-white"
+            : "rounded-2xl rounded-bl-md border border-border bg-card text-text-primary"
+        }`}
       >
         <MarkdownContent content={msg.text} />
       </div>

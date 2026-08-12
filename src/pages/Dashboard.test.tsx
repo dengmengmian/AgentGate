@@ -61,6 +61,27 @@ describe("Dashboard", () => {
       running: false,
     });
     vi.mocked(api.restartGateway).mockResolvedValue(gatewayStatus());
+    // Client detects: default = not AgentGate-wired (even if config files exist).
+    vi.mocked(api.detectCodexConfig).mockResolvedValue({
+      exists: true,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.detectClaudeCodeEnv).mockResolvedValue({
+      settings_exists: true,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.detectOpenCodeConfig).mockResolvedValue({
+      exists: true,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.detectGeminiConfig).mockResolvedValue({
+      exists: true,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.detectAtomCodeConfig).mockResolvedValue({
+      exists: true,
+      has_agentgate: false,
+    } as any);
   });
 
   it("renders and fetches initial data", async () => {
@@ -98,6 +119,7 @@ describe("Dashboard", () => {
       expect(api.listTools).toHaveBeenCalled();
       expect(api.listRequestLogs).toHaveBeenCalledWith({ limit: 5 });
       expect(api.getRequestStatsRange).toHaveBeenCalledWith(7);
+      expect(api.detectCodexConfig).toHaveBeenCalled();
     });
     expect(screen.getByText("dashboard.control_console")).toBeInTheDocument();
     expect(screen.getByText("stats.today_realtime")).toBeInTheDocument();
@@ -114,5 +136,140 @@ describe("Dashboard", () => {
     const stop = await screen.findByText("dashboard.stop");
     await act(async () => stop.click());
     await waitFor(() => expect(api.stopGateway).toHaveBeenCalled());
+  });
+
+  it("treats seeded provider without key as not ready — shows setup CTA", async () => {
+    // Fresh install seeds DeepSeek with empty key; local client files may exist.
+    vi.mocked(api.listProviders).mockResolvedValue([
+      {
+        id: "p1",
+        name: "DeepSeek",
+        enabled: true,
+        masked_api_key: null,
+      },
+    ] as any);
+    vi.mocked(api.listTools).mockResolvedValue([
+      {
+        id: "codex",
+        name: "Codex",
+        slug: "codex",
+        config_exists: true,
+      },
+      {
+        id: "claude-code",
+        name: "Claude Code",
+        slug: "claude-code",
+        config_exists: true,
+      },
+    ] as any);
+    vi.mocked(api.getRequestStatsRange).mockResolvedValue({
+      total: 0,
+      today_total: 0,
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>
+    );
+
+    expect(
+      await screen.findByText("dashboard.empty_title")
+    ).toBeInTheDocument();
+    expect(screen.queryByText("dashboard.no_requests_ready_title")).toBeNull();
+    expect(screen.queryByText("codex")).toBeNull();
+  });
+
+  it("asks to apply clients when key exists but no AgentGate-wired client", async () => {
+    vi.mocked(api.listProviders).mockResolvedValue([
+      {
+        id: "p1",
+        name: "DeepSeek",
+        enabled: true,
+        masked_api_key: "sk-s****abcd",
+      },
+    ] as any);
+    // config_exists=true for all tools must NOT mean ready
+    vi.mocked(api.listTools).mockResolvedValue([
+      { id: "codex", slug: "codex", config_exists: true },
+      { id: "claude-code", slug: "claude-code", config_exists: true },
+      { id: "opencode", slug: "opencode", config_exists: true },
+      { id: "atomcode", slug: "atomcode", config_exists: true },
+      { id: "gemini_cli", slug: "gemini-cli", config_exists: true },
+    ] as any);
+    vi.mocked(api.getRequestStatsRange).mockResolvedValue({
+      total: 0,
+      today_total: 0,
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>
+    );
+
+    expect(
+      await screen.findByText("dashboard.no_requests_config_title")
+    ).toBeInTheDocument();
+    expect(screen.queryByText("dashboard.no_requests_ready_title")).toBeNull();
+    // Must not list every local client as launchable
+    expect(screen.queryByText("opencode")).toBeNull();
+    expect(screen.queryByText("atomcode")).toBeNull();
+    expect(screen.queryByText("gemini")).toBeNull();
+  });
+
+  it("shows first-request commands only for AgentGate-wired clients", async () => {
+    vi.mocked(api.listProviders).mockResolvedValue([
+      {
+        id: "p1",
+        name: "DeepSeek",
+        enabled: true,
+        masked_api_key: "sk-s****abcd",
+      },
+    ] as any);
+    vi.mocked(api.listTools).mockResolvedValue([
+      { id: "codex", slug: "codex", config_exists: true },
+      { id: "claude-code", slug: "claude-code", config_exists: true },
+      { id: "opencode", slug: "opencode", config_exists: true },
+    ] as any);
+    vi.mocked(api.detectCodexConfig).mockResolvedValue({
+      exists: true,
+      has_agentgate: true,
+    } as any);
+    vi.mocked(api.detectClaudeCodeEnv).mockResolvedValue({
+      settings_exists: true,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.getRequestStatsRange).mockResolvedValue({
+      total: 0,
+      today_total: 0,
+      today_errors: 0,
+      today_input_tokens: 0,
+      today_output_tokens: 0,
+      today_cost: 0,
+      avg_latency_ms: 0,
+      today_codex_compact: 0,
+      today_cache_read_tokens: 0,
+      today_cache_write_tokens: 0,
+      daily: [],
+      providers: [],
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>
+    );
+
+    expect(
+      await screen.findByText("dashboard.no_requests_ready_title")
+    ).toBeInTheDocument();
+    expect(screen.getByText("codex")).toBeInTheDocument();
+    // Claude / OpenCode not wired → must not appear
+    expect(screen.queryByText("claude")).toBeNull();
+    expect(screen.queryByText("opencode")).toBeNull();
+    expect(
+      screen.getByText("dashboard.no_requests_ready_cta").closest("a")
+    ).toHaveAttribute("href", "/tools");
   });
 });

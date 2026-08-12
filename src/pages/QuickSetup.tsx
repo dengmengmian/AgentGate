@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Clipboard,
   X,
+  Terminal,
 } from "lucide-react";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { useI18n } from "@/lib/i18n";
@@ -21,6 +22,11 @@ import {
   resolveProviderPresetForKey,
 } from "@/data/providerPresets";
 import { PROVIDER_TYPES } from "@/types/provider";
+import {
+  firstRequestCommandsFor,
+  type FirstRequestCommand,
+} from "@/lib/firstRequestCommands";
+import { CopyButton } from "@/components/common/CopyButton";
 
 type Step = "key" | "tools" | "setup" | "done";
 
@@ -37,6 +43,14 @@ interface SetupLogEntry {
   detail?: string;
 }
 
+type SetupCriteria = {
+  provider: boolean;
+  gateway: boolean;
+  client: boolean;
+  probeOk: boolean;
+  hadClientTarget: boolean;
+};
+
 export function QuickSetup() {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -48,6 +62,14 @@ export function QuickSetup() {
   } | null>(null);
   const [tools, setTools] = useState<ToolDetection[]>([]);
   const [setupLog, setSetupLog] = useState<SetupLogEntry[]>([]);
+  const [appliedClientIds, setAppliedClientIds] = useState<string[]>([]);
+  const [criteria, setCriteria] = useState<SetupCriteria>({
+    provider: false,
+    gateway: false,
+    client: false,
+    probeOk: true,
+    hadClientTarget: false,
+  });
   /// 剪贴板里有可识别的 key 时显示「填入」banner。null = 没建议
   /// （包括读不到剪贴板、识别失败、被用户关掉这三种情况）。
   const [clipboardHint, setClipboardHint] = useState<{
@@ -194,7 +216,7 @@ export function QuickSetup() {
 
   const handleSetup = async () => {
     setStep("setup");
-    const log: typeof setupLog = [];
+    const log: SetupLogEntry[] = [];
     const addLog = (
       label: string,
       status: "pending" | "running" | "ok" | "error",
@@ -209,11 +231,17 @@ export function QuickSetup() {
       setSetupLog([...log]);
     };
 
+    const checkedTools = tools.filter((tool) => tool.checked);
+    const hadClientTarget = checkedTools.length > 0;
+    setAppliedClientIds([]);
+
     const preset = resolveProviderPresetForKey(
       detectedProvider!.type,
       apiKey.trim()
     );
     if (!preset) return;
+
+    // 1. Create provider
     addLog(t("onboarding.creating_provider"), "running");
     try {
       const provider = await api.createProvider({
@@ -245,6 +273,7 @@ export function QuickSetup() {
           : t("providers.test.autofill_none");
         addLog(t("onboarding.detecting_capabilities"), "ok", detail);
       } catch (err) {
+        // Capability detect is best-effort; provider is already created.
         addLog(
           t("onboarding.detecting_capabilities"),
           "error",
@@ -253,20 +282,52 @@ export function QuickSetup() {
       }
     } catch {
       addLog(t("onboarding.creating_provider"), "error");
+      setCriteria({
+        provider: false,
+        gateway: false,
+        client: false,
+        probeOk: false,
+        hadClientTarget,
+      });
       setStep("done");
       return;
     }
+    const providerOk = true;
 
+    // 2. Start gateway — never mark ok unless running is verified
     addLog(t("onboarding.starting_gateway"), "running");
+    let gatewayOk = false;
     try {
       await api.startGateway();
+      addLog(t("onboarding.starting_gateway"), "ok");
+      gatewayOk = true;
     } catch {
-      /* maybe already running */
+      try {
+        const st = await api.getGatewayStatus();
+        if (st.running) {
+          addLog(t("onboarding.starting_gateway"), "ok");
+          gatewayOk = true;
+        } else {
+          addLog(t("onboarding.starting_gateway"), "error", "not running");
+        }
+      } catch {
+        addLog(t("onboarding.starting_gateway"), "error");
+      }
     }
-    addLog(t("onboarding.starting_gateway"), "ok");
+
     await new Promise((r) => setTimeout(r, 500));
 
-    for (const tool of tools.filter((t) => t.checked)) {
+    // 3. Apply tool configs — complete requires ≥1 successful apply when any selected
+    let anyClientOk = false;
+    const applied: string[] = [];
+    if (!hadClientTarget) {
+      addLog(
+        `${t("onboarding.configuring")} client`,
+        "error",
+        "Select and apply at least one client"
+      );
+    }
+    for (const tool of checkedTools) {
       addLog(`${t("onboarding.configuring")} ${tool.name}`, "running");
       try {
         switch (tool.id) {
@@ -287,12 +348,18 @@ export function QuickSetup() {
             break;
         }
         addLog(`${t("onboarding.configuring")} ${tool.name}`, "ok");
+        anyClientOk = true;
+        applied.push(tool.id);
       } catch {
         addLog(`${t("onboarding.configuring")} ${tool.name}`, "error");
       }
     }
+    setAppliedClientIds(applied);
+    const clientOk = hadClientTarget && anyClientOk;
 
+    // 4. Probe — failure must not green completion
     addLog(t("onboarding.testing"), "running");
+    let probeOk: boolean;
     try {
       const test = await api.testToolConnection();
       const detail = test.provider_ok
@@ -303,18 +370,67 @@ export function QuickSetup() {
         test.provider_ok ? "ok" : "error",
         detail
       );
+      probeOk = !!test.provider_ok;
     } catch (err) {
       addLog(
         t("onboarding.testing"),
         "error",
         err instanceof Error ? err.message : String(err)
       );
+      probeOk = false;
     }
 
+    setCriteria({
+      provider: providerOk,
+      gateway: gatewayOk,
+      client: clientOk,
+      probeOk,
+      hadClientTarget,
+    });
     setStep("done");
   };
 
-  const allOk = setupLog.length > 0 && setupLog.every((l) => l.status === "ok");
+  const setupComplete =
+    criteria.provider &&
+    criteria.gateway &&
+    criteria.hadClientTarget &&
+    criteria.client &&
+    criteria.probeOk;
+
+  const primaryFailureCta: "providers" | "retry" | "clients" | "logs" | null =
+    setupComplete
+      ? null
+      : !criteria.provider
+        ? "providers"
+        : !criteria.gateway
+          ? "retry"
+          : !criteria.hadClientTarget || !criteria.client
+            ? "clients"
+            : !criteria.probeOk
+              ? "logs"
+              : "retry";
+
+  const firstCommands: FirstRequestCommand[] =
+    firstRequestCommandsFor(appliedClientIds);
+
+  const goPrimaryFailure = () => {
+    switch (primaryFailureCta) {
+      case "providers":
+        navigate("/providers");
+        break;
+      case "clients":
+        navigate("/tools");
+        break;
+      case "logs":
+        navigate("/logs");
+        break;
+      case "retry":
+        void handleSetup();
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="mx-auto max-w-lg">
@@ -534,9 +650,9 @@ export function QuickSetup() {
         >
           <h2 className="text-base font-semibold text-text-primary">
             {step === "done"
-              ? allOk
+              ? setupComplete
                 ? t("onboarding.complete")
-                : t("onboarding.partial")
+                : t("onboarding.incomplete")
               : t("onboarding.setting_up")}
           </h2>
 
@@ -555,7 +671,13 @@ export function QuickSetup() {
                 <div className="min-w-0">
                   <div className="text-text-primary">{entry.label}</div>
                   {entry.detail && (
-                    <div className="mt-1 max-w-full break-words text-xs text-error">
+                    <div
+                      className={`mt-1 max-w-full break-words text-xs ${
+                        entry.status === "error"
+                          ? "text-error"
+                          : "text-text-muted"
+                      }`}
+                    >
                       {entry.detail}
                     </div>
                   )}
@@ -566,34 +688,91 @@ export function QuickSetup() {
 
           {step === "done" && (
             <div className="space-y-3">
-              {/* 完成后告诉用户"下一步"——配好了不等于能用，要去终端真跑命令。
-                  跳 /tools 让用户看到客户端配置卡片 + 复制命令。 */}
-              {allOk && (
-                <div className="rounded-lg border border-accent/20 bg-accent-soft/40 p-4">
-                  <p className="text-sm font-medium text-text-primary">
-                    {t("onboarding.next_step_title")}
-                  </p>
-                  <p className="mt-1 text-xs text-text-secondary">
-                    {t("onboarding.next_step_desc")}
-                  </p>
-                </div>
+              {setupComplete ? (
+                <>
+                  <div className="rounded-lg border border-accent/20 bg-accent-soft/40 p-4 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Terminal className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-text-primary">
+                          {t("onboarding.first_request_title")}
+                        </p>
+                        <p className="mt-1 text-xs text-text-secondary">
+                          {t("onboarding.first_request_desc")}
+                        </p>
+                      </div>
+                    </div>
+                    {firstCommands.length > 0 && (
+                      <ul className="space-y-2">
+                        {firstCommands.map((cmd) => (
+                          <li
+                            key={cmd.command}
+                            className="flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2"
+                          >
+                            <div className="min-w-0">
+                              <div className="text-[10px] uppercase tracking-wide text-text-muted">
+                                {cmd.name}
+                              </div>
+                              <code className="block truncate font-mono text-xs text-text-primary">
+                                {cmd.command}
+                              </code>
+                            </div>
+                            <CopyButton text={cmd.command} />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <p className="text-[11px] text-text-muted">
+                      {t("onboarding.first_request_after")}
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => navigate("/")}
+                      className="btn-secondary"
+                    >
+                      {t("onboarding.back_to_overview")}
+                    </button>
+                    <button
+                      onClick={() => navigate("/tools")}
+                      className="btn-primary"
+                    >
+                      {t("onboarding.go_to_clients")}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="rounded-lg border border-warning/30 bg-warning-soft p-3">
+                    <p className="text-xs font-medium text-warning">
+                      {t("onboarding.recovery_title")}
+                    </p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-text-secondary">
+                      {t("onboarding.recovery_desc")}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    {primaryFailureCta && (
+                      <button onClick={goPrimaryFailure} className="btn-primary">
+                        {primaryFailureCta === "retry" &&
+                          t("onboarding.next_retry")}
+                        {primaryFailureCta === "providers" &&
+                          t("onboarding.next_providers")}
+                        {primaryFailureCta === "clients" &&
+                          t("onboarding.next_clients")}
+                        {primaryFailureCta === "logs" &&
+                          t("onboarding.next_logs")}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setStep("key")}
+                      className="btn-secondary"
+                    >
+                      {t("onboarding.edit_key")}
+                    </button>
+                  </div>
+                </>
               )}
-              <div className="flex justify-end gap-2">
-                {allOk && (
-                  <button
-                    onClick={() => navigate("/")}
-                    className="btn-secondary"
-                  >
-                    {t("onboarding.back_to_overview")}
-                  </button>
-                )}
-                <button
-                  onClick={() => navigate(allOk ? "/tools" : "/")}
-                  className="btn-primary"
-                >
-                  {allOk ? t("onboarding.go_to_clients") : t("common.close")}
-                </button>
-              </div>
             </div>
           )}
         </div>

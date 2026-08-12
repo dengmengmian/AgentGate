@@ -94,7 +94,8 @@ describe("Logs", () => {
 
     expect(screen.getByText("logs.console")).toBeInTheDocument();
     expect(screen.getByText("logs.traffic_snapshot")).toBeInTheDocument();
-    expect(screen.getByText("logs.query_builder")).toBeInTheDocument();
+    expect(screen.getByText("logs.view_list")).toBeInTheDocument();
+    expect(screen.getByText("logs.view_session")).toBeInTheDocument();
 
     await waitFor(() => expect(resolvers.length).toBe(1));
 

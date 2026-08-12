@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   render,
   act,
@@ -12,11 +12,12 @@ import { MemoryRouter } from "react-router-dom";
 vi.mock("@/lib/api");
 vi.mock("@tauri-apps/plugin-clipboard-manager", () => ({
   readText: vi.fn().mockResolvedValue(""),
+  writeText: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock("@/lib/providerAutoSetup", () => ({
   fetchDetectAndPersistProviderModels: vi
     .fn()
-    .mockResolvedValue({ models: [] }),
+    .mockResolvedValue({ models: [{ id: "gpt-test" }] }),
 }));
 
 import * as api from "@/lib/api";
@@ -24,10 +25,30 @@ import { QuickSetup } from "./QuickSetup";
 
 afterEach(() => cleanup());
 
+async function goThroughKeyAndTools() {
+  render(
+    <MemoryRouter>
+      <QuickSetup />
+    </MemoryRouter>
+  );
+
+  const input = await screen.findByPlaceholderText(/sk-xxx/);
+  fireEvent.change(input, { target: { value: "sk-testkey" } });
+  await screen.findByRole("combobox");
+
+  const next = screen.getByText("onboarding.next");
+  await act(async () => next.click());
+
+  expect(
+    await screen.findByRole("heading", { name: "onboarding.select_tools" })
+  ).toBeInTheDocument();
+}
+
 describe("QuickSetup", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.mocked(api.detectCodexConfig).mockResolvedValue({
-      exists: false,
+      exists: true,
     } as any);
     vi.mocked(api.detectClaudeCodeEnv).mockResolvedValue({
       settings_exists: false,
@@ -51,6 +72,9 @@ describe("QuickSetup", () => {
     } as any);
     vi.mocked(api.setActiveProvider).mockResolvedValue({} as any);
     vi.mocked(api.startGateway).mockResolvedValue({ running: true } as any);
+    vi.mocked(api.getGatewayStatus).mockResolvedValue({
+      running: true,
+    } as any);
     vi.mocked(api.applyCodexConfig).mockResolvedValue({ success: true } as any);
     vi.mocked(api.applyClaudeCodeConfig).mockResolvedValue({
       success: true,
@@ -87,27 +111,95 @@ describe("QuickSetup", () => {
     expect(select).toHaveValue("openai");
   });
 
-  it("advances to tools step and runs setup", async () => {
-    render(
-      <MemoryRouter>
-        <QuickSetup />
-      </MemoryRouter>
-    );
+  it("completes only when provider+gateway+client+probe ok and shows first-request command", async () => {
+    await goThroughKeyAndTools();
 
-    const input = screen.getByPlaceholderText(/sk-xxx/);
-    fireEvent.change(input, { target: { value: "sk-testkey" } });
-    await screen.findByRole("combobox");
-
-    const next = screen.getByText("onboarding.next");
-    await act(async () => next.click());
-
-    expect(
-      await screen.findByRole("heading", { name: "onboarding.select_tools" })
-    ).toBeInTheDocument();
+    // Uncheck Claude Code (always pre-checked) so only Codex is applied.
+    const claudeLabel = screen.getByText("Claude Code").closest("label");
+    expect(claudeLabel).toBeTruthy();
+    await act(async () => {
+      fireEvent.click(claudeLabel!);
+    });
 
     const setup = screen.getAllByText("onboarding.start_setup").pop()!;
     await act(async () => setup.click());
 
     await waitFor(() => expect(api.createProvider).toHaveBeenCalled());
+    await waitFor(() => expect(api.applyCodexConfig).toHaveBeenCalled());
+    await waitFor(() => expect(api.testToolConnection).toHaveBeenCalled());
+
+    expect(await screen.findByText("onboarding.complete")).toBeInTheDocument();
+    expect(
+      screen.getByText("onboarding.first_request_title")
+    ).toBeInTheDocument();
+    // First-request command for Codex
+    expect(screen.getByText("codex")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "onboarding.go_to_clients" })
+    ).toBeInTheDocument();
+  });
+
+  it("does not mark complete when probe fails; primary CTA opens logs", async () => {
+    vi.mocked(api.testToolConnection).mockResolvedValue({
+      config_ok: true,
+      gateway_ok: true,
+      provider_ok: false,
+      error: "provider probe failed",
+    } as any);
+
+    await goThroughKeyAndTools();
+    const setup = screen.getAllByText("onboarding.start_setup").pop()!;
+    await act(async () => setup.click());
+
+    await waitFor(() => expect(api.testToolConnection).toHaveBeenCalled());
+
+    expect(
+      await screen.findByText("onboarding.incomplete")
+    ).toBeInTheDocument();
+    expect(screen.queryByText("onboarding.complete")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "onboarding.next_logs" })
+    ).toBeInTheDocument();
+  });
+
+  it("does not green gateway when start fails and status is not running", async () => {
+    vi.mocked(api.startGateway).mockRejectedValue(new Error("bind failed"));
+    vi.mocked(api.getGatewayStatus).mockResolvedValue({
+      running: false,
+    } as any);
+
+    await goThroughKeyAndTools();
+    const setup = screen.getAllByText("onboarding.start_setup").pop()!;
+    await act(async () => setup.click());
+
+    await waitFor(() => expect(api.startGateway).toHaveBeenCalled());
+    await waitFor(() => expect(api.getGatewayStatus).toHaveBeenCalled());
+
+    expect(
+      await screen.findByText("onboarding.incomplete")
+    ).toBeInTheDocument();
+    // Primary CTA for gateway failure is retry
+    expect(
+      screen.getByRole("button", { name: "onboarding.next_retry" })
+    ).toBeInTheDocument();
+    // Must not claim full success
+    expect(screen.queryByText("onboarding.complete")).not.toBeInTheDocument();
+  });
+
+  it("shows providers CTA when create provider fails", async () => {
+    vi.mocked(api.createProvider).mockRejectedValue(new Error("bad key"));
+
+    await goThroughKeyAndTools();
+    const setup = screen.getAllByText("onboarding.start_setup").pop()!;
+    await act(async () => setup.click());
+
+    await waitFor(() => expect(api.createProvider).toHaveBeenCalled());
+
+    expect(
+      await screen.findByText("onboarding.incomplete")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "onboarding.next_providers" })
+    ).toBeInTheDocument();
   });
 });

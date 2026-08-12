@@ -18,6 +18,7 @@ import { useI18n } from "@/lib/i18n";
 import { usePolling } from "@/lib/usePolling";
 import { formatLatency } from "@/lib/utils";
 import { estimateCacheSavingsUsd } from "@/lib/requestLogDebug";
+import { firstRequestCommandsFor } from "@/lib/firstRequestCommands";
 import * as api from "@/lib/api";
 import {
   useProviders,
@@ -27,6 +28,7 @@ import {
 import type { ToolConfigView } from "@/types/tool";
 import type { RequestLogListItem, CostBreakdown } from "@/types/request-log";
 import type { RequestStats } from "@/types/stats";
+import { CopyButton } from "@/components/common/CopyButton";
 
 /// 极简 deep equal：JSON 字符串化对比。dashboard 数据 payload 不大
 /// （几个 KB），常数时间。避免 5 秒轮询每次都触发 React 重渲让数字
@@ -196,10 +198,13 @@ export function Dashboard() {
   const { t, locale } = useI18n();
   // gateway status 走全局 store——Topbar 已经在 3s 轮询，这里只订阅。
   const status = useGatewayStatus((s) => s.value);
+  const providers = useProviders((s) => s.items);
   const [tools, setTools] = useState<ToolConfigView[]>([]);
   const [recentLogs, setRecentLogs] = useState<RequestLogListItem[]>([]);
   const [stats, setStats] = useState<RequestStats | null>(null);
   const [providerCount, setProviderCount] = useState<number | null>(null);
+  /// Clients actually wired to AgentGate (has_agentgate), not merely config_exists.
+  const [wiredClientIds, setWiredClientIds] = useState<string[]>([]);
   const [costByModel, setCostByModel] = useState<CostBreakdown[]>([]);
   const [costByClient, setCostByClient] = useState<CostBreakdown[]>([]);
   const [costByStrategy, setCostByStrategy] = useState<CostBreakdown[]>([]);
@@ -210,22 +215,35 @@ export function Dashboard() {
       // providers / route profiles / gateway status 走全局 store——刷新到
       // store,其它页面切回来不会再重发 invoke。status 的 fetch 与 Topbar
       // 轮询并发时自动合并成一次 invoke。
-      const [tl, l, st, cm, cc, rs] = await Promise.all([
-        api.listTools(),
-        api.listRequestLogs({ limit: 5 }),
-        api.getRequestStatsRange(rangeDays),
-        api.aggregateCostByModel(rangeDays, 8),
-        api.aggregateCostByClient(rangeDays, 8),
-        api.aggregateRouteProfileStats(rangeDays).catch(() => []),
-        useGatewayStatus.getState().fetch(),
-        useProviders.getState().refetch(),
-        useRouteProfiles
-          .getState()
-          .refetch()
-          .catch(() => {}),
-      ]);
+      const [tl, l, st, cm, cc, rs, codex, claude, opencode, gemini, atom] =
+        await Promise.all([
+          api.listTools(),
+          api.listRequestLogs({ limit: 5 }),
+          api.getRequestStatsRange(rangeDays),
+          api.aggregateCostByModel(rangeDays, 8),
+          api.aggregateCostByClient(rangeDays, 8),
+          api.aggregateRouteProfileStats(rangeDays).catch(() => []),
+          api.detectCodexConfig().catch(() => null),
+          api.detectClaudeCodeEnv().catch(() => null),
+          api.detectOpenCodeConfig().catch(() => null),
+          api.detectGeminiConfig().catch(() => null),
+          api.detectAtomCodeConfig().catch(() => null),
+          useGatewayStatus.getState().fetch(),
+          useProviders.getState().refetch(),
+          useRouteProfiles
+            .getState()
+            .refetch()
+            .catch(() => {}),
+        ]);
       const ps = useProviders.getState().items;
       const rp = useRouteProfiles.getState().items;
+      // 只认 has_agentgate：本机有 ~/.codex 等文件 ≠ 已 apply AgentGate。
+      const wired: string[] = [];
+      if (codex?.has_agentgate) wired.push("codex");
+      if (claude?.has_agentgate) wired.push("claude_code");
+      if (opencode?.has_agentgate) wired.push("opencode");
+      if (gemini?.has_agentgate) wired.push("gemini");
+      if (atom?.has_agentgate) wired.push("atomcode");
       // 按策略成本：route_profile stats(含 cost/请求数) + profile 名字，转成
       // 和按模型/客户端一致的 CostBreakdown 形态复用 CostList。
       const nameMap = Object.fromEntries(rp.map((p) => [p.id, p.name]));
@@ -258,6 +276,9 @@ export function Dashboard() {
       // re-render 让数字闪烁、按钮跳动。浅比对 JSON 字符串虽然不最高效，
       // 但对这点 payload 来说是常数时间，且写法最直接。
       setTools((prev) => (shallowEqual(prev, tl) ? prev : tl));
+      setWiredClientIds((prev) =>
+        shallowEqual(prev, wired) ? prev : wired
+      );
       setProviderCount((prev) => (prev === ps.length ? prev : ps.length));
       setRecentLogs((prev) => (shallowEqual(prev, l) ? prev : l));
       setStats((prev) => (shallowEqual(prev, st) ? prev : st));
@@ -315,8 +336,15 @@ export function Dashboard() {
   const todayTokens = stats
     ? stats.today_input_tokens + stats.today_output_tokens
     : 0;
-  const hasProviders = providerCount !== null && providerCount > 0;
-  const hasConfiguredTool = tools.some((tool) => tool.config_exists);
+  // 种子供应商（空 key）不算就绪：要能真正发请求。
+  const hasUsableProvider = providers.some(
+    (p) => p.enabled !== false && !!p.masked_api_key
+  );
+  // 兼容旧逻辑：provider 列表尚未加载完时不闪「空态」
+  const providersKnown = providerCount !== null;
+  const hasWiredClient = wiredClientIds.length > 0;
+  const hasProviders = providersKnown && (providerCount ?? 0) > 0;
+  const readyCommands = firstRequestCommandsFor(wiredClientIds);
 
   return (
     <div className="space-y-4">
@@ -387,8 +415,13 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* ── 分层新手引导：无 provider / gateway 未启动 / 尚未产生请求。 ── */}
-      {providerCount === 0 && (
+      {/* ── 分层新手引导（互斥，自上而下只显示一层）：
+            1) 无可发请求的供应商（无 key 的 seed 也算）→ 快速配置
+            2) 有 key 但网关未开 → 启网关
+            3) 有 key + 网关开，但没有任何 has_agentgate 客户端 → 去 apply
+            4) 已 apply + 尚无网关请求 → 只展示已接入客户端的启动命令
+          禁止用 config_exists（本机有配置文件）冒充已接入。 ── */}
+      {providersKnown && !hasUsableProvider && (
         <OnboardingPrompt
           icon={<Rocket className="h-6 w-6" />}
           title={t("dashboard.empty_title")}
@@ -405,7 +438,7 @@ export function Dashboard() {
         />
       )}
 
-      {hasProviders && !status.running && (
+      {hasUsableProvider && !status.running && (
         <OnboardingPrompt
           icon={<Play className="h-6 w-6" />}
           title={t("dashboard.gateway_empty_title")}
@@ -422,32 +455,77 @@ export function Dashboard() {
         />
       )}
 
-      {hasProviders && status.running && stats && stats.total === 0 && (
-        <OnboardingPrompt
-          icon={<Rocket className="h-6 w-6" />}
-          title={
-            hasConfiguredTool
-              ? t("dashboard.no_requests_ready_title")
-              : t("dashboard.no_requests_config_title")
-          }
-          desc={
-            hasConfiguredTool
-              ? t("dashboard.no_requests_ready_desc")
-              : t("dashboard.no_requests_config_desc")
-          }
-          action={
-            <Link
-              to={hasConfiguredTool ? "/logs" : "/tools"}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-all hover:gap-2"
-            >
-              {hasConfiguredTool
-                ? t("dashboard.no_requests_ready_cta")
-                : t("dashboard.no_requests_config_cta")}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          }
-        />
-      )}
+      {hasUsableProvider &&
+        status.running &&
+        stats &&
+        stats.total === 0 &&
+        !hasWiredClient && (
+          <OnboardingPrompt
+            icon={<Rocket className="h-6 w-6" />}
+            title={t("dashboard.no_requests_config_title")}
+            desc={t("dashboard.no_requests_config_desc")}
+            action={
+              <Link
+                to="/tools"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-all hover:gap-2"
+              >
+                {t("dashboard.no_requests_config_cta")}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            }
+          />
+        )}
+
+      {hasUsableProvider &&
+        status.running &&
+        stats &&
+        stats.total === 0 &&
+        hasWiredClient && (
+          <OnboardingPrompt
+            icon={<Rocket className="h-6 w-6" />}
+            title={t("dashboard.no_requests_ready_title")}
+            desc={t("dashboard.no_requests_ready_desc")}
+            action={
+              <div className="space-y-3">
+                {readyCommands.length > 0 && (
+                  <ul className="space-y-2">
+                    {readyCommands.map((cmd) => (
+                      <li
+                        key={cmd.command}
+                        className="flex max-w-md items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2"
+                      >
+                        <div className="min-w-0">
+                          <div className="text-[10px] uppercase tracking-wide text-text-muted">
+                            {cmd.name}
+                          </div>
+                          <code className="block truncate font-mono text-xs text-text-primary">
+                            {cmd.command}
+                          </code>
+                        </div>
+                        <CopyButton text={cmd.command} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="flex flex-wrap items-center gap-3">
+                  <Link
+                    to="/tools"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-all hover:gap-2"
+                  >
+                    {t("dashboard.no_requests_ready_cta")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to="/logs"
+                    className="text-xs text-text-muted hover:text-text-primary"
+                  >
+                    {t("dashboard.no_requests_ready_logs")}
+                  </Link>
+                </div>
+              </div>
+            }
+          />
+        )}
 
       {/* ── 2. Today card — 5 primary metrics + cache inline footer when present ── */}
       {hasProviders && stats && stats.total > 0 && (

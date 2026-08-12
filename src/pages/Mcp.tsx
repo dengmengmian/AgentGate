@@ -297,8 +297,9 @@ export function Mcp() {
 
   return (
     <div className="space-y-4">
-      <header className="relative overflow-hidden rounded-xl border border-accent/20 bg-card p-5 shadow-sm">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-accent/10 to-transparent" />
+      {/* overflow-hidden 会裁掉「更多」下拉，渐变单独加圆角裁剪即可 */}
+      <header className="relative z-10 rounded-xl border border-accent/20 bg-card p-5 shadow-sm">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 overflow-hidden rounded-t-xl bg-gradient-to-b from-accent/10 to-transparent" />
         <div className="relative flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-accent">
@@ -328,42 +329,52 @@ export function Mcp() {
               onClick={() => setMoreOpen((open) => !open)}
               className="rounded-md border border-border bg-card-secondary p-1.5 text-text-secondary hover:border-accent/40 hover:text-text-primary"
               title={t("mcp.more")}
+              aria-expanded={moreOpen}
             >
               <MoreHorizontal className="h-4 w-4" />
             </button>
             {moreOpen && (
-              <div className="absolute right-0 top-9 z-20 w-52 rounded-lg border border-border bg-card p-2 shadow-lg">
-                <label className="mb-1 flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] text-text-muted">
-                  <input
-                    type="checkbox"
-                    checked={includeSecrets}
-                    onChange={(event) =>
-                      setIncludeSecrets(event.target.checked)
-                    }
-                    className="h-3.5 w-3.5 rounded border-border"
-                  />
-                  {t("mcp.export_include_secrets")}
-                </label>
+              <>
+                {/* 点击外部关闭 */}
                 <button
-                  onClick={handleExport}
-                  disabled={transferring}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-text-secondary hover:bg-card-secondary disabled:opacity-60"
-                >
-                  {transferring ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Download className="h-3.5 w-3.5" />
-                  )}
-                  {t("mcp.export_json")}
-                </button>
-                <button
-                  onClick={openImport}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-text-secondary hover:bg-card-secondary"
-                >
-                  <Upload className="h-3.5 w-3.5" />
-                  {t("mcp.import_json")}
-                </button>
-              </div>
+                  type="button"
+                  className="fixed inset-0 z-30 cursor-default bg-transparent"
+                  aria-label="close menu"
+                  onClick={() => setMoreOpen(false)}
+                />
+                <div className="absolute right-0 top-full z-40 mt-1 w-52 rounded-lg border border-border bg-card p-2 shadow-lg">
+                  <label className="mb-1 flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] text-text-muted">
+                    <input
+                      type="checkbox"
+                      checked={includeSecrets}
+                      onChange={(event) =>
+                        setIncludeSecrets(event.target.checked)
+                      }
+                      className="h-3.5 w-3.5 rounded border-border"
+                    />
+                    {t("mcp.export_include_secrets")}
+                  </label>
+                  <button
+                    onClick={handleExport}
+                    disabled={transferring}
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-text-secondary hover:bg-card-secondary disabled:opacity-60"
+                  >
+                    {transferring ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Download className="h-3.5 w-3.5" />
+                    )}
+                    {t("mcp.export_json")}
+                  </button>
+                  <button
+                    onClick={openImport}
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-text-secondary hover:bg-card-secondary"
+                  >
+                    <Upload className="h-3.5 w-3.5" />
+                    {t("mcp.import_json")}
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
