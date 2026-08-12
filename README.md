@@ -28,17 +28,17 @@
   <img src="docs/demo-header-v2.gif" width="800" alt="AgentGate intercepts requests from Claude Code, Codex, and Gemini CLI at a local gateway — converting, passing through, routing, or failing over to 26 providers, with every request traced live">
 </p>
 
-> **New in v1.6.1 — native Responses pass-through fixes:** Codex gpt-5.6+ hides tool definitions inside `input.additional_tools`, which pass-through was dropping, so upstreams saw no tools and the model wrote fake tool calls as plain text — now fixed. Pass-through also records Responses-shaped token usage and cost correctly, and falls back to protocol conversion when the upstream cannot accept the model or a custom tool. Note on DeepSeek: `deepseek-v4-flash` officially supports the Responses API, but in our tests direct pass-through produced noticeably worse output, so AgentGate ships no Responses endpoint for DeepSeek and keeps converting to Chat Completions. [See the v1.6.1 release notes](./docs/release-notes/1.6.1.md) · [Codex + DeepSeek](./docs/use-codex-with-deepseek.md).
+> **New in v1.6.2 — first-run clarity & failure timeline:** Quick Setup only marks complete when provider, gateway, client apply, and probe succeed; the dashboard no longer treats every local config file as “ready.” Failed request details show a stream failure timeline (start → route → upstream → last SSE → failover → end). Sessions UI and local-model discovery are cleaner. [See the v1.6.2 release notes](./docs/release-notes/1.6.2.md).
 
 ## Download
 
 | Your machine | Download |
 |---|---|
-| macOS Apple Silicon | [AgentGate_1.6.1_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_aarch64.dmg) |
-| macOS Intel | [AgentGate_1.6.1_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_x64.dmg) |
-| Windows 10 / 11 | [AgentGate_1.6.1_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_x64-setup.exe) |
-| Debian / Ubuntu | [AgentGate_1.6.1_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_amd64.deb) |
-| Other Linux distros | [AgentGate_1.6.1_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_amd64.AppImage) |
+| macOS Apple Silicon | [AgentGate_1.6.2_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_aarch64.dmg) |
+| macOS Intel | [AgentGate_1.6.2_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64.dmg) |
+| Windows 10 / 11 | [AgentGate_1.6.2_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64-setup.exe) |
+| Debian / Ubuntu | [AgentGate_1.6.2_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.deb) |
+| Other Linux distros | [AgentGate_1.6.2_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.AppImage) |
 
 **Windows install note:** Edge/Chrome may say the file is “usually not downloaded,” and SmartScreen may show **Windows protected your PC**. That is expected: the installer is not Authenticode-signed. There is no free, widely trusted Windows code-signing certificate (Let’s Encrypt only covers HTTPS, not `.exe`), so open-source builds often ship unsigned — this is **not** a virus report. Download only from [GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases). In the browser choose **Keep** / **Keep anyway**, then when SmartScreen appears click **More info** → **Run anyway**.
 

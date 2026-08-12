@@ -111,9 +111,7 @@ describe("Providers", () => {
       fireEvent.click(screen.getByText("providers.local_discover"));
     });
 
-    await waitFor(() =>
-      expect(api.discoverLocalEndpoints).toHaveBeenCalled()
-    );
+    await waitFor(() => expect(api.discoverLocalEndpoints).toHaveBeenCalled());
     expect(await screen.findByText("Ollama")).toBeInTheDocument();
   });
 

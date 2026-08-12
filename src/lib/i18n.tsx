@@ -586,6 +586,34 @@ const translations: Record<string, Record<Locale, string>> = {
   "logs.error_chain": { en: "Error Chain", zh: "错误链路" },
   "logs.error_final": { en: "Final response", zh: "最终响应" },
   "logs.error_mapper": { en: "Error mapper", zh: "错误映射" },
+  "logs.timeline_title": {
+    en: "Failure timeline",
+    zh: "失败时间轴",
+  },
+  "logs.timeline_hint": {
+    en: "Start → route → upstream → last SSE → failover → end",
+    zh: "开始 → 选路 → 上游 → 末次 SSE → 故障转移 → 结束",
+  },
+  "logs.timeline.start": { en: "Request started", zh: "请求开始" },
+  "logs.timeline.route": { en: "Route selected", zh: "选路完成" },
+  "logs.timeline.upstream": {
+    en: "Upstream response",
+    zh: "上游状态",
+  },
+  "logs.timeline.sse": {
+    en: "Last SSE event",
+    zh: "末次 SSE 事件",
+  },
+  "logs.timeline.failover": {
+    en: "Failover / retry chain",
+    zh: "故障转移 / 重试链",
+  },
+  "logs.timeline.failover_single": {
+    en: "Provider attempt",
+    zh: "供应商尝试",
+  },
+  "logs.timeline.end_fail": { en: "Ended with error", zh: "以错误结束" },
+  "logs.timeline.end_ok": { en: "Ended", zh: "结束" },
   "logs.circuit_breaker": { en: "Circuit breaker", zh: "熔断状态" },
   "logs.model_degradation": { en: "Model degradation", zh: "模型降级" },
   "logs.route_decision": { en: "Route Decision", zh: "路由命中" },
@@ -2205,7 +2233,10 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "扫描本机常见端口（Ollama、LM Studio）。未启动的也会列出，方便手动添加。",
   },
   "providers.local_scan": { en: "Scan", zh: "扫描" },
-  "providers.local_scanning": { en: "Scanning local ports…", zh: "正在扫描本机端口…" },
+  "providers.local_scanning": {
+    en: "Scanning local ports…",
+    zh: "正在扫描本机端口…",
+  },
   "providers.local_scan_done": {
     en: "Results below. Offline entries can still be added if you start the app later.",
     zh: "结果如下。未检测到的也可以先添加，稍后再启动对应服务。",

@@ -28,17 +28,17 @@
   <img src="docs/demo-header-v2.gif" width="800" alt="AgentGate 在本地网关截获 Claude Code、Codex、Gemini CLI 的请求——转换 / 直连 / 路由 / 故障转移到 26 家上游，每条请求都在本地可追踪">
 </p>
 
-> **v1.6.1 修复原生 Responses 直通：** Codex gpt-5.6+ 把工具定义藏在 `input.additional_tools` 里，直通会把它丢掉，导致上游收不到工具、模型在正文里编造工具调用，现已修复；直通同时能正确统计 Responses 形态的 token 与成本，遇到上游不支持的模型或自定义工具会自动回落到协议转换。DeepSeek 说明：`deepseek-v4-flash` 已正式支持 Responses API，但实测直连的输出效果明显更差（降智），因此 AgentGate 暂不为 DeepSeek 开放 Responses 直通，默认仍转换成 Chat Completions。[查看 v1.6.1 更新说明](./docs/release-notes/1.6.1.md) · [Codex + DeepSeek](./docs/use-codex-with-deepseek-zh.md)。
+> **v1.6.2 首装更清楚 + 失败时间轴：** 快速配置仅在供应商、网关、客户端 apply、探针都成功时算完成；概览不再把「本机有配置文件」当成已就绪。失败请求详情展示流式失败时间轴（开始 → 选路 → 上游 → 末次 SSE → 故障转移 → 结束）。会话页与本地模型入口也更干净。[查看 v1.6.2 更新说明](./docs/release-notes/1.6.2.md)。
 
 ## 下载
 
 | 你的机器 | 下载 |
 |---|---|
-| macOS Apple 芯片 | [AgentGate_1.6.1_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_aarch64.dmg) |
-| macOS Intel 芯片 | [AgentGate_1.6.1_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_x64.dmg) |
-| Windows 10 / 11 | [AgentGate_1.6.1_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_x64-setup.exe) |
-| Debian / Ubuntu | [AgentGate_1.6.1_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_amd64.deb) |
-| 其他 Linux 发行版 | [AgentGate_1.6.1_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.1/AgentGate_1.6.1_amd64.AppImage) |
+| macOS Apple 芯片 | [AgentGate_1.6.2_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_aarch64.dmg) |
+| macOS Intel 芯片 | [AgentGate_1.6.2_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64.dmg) |
+| Windows 10 / 11 | [AgentGate_1.6.2_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64-setup.exe) |
+| Debian / Ubuntu | [AgentGate_1.6.2_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.deb) |
+| 其他 Linux 发行版 | [AgentGate_1.6.2_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.AppImage) |
 
 **Windows 安装提示：** Edge/Chrome 可能提示「通常不会下载」，SmartScreen 可能提示「Windows 已保护你的电脑」。这是预期行为：安装包目前**未做 Authenticode 代码签名**。业界没有像 Let’s Encrypt 那样「免费且被 Windows 默认信任」的代码签名证书（免费证书只管 HTTPS 网站，不能签 `.exe`），开源项目常见先发未签名包——**不是病毒报错**。请只从 [GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases) 下载；浏览器里选 **保留 / 仍要保留**，运行时点 **更多信息** → **仍要运行**。
 

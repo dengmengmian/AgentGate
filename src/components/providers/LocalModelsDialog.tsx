@@ -90,9 +90,7 @@ export function LocalModelsDialog({
             disabled={scanning}
             className="btn-secondary text-xs"
           >
-            {scanning ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : null}
+            {scanning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
             {t("providers.local_scan")}
           </button>
         </div>

@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Download, Info, MessageSquare } from "lucide-react";
+import {
+  Download,
+  Info,
+  MessageSquare,
+  Circle,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+} from "lucide-react";
 import { DetailDrawer } from "@/components/layout/DetailDrawer";
 import { ConversationModal } from "@/components/logs/ConversationModal";
 import { JsonCodeBlock } from "@/components/common/JsonCodeBlock";
@@ -10,6 +18,12 @@ import { formatTimestamp, formatOptionalLatency } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { sourceLabel } from "@/components/logs/RequestLogTable";
 import { buildReproPackage, pairBodies } from "@/lib/requestLogDebug";
+import {
+  buildStreamFailureTimeline,
+  shouldShowFailureTimeline,
+  type TimelineStatus,
+  type TimelineStep,
+} from "@/lib/streamFailureTimeline";
 import type { RequestLogDetail } from "@/types/request-log";
 
 interface RouteDecisionTrace {
@@ -101,7 +115,7 @@ export function RequestDetailDrawer({
       converted_request: request.converted_request,
       raw_response: request.raw_response,
       converted_response: request.converted_response,
-      app_version: "1.5.1",
+      app_version: "1.6.2",
       include_bodies: includeBodiesInExport,
     });
     try {
@@ -184,6 +198,11 @@ export function RequestDetailDrawer({
             statusCode={request.status_code ?? 0}
             message={request.error_message}
           />
+        )}
+
+        {/* A2.3: 流式/请求失败时间轴 — 开始→选路→上游→last SSE→failover→结束 */}
+        {shouldShowFailureTimeline(request) && (
+          <StreamFailureTimelineCard request={request} />
         )}
 
         {isError && <ErrorChainCard request={request} trace={trace} />}
@@ -570,6 +589,87 @@ function RouteDecisionCard({ decision }: { decision: RouteDecisionTrace }) {
       )}
     </div>
   );
+}
+
+function StreamFailureTimelineCard({ request }: { request: RequestLogDetail }) {
+  const { t } = useI18n();
+  const steps = buildStreamFailureTimeline(request);
+  if (steps.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-border bg-card-secondary p-4">
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <h4 className="text-xs font-semibold text-text-primary">
+          {t("logs.timeline_title")}
+        </h4>
+        <span className="text-[10px] text-text-muted">
+          {t("logs.timeline_hint")}
+        </span>
+      </div>
+      <ol className="mt-3 space-y-0">
+        {steps.map((step, idx) => (
+          <TimelineRow
+            key={step.id}
+            step={step}
+            isLast={idx === steps.length - 1}
+            title={timelineTitle(step, t)}
+          />
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function timelineTitle(step: TimelineStep, t: (key: string) => string): string {
+  return t(step.titleKey);
+}
+
+function TimelineRow({
+  step,
+  isLast,
+  title,
+}: {
+  step: TimelineStep;
+  isLast: boolean;
+  title: string;
+}) {
+  return (
+    <li className="flex gap-3">
+      <div className="flex w-4 shrink-0 flex-col items-center">
+        <TimelineDot status={step.status} />
+        {!isLast && (
+          <div className="my-0.5 w-px flex-1 min-h-[12px] bg-border" />
+        )}
+      </div>
+      <div className={`min-w-0 flex-1 ${isLast ? "pb-0" : "pb-3"}`}>
+        <p className="text-xs font-medium text-text-primary">{title}</p>
+        {step.detail && (
+          <p
+            className="mt-0.5 break-words font-mono text-[11px] leading-relaxed text-text-secondary"
+            title={step.detail}
+          >
+            {step.detail}
+          </p>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function TimelineDot({ status }: { status: TimelineStatus }) {
+  const cls = "h-3.5 w-3.5 shrink-0";
+  switch (status) {
+    case "error":
+      return <XCircle className={`${cls} text-error`} />;
+    case "warn":
+      return <AlertTriangle className={`${cls} text-warning`} />;
+    case "ok":
+      return <CheckCircle2 className={`${cls} text-success`} />;
+    case "skip":
+      return <Circle className={`${cls} text-text-muted/50`} />;
+    default:
+      return <Circle className={`${cls} text-accent`} />;
+  }
 }
 
 function ErrorChainCard({

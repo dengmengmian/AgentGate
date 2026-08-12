@@ -99,7 +99,11 @@ export function SessionGroupView({
         description={t("logs.session_empty_desc")}
         action={
           onEmptyAction ? (
-            <button type="button" onClick={onEmptyAction} className="btn-primary">
+            <button
+              type="button"
+              onClick={onEmptyAction}
+              className="btn-primary"
+            >
               {t("logs.session_empty_cta")}
             </button>
           ) : undefined

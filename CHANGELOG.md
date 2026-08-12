@@ -1,5 +1,25 @@
 # Changelog / 更新日志
 
+## [1.6.2] - 2026-08-12
+
+### Added / 新增
+
+- **Stream failure timeline / 流式失败时间轴** —— Failed request details show start → route → upstream status → last SSE event → failover chain → end reason (from `trace_json` / `sse_events`). 失败请求详情展示：开始 → 选路 → 上游状态 → 末次 SSE → 故障转移 → 结束原因（来自 `trace_json` / `sse_events`）。
+- **First-request launch commands / 首条请求启动命令** —— After successful Quick Setup (and when Dashboard is truly ready), show copyable commands only for AgentGate-wired clients. 快速配置成功后（及概览真正就绪时），仅对已接入 AgentGate 的客户端展示可复制启动命令。
+
+### Improvements / 改进
+
+- **Honest onboarding completion / 首装完成条件收紧** —— Complete only when provider + gateway running + ≥1 client applied + probe OK; one primary failure CTA. 仅当供应商、网关运行、至少一个客户端 apply、探针成功才算完成；失败只有一个主 CTA。
+- **Dashboard readiness / 概览就绪判定** —— Requires usable API key and `has_agentgate`, not `config_exists` alone. 需要可用 API Key 且客户端已 `has_agentgate`，不再只看本机配置文件是否存在。
+- **Sessions UI / 会话视图** —— Primary request/session switch, lighter session filters, card list with conversation as main action. 请求/会话主切换、会话筛选更轻、卡片列表主操作为打开对话。
+- **Local models dialog / 本地模型弹窗** —— Scan Ollama / LM Studio from a toolbar dialog instead of an always-on panel. 从工具栏弹窗扫描，不再常驻供应商页。
+- **MCP more menu / MCP 更多菜单** —— Header overflow no longer clips the export/import menu. 页头不再裁切导出/导入菜单。
+- **Provider tips / 供应商提示** —— Refiner jargon removed from card face; plain-language tips under expanded details. 卡片正面去掉工程师术语，展开详情后用人话提示。
+
+### Removed / 移除
+
+- **Dead SetupWizard / 未挂载的 SetupWizard** —— Removed unused onboarding component; `/quick-setup` is the real entry. 删除未挂载的引导组件，真入口为 `/quick-setup`。
+
 ## [1.6.1] - 2026-07-31
 
 ### Fixed / 修复

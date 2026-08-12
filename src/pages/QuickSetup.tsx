@@ -753,7 +753,10 @@ export function QuickSetup() {
                   </div>
                   <div className="flex flex-wrap justify-end gap-2">
                     {primaryFailureCta && (
-                      <button onClick={goPrimaryFailure} className="btn-primary">
+                      <button
+                        onClick={goPrimaryFailure}
+                        className="btn-primary"
+                      >
                         {primaryFailureCta === "retry" &&
                           t("onboarding.next_retry")}
                         {primaryFailureCta === "providers" &&

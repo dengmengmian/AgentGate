@@ -14,7 +14,11 @@ describe("firstRequestCommands", () => {
   });
 
   it("dedupes claude variants", () => {
-    const cmds = firstRequestCommandsFor(["claude_code", "claude-code", "codex"]);
+    const cmds = firstRequestCommandsFor([
+      "claude_code",
+      "claude-code",
+      "codex",
+    ]);
     expect(cmds.map((c) => c.command)).toEqual(["claude", "codex"]);
   });
 });

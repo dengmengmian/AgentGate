@@ -276,9 +276,7 @@ export function Dashboard() {
       // re-render 让数字闪烁、按钮跳动。浅比对 JSON 字符串虽然不最高效，
       // 但对这点 payload 来说是常数时间，且写法最直接。
       setTools((prev) => (shallowEqual(prev, tl) ? prev : tl));
-      setWiredClientIds((prev) =>
-        shallowEqual(prev, wired) ? prev : wired
-      );
+      setWiredClientIds((prev) => (shallowEqual(prev, wired) ? prev : wired));
       setProviderCount((prev) => (prev === ps.length ? prev : ps.length));
       setRecentLogs((prev) => (shallowEqual(prev, l) ? prev : l));
       setStats((prev) => (shallowEqual(prev, st) ? prev : st));

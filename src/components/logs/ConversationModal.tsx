@@ -193,9 +193,7 @@ export function ConversationModal({
             <StatPill
               label={t("logs.session_col_cost")}
               value={
-                usageSummary.cost > 0
-                  ? `$${usageSummary.cost.toFixed(4)}`
-                  : "—"
+                usageSummary.cost > 0 ? `$${usageSummary.cost.toFixed(4)}` : "—"
               }
             />
             {providersLabel && (
@@ -248,9 +246,7 @@ function MessageBubble({ msg }: { msg: ConversationMessage }) {
   const kind = getConversationMessageKind(msg.text);
   const time = msg.timestamp ? formatTimestamp(msg.timestamp) : "";
   const toolBody =
-    kind === "tool_result"
-      ? msg.text.replace(/^\[Tool result\]\s*/, "")
-      : "";
+    kind === "tool_result" ? msg.text.replace(/^\[Tool result\]\s*/, "") : "";
   const toolResultLong =
     toolBody.length > 280 || toolBody.split("\n").length > 6;
   // Hooks must stay unconditional (even when not a tool_result bubble).
