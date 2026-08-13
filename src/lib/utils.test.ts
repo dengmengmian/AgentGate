@@ -2,10 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   cn,
   formatTimestamp,
-  formatDate,
   formatLatency,
   formatOptionalLatency,
-  formatUptime,
 } from "./utils";
 
 describe("cn", () => {
@@ -34,19 +32,6 @@ describe("formatTimestamp", () => {
   });
 });
 
-describe("formatDate", () => {
-  it("formats ISO string to locale date", () => {
-    const result = formatDate("2024-01-15T08:30:45.000Z");
-    expect(result).toContain("2024");
-  });
-
-  it("supports zh locale", () => {
-    const result = formatDate("2024-01-15T08:30:45.000Z", "zh");
-    // zh-CN format includes year numeric
-    expect(result).toContain("2024");
-  });
-});
-
 describe("formatLatency", () => {
   it("shows ms for values under 1000", () => {
     expect(formatLatency(500)).toBe("500ms");
@@ -70,19 +55,5 @@ describe("formatOptionalLatency", () => {
   it("formats positive latency", () => {
     expect(formatOptionalLatency(500)).toBe("500ms");
     expect(formatOptionalLatency(1500)).toBe("1.5s");
-  });
-});
-
-describe("formatUptime", () => {
-  it("shows hours and minutes when >= 1 hour", () => {
-    expect(formatUptime(3600)).toBe("1h 0m");
-    expect(formatUptime(3660)).toBe("1h 1m");
-    expect(formatUptime(7200)).toBe("2h 0m");
-  });
-
-  it("shows only minutes when < 1 hour", () => {
-    expect(formatUptime(0)).toBe("0m");
-    expect(formatUptime(60)).toBe("1m");
-    expect(formatUptime(3540)).toBe("59m");
   });
 });

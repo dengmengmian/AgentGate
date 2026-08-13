@@ -113,10 +113,7 @@ pub async fn process_anthropic_stream(
         }
         bootstrap_replayed = true;
 
-        while let Some(frame_end) = buffer.find("\n\n") {
-            let frame = buffer[..frame_end].to_string();
-            buffer = buffer[frame_end + 2..].to_string();
-
+        for frame in crate::gateway::sse_buffer::take_complete_frames(&mut buffer) {
             // Parse event type and data from frame
             let mut event_type = String::new();
             let mut data_str = String::new();

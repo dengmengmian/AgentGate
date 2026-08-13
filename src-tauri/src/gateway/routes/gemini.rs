@@ -84,6 +84,9 @@ pub async fn handle_gemini_generate(
         .to_string();
     let is_stream = model_path.contains("streamGenerateContent");
 
+    let force_cheapest =
+        crate::gateway::budget::check_new_request(&state.db).map_err(GatewayError)?;
+
     let gemini_body: serde_json::Value = serde_json::from_str(&body).map_err(|e| {
         let err = AppError::new(
             crate::errors::codes::GEMINI_PARSE_ERROR,
@@ -102,19 +105,21 @@ pub async fn handle_gemini_generate(
         err
     })?;
 
+    let analysis = crate::gateway::provider_selector::analyze_gemini_value(&gemini_body);
+
     // Select provider (use openai_responses route profile since Gemini CLI is a coding agent)
-    let selection = crate::gateway::provider_selector::select_for_failover(
+    let mut selection = crate::gateway::provider_selector::select_for_failover(
         &state.db,
         "openai_responses",
         Some(&model_name),
-        None,
+        Some(&analysis),
     )
     .or_else(|_| {
         crate::gateway::provider_selector::select_for_failover(
             &state.db,
             "openai_chat_completions",
-            None,
-            None,
+            Some(&model_name),
+            Some(&analysis),
         )
     })
     .map_err(|e| {
@@ -130,6 +135,9 @@ pub async fn handle_gemini_generate(
         );
         GatewayError(e)
     })?;
+    if force_cheapest {
+        let _ = crate::gateway::budget::apply_force_cheapest(&state.db, &mut selection);
+    }
 
     let config = ProviderConfig::from_provider(&selection.provider).map_err(|e| {
         log_request_error(
@@ -313,8 +321,8 @@ pub async fn handle_gemini_generate(
                         &request_id,
                         &raw_body,
                         "",
-                        &serde_json::to_string_pretty(&upstream_json).unwrap_or_default(),
-                        &serde_json::to_string_pretty(&upstream_json).unwrap_or_default(),
+                        &serde_json::to_string(&upstream_json).unwrap_or_default(),
+                        &serde_json::to_string(&upstream_json).unwrap_or_default(),
                         None,
                         &config.name,
                         &final_model,
@@ -371,7 +379,7 @@ pub async fn handle_gemini_generate(
     }
 
     let _refiner_log = refine_struct_body(&state.db, &selection.provider, &mut chat_req);
-    let mut converted_json = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+    let mut converted_json = serde_json::to_string(&chat_req).unwrap_or_default();
 
     if is_stream {
         // Stream: Chat Completions SSE → convert each chunk to Gemini SSE format
@@ -394,7 +402,7 @@ pub async fn handle_gemini_generate(
                 );
                 GatewayError(e)
             })?;
-        converted_json = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+        converted_json = serde_json::to_string(&chat_req).unwrap_or_default();
 
         // Bootstrap-validate the upstream Chat Completions stream before
         // committing to forwarding the converted Gemini SSE back to the client.
@@ -465,10 +473,7 @@ pub async fn handle_gemini_generate(
                 }
                 bootstrap_replayed = true;
 
-                while let Some(line_end) = buffer.find('\n') {
-                    let line = buffer[..line_end].trim_end_matches('\r').to_string();
-                    buffer = buffer[line_end + 1..].to_string();
-
+                for line in crate::gateway::sse_buffer::take_complete_lines(&mut buffer) {
                     if line.is_empty() || line.starts_with(':') {
                         continue;
                     }
@@ -541,7 +546,7 @@ pub async fn handle_gemini_generate(
 
         match result {
             Ok(upstream_json) => {
-                converted_json = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+                converted_json = serde_json::to_string(&chat_req).unwrap_or_default();
                 let gemini_resp =
                     gemini_to_chat::response_to_gemini(&upstream_json, &resolved_model);
                 let latency = start.elapsed().as_millis() as i64;
@@ -557,8 +562,8 @@ pub async fn handle_gemini_generate(
                     &request_id,
                     &raw_body,
                     &converted_json,
-                    &serde_json::to_string_pretty(&upstream_json).unwrap_or_default(),
-                    &serde_json::to_string_pretty(&gemini_resp).unwrap_or_default(),
+                    &serde_json::to_string(&upstream_json).unwrap_or_default(),
+                    &serde_json::to_string(&gemini_resp).unwrap_or_default(),
                     None,
                     &config.name,
                     &resolved_model,

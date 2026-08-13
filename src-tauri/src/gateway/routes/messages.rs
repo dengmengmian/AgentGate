@@ -10,10 +10,9 @@ use crate::errors::AppError;
 use crate::providers::adapter::{self, ProviderConfig};
 
 use super::shared::{
-    anthropic_request_has_images, detect_client_from_ua, lock_db, log_request_error,
-    log_request_error_full, log_request_success, native_model_override, refine_struct_body,
-    request_body_or_gateway_error, sanitize_body, trace_with_degradation_events, validate_auth,
-    GatewayError,
+    detect_client_from_ua, lock_db, log_request_error, log_request_error_full, log_request_success,
+    native_model_override, refine_struct_body, request_body_or_gateway_error, sanitize_body,
+    trace_with_degradation_events, validate_auth, GatewayError,
 };
 use super::GatewayState;
 
@@ -116,23 +115,27 @@ pub async fn handle_messages(
         GatewayError(e)
     })?;
 
-    let requested_model = serde_json::from_str::<serde_json::Value>(&body)
-        .ok()
-        .and_then(|v| v.get("model").and_then(|m| m.as_str()).map(str::to_string));
+    let body_json: serde_json::Value =
+        serde_json::from_str(&body).unwrap_or_else(|_| serde_json::json!({}));
+    let requested_model = body_json
+        .get("model")
+        .and_then(|m| m.as_str())
+        .map(str::to_string);
+    let analysis = crate::gateway::provider_selector::analyze_messages_value(&body_json);
 
     // Select provider — try anthropic_messages protocol first, then openai_responses as fallback
     let mut selection = crate::gateway::provider_selector::select_for_failover(
         &state.db,
         "anthropic_messages",
         requested_model.as_deref(),
-        None,
+        Some(&analysis),
     )
     .or_else(|_| {
         crate::gateway::provider_selector::select_for_failover(
             &state.db,
             "openai_responses",
             requested_model.as_deref(),
-            None,
+            Some(&analysis),
         )
     })
     .map_err(|e| {
@@ -154,8 +157,6 @@ pub async fn handle_messages(
     if force_cheapest {
         let _ = crate::gateway::budget::apply_force_cheapest(&state.db, &mut selection);
     }
-    let body_json: serde_json::Value =
-        serde_json::from_str(&body).unwrap_or_else(|_| serde_json::json!({}));
     let session_id = crate::gateway::session_affinity::derive_from_anthropic_body(&body_json);
     // force_cheapest 时禁用亲和重排，避免把贵上游提到队首。
     let affinity_sid = if force_cheapest {
@@ -163,7 +164,7 @@ pub async fn handle_messages(
     } else {
         session_id.as_deref()
     };
-    let request_has_images = anthropic_request_has_images(&body);
+    let request_has_images = analysis.has_images;
     let is_failover = selection.mode == "failover" && selection.candidates.len() > 1;
     if request_has_images || affinity_sid.is_some() || is_failover || force_cheapest {
         let order = crate::gateway::failover::build_attempt_order(
@@ -323,7 +324,7 @@ pub async fn handle_messages(
     }
 
     let _refiner_log = refine_struct_body(&state.db, &selection.provider, &mut chat_req);
-    let mut converted_json = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+    let mut converted_json = serde_json::to_string(&chat_req).unwrap_or_default();
 
     if want_stream {
         // 真流式：边收上游 Chat SSE chunk 边转 Anthropic 事件、立即转发给 client。
@@ -347,7 +348,7 @@ pub async fn handle_messages(
     let result = adapter::send_non_stream(&state.http_client, &config, &mut chat_req).await;
     match result {
         Ok(upstream_json) => {
-            converted_json = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+            converted_json = serde_json::to_string(&chat_req).unwrap_or_default();
             let response =
                 crate::protocol::anthropic_messages::from_chat_response(&upstream_json, &model);
             let latency = start.elapsed().as_millis() as i64;
@@ -376,8 +377,8 @@ pub async fn handle_messages(
                 &request_id,
                 &raw,
                 &converted_json,
-                &serde_json::to_string_pretty(&upstream_json).unwrap_or_default(),
-                &serde_json::to_string_pretty(&response).unwrap_or_default(),
+                &serde_json::to_string(&upstream_json).unwrap_or_default(),
+                &serde_json::to_string(&response).unwrap_or_default(),
                 None,
                 &config.name,
                 &model,
@@ -450,7 +451,7 @@ async fn handle_anthropic_fallback_stream(
             );
             GatewayError(e)
         })?;
-    converted_request = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+    converted_request = serde_json::to_string(&chat_req).unwrap_or_default();
 
     // 用 sse_bootstrap 检查上游首批字节——HTTP 200 + 错误帧的情况能被识别并
     // 转成正常错误回给 client 的 SDK，而不是糊弄它走假流式。
@@ -539,9 +540,7 @@ async fn handle_anthropic_fallback_stream(
 
         loop {
             // 先把 buffer 里完整的 SSE frame 全部处理掉
-            while let Some(frame_end) = buffer.find("\n\n") {
-                let frame = buffer[..frame_end].to_string();
-                buffer = buffer[frame_end + 2..].to_string();
+            for frame in crate::gateway::sse_buffer::take_complete_frames(&mut buffer) {
                 // 单 frame 内可能多行；只关心 data: 行
                 for line in frame.lines() {
                     let trimmed = line.trim_end_matches('\r');
@@ -629,7 +628,7 @@ async fn handle_anthropic_fallback_stream(
             &raw_req,
             &conv_req,
             &final_usage_json
-                .map(|u| serde_json::to_string_pretty(&u).unwrap_or_default())
+                .map(|u| serde_json::to_string(&u).unwrap_or_default())
                 .unwrap_or_default(),
             &total_text.chars().take(10_000).collect::<String>(),
             None,

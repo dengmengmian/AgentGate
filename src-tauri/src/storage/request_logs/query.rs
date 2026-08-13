@@ -116,7 +116,7 @@ pub(super) fn apply_log_filter(
     }
     if let Some(ref route_profile_id) = filter.route_profile_id {
         sql.push_str(&format!(
-            " AND json_extract(trace_json, '$.route_decision.profile_id') = ?{idx}"
+            " AND COALESCE(route_profile_id, json_extract(trace_json, '$.route_decision.profile_id')) = ?{idx}"
         ));
         param_values.push(Box::new(route_profile_id.clone()));
         *idx += 1;

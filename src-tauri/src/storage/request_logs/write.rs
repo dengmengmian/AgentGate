@@ -80,24 +80,35 @@ pub fn insert(
     let converted_response = truncate_log_field(converted_response);
     let sse_events = truncate_log_field(sse_events);
     let trace_json = truncate_log_field(trace_json);
+    let route_profile_id = extract_route_profile_id(trace_json.as_deref());
 
     conn.execute(
         "INSERT INTO request_logs (id, request_id, timestamp, client, provider, model, route,
                 status_code, latency_ms, raw_request, converted_request, raw_response,
                 converted_response, sse_events, tool_calls, error_message, trace_json,
                 input_tokens, output_tokens, cost, cache_write_tokens, cache_read_tokens,
-                source, session_id, external_id)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25)",
+                source, session_id, external_id, route_profile_id)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26)",
         rusqlite::params![
             &id, request_id, &now, client, provider, model, route,
             status_code, latency_ms, raw_request.as_deref(), converted_request.as_deref(),
             raw_response.as_deref(), converted_response.as_deref(), sse_events.as_deref(),
             tool_calls, error_message, trace_json.as_deref(),
             input_tokens, output_tokens, cost, cache_write_tokens, cache_read_tokens,
-            source, session_id, external_id,
+            source, session_id, external_id, route_profile_id.as_deref(),
         ],
     )?;
+    super::invalidate_cost_caches();
     Ok(())
+}
+
+fn extract_route_profile_id(trace_json: Option<&str>) -> Option<String> {
+    let raw = trace_json?;
+    let v: serde_json::Value = serde_json::from_str(raw).ok()?;
+    v.pointer("/route_decision/profile_id")
+        .and_then(|p| p.as_str())
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
 }
 
 /// 给客户端会话日志同步器用：插入一条来自客户端本地日志的请求记录。
@@ -153,6 +164,7 @@ pub fn insert_session_log(
             external_id,
         ],
     )?;
+    super::invalidate_cost_caches();
     Ok(())
 }
 
@@ -276,7 +288,8 @@ mod tests {
                 cache_read_tokens INTEGER,
                 source TEXT,
                 session_id TEXT,
-                external_id TEXT
+                external_id TEXT,
+                route_profile_id TEXT
             );",
         )
         .unwrap();
@@ -335,6 +348,46 @@ mod tests {
         assert_eq!(rows[0].request_id, "req-1");
         assert_eq!(rows[0].source, Some("gateway".to_string())); // default source
         assert_eq!(rows[0].session_id, Some("sess-1".to_string()));
+    }
+
+    #[test]
+    fn insert_copies_route_profile_id_from_trace() {
+        let conn = empty_db();
+        insert(
+            &conn,
+            "req-rp",
+            "Codex",
+            "DeepSeek",
+            "deepseek-chat",
+            "/v1/responses",
+            200,
+            10,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            Some(r#"{"route_decision":{"profile_id":"rp-1"}}"#),
+            None,
+            None,
+            None,
+            None,
+            None,
+            Some("gateway"),
+            None,
+            None,
+        )
+        .unwrap();
+        let id: String = conn
+            .query_row(
+                "SELECT route_profile_id FROM request_logs WHERE request_id='req-rp'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(id, "rp-1");
     }
 
     #[test]

@@ -73,7 +73,21 @@ fn l2_path() -> std::path::PathBuf {
     crate::security::local_token::token_dir().join("sessions.db")
 }
 
-fn ensure_l2() -> Option<rusqlite::Connection> {
+static L2: Mutex<Option<rusqlite::Connection>> = Mutex::new(None);
+static LAST_L2_CLEANUP: AtomicU64 = AtomicU64::new(0);
+
+fn with_l2<F, R>(f: F) -> Option<R>
+where
+    F: FnOnce(&rusqlite::Connection) -> R,
+{
+    let mut g = L2.lock().unwrap_or_else(|e| e.into_inner());
+    if g.is_none() {
+        *g = open_l2();
+    }
+    g.as_ref().map(f)
+}
+
+fn open_l2() -> Option<rusqlite::Connection> {
     let path = l2_path();
     let _ = std::fs::create_dir_all(path.parent()?);
     let conn = rusqlite::Connection::open(&path).ok()?;
@@ -84,7 +98,8 @@ fn ensure_l2() -> Option<rusqlite::Connection> {
             response_id TEXT PRIMARY KEY,
             data TEXT NOT NULL,
             created_at TEXT NOT NULL
-        )",
+        );
+        CREATE INDEX IF NOT EXISTS idx_sessions_created_at ON sessions(created_at);",
     )
     .ok()?;
     Some(conn)
@@ -129,16 +144,29 @@ pub fn store_turn(
     });
 
     // L2 persist (best effort)
-    if let Some(conn) = ensure_l2() {
+    let _ = with_l2(|conn| {
         let _ = conn.execute(
             "INSERT OR REPLACE INTO sessions (response_id, data, created_at) VALUES (?1, ?2, ?3)",
             rusqlite::params![response_id, data_str, chrono::Utc::now().to_rfc3339()],
         );
+        maybe_cleanup_l2(conn);
+    });
+}
 
-        // Clean old sessions (>24h)
-        let cutoff = (chrono::Utc::now() - chrono::Duration::hours(24)).to_rfc3339();
-        let _ = conn.execute("DELETE FROM sessions WHERE created_at < ?1", [&cutoff]);
+fn maybe_cleanup_l2(conn: &rusqlite::Connection) {
+    let now = chrono::Utc::now().timestamp() as u64;
+    let last = LAST_L2_CLEANUP.load(Ordering::Relaxed);
+    if now.saturating_sub(last) < 300 {
+        return;
     }
+    if LAST_L2_CLEANUP
+        .compare_exchange(last, now, Ordering::Relaxed, Ordering::Relaxed)
+        .is_err()
+    {
+        return;
+    }
+    let cutoff = (chrono::Utc::now() - chrono::Duration::hours(24)).to_rfc3339();
+    let _ = conn.execute("DELETE FROM sessions WHERE created_at < ?1", [&cutoff]);
 }
 
 /// Look up a previous turn. L1 first, then L2 fallback.
@@ -160,14 +188,14 @@ pub fn get_history(previous_response_id: &str) -> Option<Vec<ChatMessage>> {
     }
 
     // L2 lookup
-    let conn = ensure_l2()?;
-    let data_str: String = conn
-        .query_row(
+    let data_str: String = with_l2(|conn| {
+        conn.query_row(
             "SELECT data FROM sessions WHERE response_id = ?1",
             [previous_response_id],
             |row| row.get(0),
         )
-        .ok()?;
+        .ok()
+    })??;
 
     let data: serde_json::Value = serde_json::from_str(&data_str).ok()?;
     let messages: Vec<ChatMessage> = serde_json::from_value(data.get("messages")?.clone()).ok()?;

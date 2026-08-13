@@ -152,11 +152,12 @@ pub async fn handle_responses(
     };
 
     // 2. Select provider via route profile (with failover candidates)
+    let analysis = crate::gateway::provider_selector::analyze_request(&req);
     let mut selection = crate::gateway::provider_selector::select_for_failover(
         &state.db,
         "openai_responses",
         req.model.as_deref(),
-        Some(&req),
+        Some(&analysis),
     )
     .map_err(|e| {
         log_request_error(
@@ -277,7 +278,7 @@ pub async fn handle_responses(
                 }
             };
             let _refiner_log = refine_value_body(&state.db, &provider, &mut anthropic_body);
-            let converted_json = serde_json::to_string_pretty(&anthropic_body).unwrap_or_default();
+            let converted_json = serde_json::to_string(&anthropic_body).unwrap_or_default();
             let is_stream = req.stream.unwrap_or(false);
             if is_stream {
                 handle_anthropic_stream_response(
@@ -321,7 +322,7 @@ pub async fn handle_responses(
                 }
             };
             let _refiner_log = refine_value_body(&state.db, &provider, &mut gemini_body);
-            let converted_json = serde_json::to_string_pretty(&gemini_body).unwrap_or_default();
+            let converted_json = serde_json::to_string(&gemini_body).unwrap_or_default();
             let is_stream = req.stream.unwrap_or(false);
             if is_stream {
                 handle_gemini_stream_response(
@@ -406,7 +407,7 @@ pub async fn handle_responses(
             )
             .await;
             let _refiner_log = refine_struct_body(&state.db, &provider, &mut chat_req);
-            let converted_json = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+            let converted_json = serde_json::to_string(&chat_req).unwrap_or_default();
             let is_stream = chat_req.stream;
             if is_stream {
                 handle_stream_response(

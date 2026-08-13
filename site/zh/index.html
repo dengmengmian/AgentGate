@@ -100,7 +100,7 @@
         "url": "https://dengmengmian.github.io/agentgate-ai/zh/",
         "sameAs": "https://github.com/dengmengmian/agentgate-ai",
         "downloadUrl": "https://github.com/dengmengmian/agentgate-ai/releases",
-        "softwareVersion": "1.6.0",
+        "softwareVersion": "1.6.3",
         "license": "https://github.com/dengmengmian/agentgate-ai/blob/main/LICENSE",
         "author": {
           "@type": "Person",
@@ -129,7 +129,7 @@
         <a href="./" class="flex items-center gap-2 text-ink">
           <span class="text-amber">▲</span>
           <span class="font-medium">agentgate</span>
-          <span data-version class="text-faint">v1.6.0</span>
+          <span data-version class="text-faint">v1.6.3</span>
         </a>
         <nav class="flex items-center gap-5 text-ink-soft">
           <a
@@ -169,7 +169,7 @@
           <span class="text-ink-soft">运行中</span>
           <span class="text-cyan">127.0.0.1:9090</span>
           <span class="text-faint">·</span>
-          <span data-version class="text-ink-soft">v1.6.0</span>
+          <span data-version class="text-ink-soft">v1.6.3</span>
           <span class="text-faint">·</span>
           <span class="text-ink-soft zh">26 个 provider</span>
         </div>
@@ -334,6 +334,28 @@
               // Keep awake by default, or only while AI requests are active.
             </p>
           </article>
+
+          <article class="reveal frame rounded p-6 md:p-8">
+            <div class="text-xs uppercase tracking-wider text-amber">
+              <span class="text-faint">#</span>
+              <span class="zh">出站代理 · v1.6.3</span>
+            </div>
+            <p class="zh mt-4 text-base text-ink">
+              设置里可让访问上游的请求走本机
+              <code class="text-cyan">http://</code> /
+              <code class="text-cyan">https://</code>
+              代理（Clash / V2Ray）。回环地址仍直连。关闭开关则继续尊重环境变量
+              <code class="text-ink-soft">HTTP(S)_PROXY</code>。地址为空时不会走这里的代理。
+            </p>
+            <p class="zh mt-4 text-base text-ink">
+              路由条件（输入长度、是否有图、是否有工具、系统关键词、模型名）现在
+              Chat Completions、Anthropic Messages、Gemini 也会评估，不再只对
+              Codex Responses 生效。Gemini 同样走日预算闸。
+            </p>
+            <p class="comment-zh mt-3">
+              // Outbound HTTP proxy in Settings. Routing conditions on every protocol.
+            </p>
+          </article>
         </div>
 
         <!-- positioning blurb -->
@@ -360,7 +382,7 @@
           </p>
           <p class="mt-3 text-xs text-muted">
             <span class="text-faint zh"># 最新版本 </span>
-            <span data-version class="text-cyan">v1.6.0</span>
+            <span data-version class="text-cyan">v1.6.3</span>
             <span class="text-faint">·</span>
             <span data-released class="text-ink-soft zh">最近</span>
           </p>
@@ -443,7 +465,11 @@
           </table>
         </div>
 
-        <p class="reveal mt-6 text-sm text-muted">
+        <p class="reveal mt-6 text-sm text-ink-soft">
+          <span class="zh">macOS 也可用 Homebrew：</span>
+          <code class="text-cyan">brew install --cask dengmengmian/tap/agentgate</code>
+        </p>
+        <p class="reveal mt-3 text-sm text-muted">
           <span class="text-faint"># </span
           ><span class="zh">无界面 CLI</span>
           (<code class="text-ink-soft">agentgate-serve</code>)
@@ -611,7 +637,7 @@
           <span class="text-faint">·</span>
           <span class="text-muted">MIT</span>
           <span class="text-faint">·</span>
-          <span data-version class="text-muted">v1.6.0</span>
+          <span data-version class="text-muted">v1.6.3</span>
         </div>
         <nav class="flex items-center gap-5 text-ink-soft">
           <a

@@ -32,6 +32,10 @@ interface Props {
     auto_compact_usage_percent?: number;
   }) => Promise<void>;
   handleUpdateRequestBodyLimit: (mb: number) => Promise<void>;
+  handleUpdateProxy: (patch: {
+    outbound_proxy_enabled?: boolean;
+    outbound_proxy_url?: string;
+  }) => Promise<void>;
   wakeStatus: WakeStatus | null;
   handleUpdateWake: (patch: {
     wake_enabled?: boolean;
@@ -60,6 +64,7 @@ export function GeneralTab({
   handleUpdateRefinerGlobal,
   handleUpdateCostAlert,
   handleUpdateRequestBodyLimit,
+  handleUpdateProxy,
   wakeStatus,
   handleUpdateWake,
   t,
@@ -143,6 +148,42 @@ export function GeneralTab({
               </div>
             }
           />
+          <div className="space-y-2">
+            <SettingRow
+              title={t("settings.outbound_proxy")}
+              description={t("settings.outbound_proxy_desc")}
+              control={
+                <ToggleSwitch
+                  checked={settings.outbound_proxy_enabled ?? false}
+                  onChange={(v) =>
+                    handleUpdateProxy({ outbound_proxy_enabled: v })
+                  }
+                />
+              }
+            />
+            {settings.outbound_proxy_enabled && (
+              <div className="space-y-1">
+                <input
+                  type="url"
+                  defaultValue={settings.outbound_proxy_url ?? ""}
+                  placeholder={t("settings.outbound_proxy_url_ph")}
+                  aria-label={t("settings.outbound_proxy_url")}
+                  onBlur={(e) => {
+                    const v = e.target.value.trim();
+                    if (v !== (settings.outbound_proxy_url ?? "")) {
+                      handleUpdateProxy({ outbound_proxy_url: v });
+                    }
+                  }}
+                  className="form-input w-full font-mono text-xs"
+                />
+                {!(settings.outbound_proxy_url ?? "").trim() && (
+                  <p className="text-xs text-warning">
+                    {t("settings.outbound_proxy_empty")}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
           <SettingRow
             title={t("settings.language")}
             description={t("settings.lang_desc")}

@@ -12,9 +12,9 @@ use crate::models::provider::Provider;
 use crate::providers::adapter::{self, ProviderConfig};
 
 use super::shared::{
-    chat_request_has_images, detect_client_from_ua, lock_db, log_request_error,
-    log_request_error_full, log_request_success, native_model_override, refine_value_body,
-    request_body_or_gateway_error, sanitize_body, truncate_str, validate_auth, GatewayError,
+    detect_client_from_ua, lock_db, log_request_error, log_request_error_full, log_request_success,
+    native_model_override, refine_value_body, request_body_or_gateway_error, sanitize_body,
+    truncate_str, validate_auth, GatewayError,
 };
 use super::GatewayState;
 
@@ -51,9 +51,13 @@ pub async fn handle_chat_completions(
         GatewayError(e)
     })?;
 
-    let requested_model = serde_json::from_str::<serde_json::Value>(&body)
-        .ok()
-        .and_then(|v| v.get("model").and_then(|m| m.as_str()).map(str::to_string));
+    let body_json: serde_json::Value =
+        serde_json::from_str(&body).unwrap_or_else(|_| serde_json::json!({}));
+    let requested_model = body_json
+        .get("model")
+        .and_then(|m| m.as_str())
+        .map(str::to_string);
+    let analysis = crate::gateway::provider_selector::analyze_chat_value(&body_json);
 
     // Provider 选取：先按 openai_chat_completions 路由 profile 选；选不到再
     // fallback 到 anthropic_messages —— 让只配了 Anthropic 端点的 provider
@@ -62,14 +66,14 @@ pub async fn handle_chat_completions(
         &state.db,
         "openai_chat_completions",
         requested_model.as_deref(),
-        None,
+        Some(&analysis),
     )
     .or_else(|_| {
         crate::gateway::provider_selector::select_for_failover(
             &state.db,
             "anthropic_messages",
             requested_model.as_deref(),
-            None,
+            Some(&analysis),
         )
     })
     .map_err(|e| {
@@ -97,8 +101,6 @@ pub async fn handle_chat_completions(
 
     // 会话亲和：与 /v1/responses 对齐，cache-hit 后粘住同一上游以保 prompt cache。
     // force_cheapest 时禁用亲和重排——否则会把贵上游提到队首，抵消预算闸。
-    let body_json: serde_json::Value =
-        serde_json::from_str(&body).unwrap_or_else(|_| serde_json::json!({}));
     let session_id = crate::gateway::session_affinity::derive_from_chat_body(&body_json);
     let affinity_sid = if force_cheapest {
         None
@@ -107,7 +109,7 @@ pub async fn handle_chat_completions(
     };
 
     // 带图请求跳过显式不支持 vision 的 provider(与 /v1/responses 对齐)。
-    let request_has_images = chat_request_has_images(&body);
+    let request_has_images = analysis.has_images;
     let attempt_order = crate::gateway::failover::build_attempt_order(
         &candidates,
         &selection.provider.id,
@@ -350,7 +352,7 @@ async fn client_chat_to_anthropic_handle(
         })?;
     // 3. 网关精炼层：开关全关时是 no-op，开了才会按 quirks 改写 outbound body
     let _refiner_log = refine_value_body(&state.db, &provider, &mut anthropic_body);
-    let converted_request = serde_json::to_string_pretty(&anthropic_body).unwrap_or_default();
+    let converted_request = serde_json::to_string(&anthropic_body).unwrap_or_default();
 
     if want_stream {
         return client_chat_to_anthropic_stream(
@@ -406,8 +408,8 @@ async fn client_chat_to_anthropic_handle(
                 &request_id,
                 &raw_request,
                 &converted_request,
-                &serde_json::to_string_pretty(&upstream_json).unwrap_or_default(),
-                &serde_json::to_string_pretty(&chat_resp).unwrap_or_default(),
+                &serde_json::to_string(&upstream_json).unwrap_or_default(),
+                &serde_json::to_string(&chat_resp).unwrap_or_default(),
                 None,
                 &config.name,
                 &model,
@@ -545,10 +547,7 @@ async fn client_chat_to_anthropic_stream(
             }
             bootstrap_replayed = true;
 
-            while let Some(frame_end) = buffer.find("\n\n") {
-                let frame = buffer[..frame_end].to_string();
-                buffer = buffer[frame_end + 2..].to_string();
-
+            for frame in crate::gateway::sse_buffer::take_complete_frames(&mut buffer) {
                 let mut event_type = String::new();
                 let mut data_str = String::new();
                 for line in frame.lines() {

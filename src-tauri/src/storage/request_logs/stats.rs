@@ -189,6 +189,7 @@ pub fn aggregate_route_profile_stats(
     let mut sql = String::from(
         "SELECT
             COALESCE(
+                request_logs.route_profile_id,
                 json_extract(request_logs.trace_json, '$.route_decision.profile_id'),
                 legacy_profile.id
             ) AS profile_id,
@@ -199,7 +200,8 @@ pub fn aggregate_route_profile_stats(
             COALESCE(SUM(cost), 0.0) AS cost
          FROM request_logs
          LEFT JOIN route_profiles legacy_profile
-           ON json_extract(request_logs.trace_json, '$.route_decision.profile_id') IS NULL
+           ON request_logs.route_profile_id IS NULL
+          AND json_extract(request_logs.trace_json, '$.route_decision.profile_id') IS NULL
           AND legacy_profile.enabled = 1
           AND legacy_profile.is_default = 1
           AND legacy_profile.input_protocol = CASE request_logs.route
@@ -210,7 +212,8 @@ pub fn aggregate_route_profile_stats(
           END
          WHERE source = 'gateway'
            AND (
-             json_extract(request_logs.trace_json, '$.route_decision.profile_id') IS NOT NULL
+             request_logs.route_profile_id IS NOT NULL
+             OR json_extract(request_logs.trace_json, '$.route_decision.profile_id') IS NOT NULL
              OR legacy_profile.id IS NOT NULL
            )",
     );
@@ -381,6 +384,52 @@ pub fn avg_latency_by_provider(
 /// Consolidated into fewer queries to reduce lock hold time.
 pub fn get_stats(conn: &Connection) -> Result<RequestStats, AppError> {
     get_stats_for_range(conn, 7)
+}
+
+struct TodayCostCache {
+    day: String,
+    at: std::time::Instant,
+    cost: f64,
+}
+
+static TODAY_COST_CACHE: std::sync::Mutex<Option<TodayCostCache>> = std::sync::Mutex::new(None);
+const TODAY_COST_TTL: std::time::Duration = std::time::Duration::from_secs(10);
+
+/// Cheap daily spend: only `SUM(cost)` for today's rows. Used by the budget gate.
+pub fn today_cost(conn: &Connection) -> Result<f64, AppError> {
+    let today_prefix = format!("{}%", chrono::Utc::now().format("%Y-%m-%d"));
+    conn.query_row(
+        "SELECT COALESCE(SUM(cost), 0.0) FROM request_logs WHERE timestamp LIKE ?1",
+        [&today_prefix],
+        |r| r.get(0),
+    )
+    .map_err(AppError::from)
+}
+
+pub fn today_cost_cached(conn: &Connection) -> Result<f64, AppError> {
+    let day = chrono::Utc::now().format("%Y-%m-%d").to_string();
+    if let Ok(guard) = TODAY_COST_CACHE.lock() {
+        if let Some(cache) = guard.as_ref() {
+            if cache.day == day && cache.at.elapsed() < TODAY_COST_TTL {
+                return Ok(cache.cost);
+            }
+        }
+    }
+    let cost = today_cost(conn)?;
+    if let Ok(mut guard) = TODAY_COST_CACHE.lock() {
+        *guard = Some(TodayCostCache {
+            day,
+            at: std::time::Instant::now(),
+            cost,
+        });
+    }
+    Ok(cost)
+}
+
+pub fn invalidate_cost_caches() {
+    if let Ok(mut g) = TODAY_COST_CACHE.lock() {
+        *g = None;
+    }
 }
 
 /// Compute stats over a sliding window of `daily_window` past days. The

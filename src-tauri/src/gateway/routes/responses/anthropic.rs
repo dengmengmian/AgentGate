@@ -104,8 +104,8 @@ pub(super) async fn handle_anthropic_non_stream_response(
                 &request_id,
                 &raw_request,
                 &converted_request,
-                &serde_json::to_string_pretty(&upstream_json).unwrap_or_default(),
-                &serde_json::to_string_pretty(&responses_resp).unwrap_or_default(),
+                &serde_json::to_string(&upstream_json).unwrap_or_default(),
+                &serde_json::to_string(&responses_resp).unwrap_or_default(),
                 if tool_calls_json.is_empty() {
                     None
                 } else {

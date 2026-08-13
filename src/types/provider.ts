@@ -47,7 +47,6 @@ export const ALL_CAPABILITIES = [
   "tools",
   "web_search",
 ] as const;
-export type Capability = (typeof ALL_CAPABILITIES)[number];
 
 // `TestDiagnostic` 在 bindings 里已经有,但历史 import 路径在这里,re-export 一下。
 export type { TestDiagnostic } from "@/lib/bindings";

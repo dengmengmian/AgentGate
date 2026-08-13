@@ -34,7 +34,8 @@ fn empty_logs_db() -> Connection {
             cache_read_tokens INTEGER,
             source TEXT,
             session_id TEXT,
-            external_id TEXT
+            external_id TEXT,
+            route_profile_id TEXT
         );
         CREATE TABLE route_profiles (
             id TEXT PRIMARY KEY,

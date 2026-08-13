@@ -16,7 +16,7 @@ pub type DbConn = r2d2::PooledConnection<SqliteConnectionManager>;
 
 /// 池大小。SQLite WAL 模式允许多 reader 并发,写仍内部串行。
 /// 桌面应用 QPS 不大,4 个 connection 足够吸收短期 burst。
-const POOL_MAX_SIZE: u32 = 4;
+const POOL_MAX_SIZE: u32 = 8;
 
 /// 每个连接初始化时统一开 WAL + 外键约束,跟旧单连接实现保持行为一致。
 fn init_connection(conn: &mut Connection) -> rusqlite::Result<()> {

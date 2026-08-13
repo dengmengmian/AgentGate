@@ -101,10 +101,7 @@ pub async fn process_gemini_stream(
         bootstrap_replayed = true;
 
         // Process complete SSE frames
-        while let Some(frame_end) = buffer.find("\n\n") {
-            let frame = buffer[..frame_end].to_string();
-            buffer = buffer[frame_end + 2..].to_string();
-
+        for frame in crate::gateway::sse_buffer::take_complete_frames(&mut buffer) {
             // Parse data line
             let mut data_str = String::new();
             for line in frame.lines() {

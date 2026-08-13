@@ -29,7 +29,15 @@ import { PetTab } from "@/components/settings/PetTab";
 import { AboutTab } from "@/components/settings/AboutTab";
 import { useI18n } from "@/lib/i18n";
 import * as api from "@/lib/api";
-import { useGatewaySettings, usePricing } from "@/store/global";
+import {
+  outboundProxyToastKey,
+  shouldRestartGatewayForProxy,
+} from "@/lib/outboundProxy";
+import {
+  useGatewaySettings,
+  useGatewayStatus,
+  usePricing,
+} from "@/store/global";
 import type { GatewaySettings as GatewaySettingsType } from "@/types/gateway";
 import type { WakeStatus } from "@/lib/bindings";
 import type { GatewayAuthSettings } from "@/types/config";
@@ -239,6 +247,33 @@ export function Settings() {
     }
   };
 
+  const handleUpdateProxy = async (patch: {
+    outbound_proxy_enabled?: boolean;
+    outbound_proxy_url?: string;
+  }) => {
+    try {
+      await api.updateGatewaySettings(patch);
+      await useGatewaySettings.getState().refetch();
+      const after = useGatewaySettings.getState().value;
+      const hasUrl = Boolean(
+        (patch.outbound_proxy_url ?? after?.outbound_proxy_url ?? "").trim()
+      );
+      const running = Boolean(useGatewayStatus.getState().value?.running);
+      const toastKey = outboundProxyToastKey(running, patch, hasUrl);
+      if (shouldRestartGatewayForProxy(running, patch, hasUrl)) {
+        try {
+          useGatewayStatus.getState().setValue(await api.restartGateway());
+        } catch (err) {
+          toast("error", (err as api.AppError).message);
+          return;
+        }
+      }
+      toast("success", t(toastKey));
+    } catch (err) {
+      toast("error", (err as api.AppError).message);
+    }
+  };
+
   const handleUpdateWake = async (patch: {
     wake_enabled?: boolean;
     wake_request_control?: boolean;
@@ -352,6 +387,7 @@ export function Settings() {
             handleUpdateRefinerGlobal={handleUpdateRefinerGlobal}
             handleUpdateCostAlert={handleUpdateCostAlert}
             handleUpdateRequestBodyLimit={handleUpdateRequestBodyLimit}
+            handleUpdateProxy={handleUpdateProxy}
             wakeStatus={wakeStatus}
             handleUpdateWake={handleUpdateWake}
             t={t}

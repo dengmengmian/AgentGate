@@ -167,6 +167,8 @@ mod tests {
             wake_request_control: false,
             wake_cooldown_seconds: 900,
             wake_keep_display_awake: false,
+            outbound_proxy_enabled: false,
+            outbound_proxy_url: None,
             updated_at: "now".into(),
         }
     }

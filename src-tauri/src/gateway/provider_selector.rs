@@ -52,8 +52,8 @@ pub struct RequestAnalysis {
 
 /// Analyze a ResponsesRequest to extract routing-relevant characteristics.
 pub fn analyze_request(req: &ResponsesRequest) -> RequestAnalysis {
-    let input_str = req.input.to_string();
-    let input_char_count = input_str.len();
+    // 保持 JSON 序列化长度：存量 min/max_input_chars 按这个口径配的。
+    let input_char_count = req.input.to_string().len();
 
     let has_images = crate::gateway::routes::request_contains_images_pub(req);
 
@@ -82,6 +82,168 @@ pub fn analyze_request(req: &ResponsesRequest) -> RequestAnalysis {
         system_text,
         message_count,
     }
+}
+
+/// Chat Completions (`messages` + `tools`) 请求体分析。
+pub fn analyze_chat_value(body: &Value) -> RequestAnalysis {
+    let messages = body.get("messages").and_then(|m| m.as_array());
+    let mut input_char_count = 0;
+    let mut system_text = String::new();
+    let message_count = messages.map_or(0, |m| m.len());
+    if let Some(msgs) = messages {
+        for m in msgs {
+            let role = m.get("role").and_then(|r| r.as_str()).unwrap_or("");
+            collect_text_content(
+                m.get("content"),
+                &mut input_char_count,
+                role == "system",
+                &mut system_text,
+            );
+        }
+    }
+    let tools = body.get("tools").and_then(|t| t.as_array());
+    RequestAnalysis {
+        input_char_count,
+        has_images: crate::gateway::routes::chat_request_has_images_value(body),
+        has_tools: tools.is_some_and(|t| !t.is_empty()),
+        tool_count: tools.map_or(0, |t| t.len()),
+        system_text,
+        message_count,
+    }
+}
+
+/// Anthropic Messages (`system` + `messages` + `tools`) 请求体分析。
+pub fn analyze_messages_value(body: &Value) -> RequestAnalysis {
+    let mut input_char_count = 0;
+    let mut system_text = String::new();
+    collect_text_content(
+        body.get("system"),
+        &mut input_char_count,
+        true,
+        &mut system_text,
+    );
+    let messages = body.get("messages").and_then(|m| m.as_array());
+    let message_count = messages.map_or(0, |m| m.len());
+    if let Some(msgs) = messages {
+        for m in msgs {
+            collect_text_content(
+                m.get("content"),
+                &mut input_char_count,
+                false,
+                &mut system_text,
+            );
+        }
+    }
+    let tools = body.get("tools").and_then(|t| t.as_array());
+    RequestAnalysis {
+        input_char_count,
+        has_images: crate::gateway::routes::anthropic_request_has_images_value(body),
+        has_tools: tools.is_some_and(|t| !t.is_empty()),
+        tool_count: tools.map_or(0, |t| t.len()),
+        system_text,
+        message_count,
+    }
+}
+
+/// Gemini `generateContent` 请求体分析。
+pub fn analyze_gemini_value(body: &Value) -> RequestAnalysis {
+    let mut input_char_count = 0;
+    let mut system_text = String::new();
+    if let Some(sys) = body
+        .get("systemInstruction")
+        .or_else(|| body.get("system_instruction"))
+    {
+        collect_gemini_parts(
+            sys.get("parts"),
+            &mut input_char_count,
+            true,
+            &mut system_text,
+        );
+    }
+    let contents = body.get("contents").and_then(|c| c.as_array());
+    let message_count = contents.map_or(0, |c| c.len());
+    let mut has_images = false;
+    if let Some(items) = contents {
+        for (i, c) in items.iter().enumerate() {
+            let is_last_user = i + 1 == items.len()
+                && c.get("role")
+                    .and_then(|r| r.as_str())
+                    .is_none_or(|r| r == "user");
+            if let Some(parts) = c.get("parts").and_then(|p| p.as_array()) {
+                for part in parts {
+                    if let Some(t) = part.get("text").and_then(|t| t.as_str()) {
+                        input_char_count += t.len();
+                    }
+                    if is_last_user
+                        && (part.get("inline_data").is_some()
+                            || part.get("inlineData").is_some()
+                            || part.get("file_data").is_some()
+                            || part.get("fileData").is_some())
+                    {
+                        has_images = true;
+                    }
+                }
+            }
+        }
+    }
+    let tools = body.get("tools").and_then(|t| t.as_array());
+    RequestAnalysis {
+        input_char_count,
+        has_images,
+        has_tools: tools.is_some_and(|t| !t.is_empty()),
+        tool_count: tools.map_or(0, |t| t.len()),
+        system_text,
+        message_count,
+    }
+}
+
+fn collect_text_content(
+    content: Option<&Value>,
+    chars: &mut usize,
+    into_system: bool,
+    system_text: &mut String,
+) {
+    match content {
+        Some(Value::String(s)) => {
+            *chars += s.len();
+            if into_system {
+                system_text.push_str(s);
+            }
+        }
+        Some(Value::Array(parts)) => {
+            for p in parts {
+                if let Some(t) = p.get("text").and_then(|t| t.as_str()) {
+                    *chars += t.len();
+                    if into_system {
+                        system_text.push_str(t);
+                    }
+                } else if let Some(s) = p.as_str() {
+                    *chars += s.len();
+                    if into_system {
+                        system_text.push_str(s);
+                    }
+                }
+            }
+        }
+        Some(other) => {
+            if let Some(t) = other.get("text").and_then(|t| t.as_str()) {
+                *chars += t.len();
+                if into_system {
+                    system_text.push_str(t);
+                }
+            }
+        }
+        None => {}
+    }
+}
+
+fn collect_gemini_parts(
+    parts: Option<&Value>,
+    chars: &mut usize,
+    into_system: bool,
+    system_text: &mut String,
+) {
+    collect_text_content(parts, chars, into_system, system_text);
 }
 
 /// Routing conditions that can be attached to a provider in a route profile.
@@ -157,8 +319,7 @@ fn build_candidates(
             continue;
         }
 
-        // 路由条件评估。model_name_match 只依赖 model 名(三协议通用);其余条件
-        // 依赖请求体分析,analysis 缺失(非 Codex 协议)时无法判定 → 保守跳过。
+        // 路由条件评估。model_name_match 只依赖 model 名;其余条件依赖请求体分析。
         let mut condition_model_override: Option<String> = None;
         if let Some(ref cond_json) = rpp.routing_conditions {
             match serde_json::from_str::<RoutingConditions>(cond_json) {
@@ -166,9 +327,8 @@ fn build_candidates(
                     if !model_name_matches(&conditions, requested_model) {
                         continue;
                     }
-                    // analysis 存在(Codex)才评估依赖请求体的条件;缺失(其余协议)则
-                    // 只靠 model_name_match 判定,其余条件忽略而非跳过——避免把配了
-                    // 长度/工具等条件的 provider 在非 Codex 协议上误杀。A3 接通后再生效。
+                    // Chat / Messages / Gemini / Responses 都会传入 analysis。
+                    // 解析失败或调用方没给 analysis 时不误杀（只靠 model_name_match）。
                     if let Some(req_analysis) = analysis {
                         if !matches_conditions(&conditions, req_analysis) {
                             continue;
@@ -359,12 +519,12 @@ fn select_global_fallback(
 }
 
 /// Select provider for failover mode. Returns the ordered list of providers to try.
-/// If `request` is provided, routing conditions on providers will be evaluated.
+/// If `analysis` is provided, body-dependent routing conditions are evaluated.
 pub fn select_for_failover(
     db: &crate::storage::db::DbPool,
     input_protocol: &str,
     requested_model: Option<&str>,
-    request: Option<&ResponsesRequest>,
+    analysis: Option<&RequestAnalysis>,
 ) -> Result<ProviderSelection, AppError> {
     let conn = db.get().map_err(|_| AppError::internal("DB lock failed"))?;
 
@@ -379,9 +539,7 @@ pub fn select_for_failover(
             ));
         }
 
-        let analysis = request.map(analyze_request);
-        let mut candidates =
-            build_candidates(&conn, &rp_providers, requested_model, analysis.as_ref())?;
+        let mut candidates = build_candidates(&conn, &rp_providers, requested_model, analysis)?;
         if candidates.is_empty() {
             return Err(AppError::new(
                 crate::errors::codes::NO_PROVIDER_CANDIDATE,
@@ -430,8 +588,7 @@ pub fn select_for_failover(
             candidates,
         })
     } else {
-        let analysis = request.map(analyze_request);
-        select_global_fallback(&conn, requested_model, analysis.as_ref())
+        select_global_fallback(&conn, requested_model, analysis)
     }
 }
 
@@ -785,6 +942,82 @@ mod tests {
         let cond = RoutingConditions::default();
         assert!(model_name_matches(&cond, Some("anything")));
         assert!(model_name_matches(&cond, None));
+    }
+
+    #[test]
+    fn analyze_chat_value_reads_tools_images_and_system() {
+        let body = serde_json::json!({
+            "model": "gpt-4o",
+            "messages": [
+                {"role": "system", "content": "you are a coder"},
+                {"role": "user", "content": [
+                    {"type": "text", "text": "look"},
+                    {"type": "image_url", "image_url": {"url": "https://x/a.png"}}
+                ]}
+            ],
+            "tools": [{"type": "function", "function": {"name": "rg"}}]
+        });
+        let a = analyze_chat_value(&body);
+        assert!(a.has_images);
+        assert!(a.has_tools);
+        assert_eq!(a.tool_count, 1);
+        assert!(a.system_text.contains("coder"));
+        assert!(a.input_char_count >= "you are a coder".len() + "look".len());
+        let cond = RoutingConditions {
+            has_images: Some(true),
+            has_tools: Some(true),
+            system_keywords: Some(vec!["coder".into()]),
+            ..Default::default()
+        };
+        assert!(matches_conditions(&cond, &a));
+    }
+
+    #[test]
+    fn analyze_messages_value_reads_anthropic_image_and_system() {
+        let body = serde_json::json!({
+            "model": "claude-sonnet-4",
+            "system": "be brief",
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "see"},
+                    {"type": "image", "source": {"type": "url", "url": "https://x/a.png"}}
+                ]
+            }],
+            "tools": [{"name": "Bash"}]
+        });
+        let a = analyze_messages_value(&body);
+        assert!(a.has_images);
+        assert!(a.has_tools);
+        assert_eq!(a.system_text, "be brief");
+        assert!(matches_conditions(
+            &RoutingConditions {
+                has_images: Some(true),
+                min_input_chars: Some(3),
+                ..Default::default()
+            },
+            &a
+        ));
+    }
+
+    #[test]
+    fn analyze_gemini_value_reads_inline_image_and_system() {
+        let body = serde_json::json!({
+            "systemInstruction": {"parts": [{"text": "sys-hint"}]},
+            "contents": [{
+                "role": "user",
+                "parts": [
+                    {"text": "photo"},
+                    {"inline_data": {"mime_type": "image/png", "data": "xxxx"}}
+                ]
+            }],
+            "tools": [{"functionDeclarations": [{"name": "search"}]}]
+        });
+        let a = analyze_gemini_value(&body);
+        assert!(a.has_images);
+        assert!(a.has_tools);
+        assert_eq!(a.system_text, "sys-hint");
+        assert!(a.input_char_count >= "sys-hint".len() + "photo".len());
     }
 
     // ── Capability promotion tests ──

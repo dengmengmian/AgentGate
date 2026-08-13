@@ -1695,7 +1695,6 @@ const translations: Record<string, Record<Locale, string>> = {
     en: "Auto-detection is only a starting point. Change this if your key belongs to another OpenAI-compatible provider.",
     zh: "自动识别只是初始建议。如果你的 Key 属于其它 OpenAI 兼容供应商，请在这里改选。",
   },
-  "onboarding.skip": { en: "Skip for now", zh: "暂时跳过" },
   "onboarding.next": { en: "Next", zh: "下一步" },
   "onboarding.back": { en: "Back", zh: "返回" },
   "onboarding.select_tools": { en: "Select Tools", zh: "选择工具" },
@@ -1714,19 +1713,6 @@ const translations: Record<string, Record<Locale, string>> = {
   "onboarding.configuring": { en: "Configuring", zh: "配置" },
   "onboarding.testing": { en: "Testing connection", zh: "测试连接" },
   "onboarding.complete": { en: "All set!", zh: "配置完成！" },
-  "onboarding.partial": {
-    en: "Setup completed with issues",
-    zh: "配置完成（部分失败）",
-  },
-  "onboarding.done": { en: "Get Started", zh: "开始使用" },
-  "onboarding.next_step_title": {
-    en: "✓ Setup complete — now run your AI agent in terminal",
-    zh: "✓ 配置完成——现在去终端运行你的 AI agent",
-  },
-  "onboarding.next_step_desc": {
-    en: "AgentGate is listening locally and your clients (Codex / Claude Code / …) are wired. Open your terminal and run your agent — requests will flow through.",
-    zh: "AgentGate 本地服务已经在监听，客户端（Codex / Claude Code 等）也已配置完毕。打开终端跑你的命令，请求会自动通过。",
-  },
   "onboarding.first_request_title": {
     en: "Send your first request",
     zh: "发起第一条请求",
@@ -1748,9 +1734,7 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "看一下上方失败项。你可以返回修改 key、重新配置，或先去客户端页检查配置后再运行 agent。",
   },
   "onboarding.edit_key": { en: "Edit key", zh: "修改 Key" },
-  "onboarding.retry": { en: "Retry setup", zh: "重新配置" },
   "onboarding.go_to_clients": { en: "View Clients →", zh: "查看客户端 →" },
-  "onboarding.review_clients": { en: "Review Clients →", zh: "检查客户端 →" },
   "onboarding.back_to_overview": { en: "Back to Overview", zh: "返回概览" },
 
   // ── Settings about ──
@@ -2108,6 +2092,43 @@ const translations: Record<string, Record<Locale, string>> = {
     en: "Maximum inbound request size accepted by the gateway, capped at 128 MB. Takes effect after restarting the gateway; AGENTGATE_REQUEST_BODY_LIMIT_MB overrides this value.",
     zh: "网关接收单次请求的最大体积，最高 128 MB。重启网关后生效；AGENTGATE_REQUEST_BODY_LIMIT_MB 会覆盖此设置。",
   },
+  "settings.outbound_proxy": {
+    en: "Outbound HTTP proxy",
+    zh: "出站 HTTP 代理",
+  },
+  "settings.outbound_proxy_desc": {
+    en: "Send provider API calls through a local HTTP/HTTPS proxy (Clash, V2Ray). Loopback stays direct. Off = use HTTP(S)_PROXY from the environment.",
+    zh: "让访问上游供应商的请求走本机 HTTP/HTTPS 代理（Clash / V2Ray）。回环地址仍直连。关闭时继续尊重环境变量 HTTP(S)_PROXY。",
+  },
+  "settings.outbound_proxy_url": { en: "Proxy URL", zh: "代理地址" },
+  "settings.outbound_proxy_url_ph": {
+    en: "http://127.0.0.1:7890",
+    zh: "http://127.0.0.1:7890",
+  },
+  "settings.outbound_proxy_on": {
+    en: "Outbound proxy on. Gateway restarted.",
+    zh: "已开启出站代理，网关已重启。",
+  },
+  "settings.outbound_proxy_off": {
+    en: "Outbound proxy off. Gateway restarted.",
+    zh: "已关闭出站代理，网关已重启。",
+  },
+  "settings.outbound_proxy_url_saved": {
+    en: "Proxy URL updated. Gateway restarted.",
+    zh: "代理地址已更新，网关已重启。",
+  },
+  "settings.outbound_proxy_need_url": {
+    en: "Proxy enabled. Enter an HTTP proxy URL.",
+    zh: "已开启，请填写代理地址。",
+  },
+  "settings.outbound_proxy_empty": {
+    en: "Empty URL: the switch does nothing. Requests still use HTTP(S)_PROXY if set.",
+    zh: "地址为空时不会走这里的代理，请求仍按环境变量 HTTP(S)_PROXY（如果有）。",
+  },
+  "settings.outbound_proxy_need_start": {
+    en: "Saved. Start the gateway to apply it.",
+    zh: "已保存。启动网关后生效。",
+  },
   "logs.body_diff": { en: "Request / response Diff", zh: "请求/响应 Diff" },
   "logs.diff_request": { en: "Request", zh: "请求" },
   "logs.diff_response": { en: "Response", zh: "响应" },
@@ -2187,18 +2208,6 @@ const translations: Record<string, Record<Locale, string>> = {
   "onboarding.next_providers": { en: "Open Providers", zh: "打开供应商" },
   "onboarding.next_clients": { en: "Open Clients", zh: "打开客户端" },
   "onboarding.next_logs": { en: "Open Logs", zh: "打开日志" },
-  "onboarding.scenario_title": {
-    en: "Quick scenarios",
-    zh: "场景快捷入口",
-  },
-  "onboarding.scenario_codex_deepseek": {
-    en: "Codex + DeepSeek",
-    zh: "Codex + DeepSeek",
-  },
-  "onboarding.scenario_claude_chat": {
-    en: "Claude Code + Chat model",
-    zh: "Claude Code + Chat 模型",
-  },
   "settings.auto_compact": {
     en: "Long-session auto-compact",
     zh: "长会话自压缩",
@@ -2252,7 +2261,6 @@ const translations: Record<string, Record<Locale, string>> = {
     en: "Local provider added",
     zh: "已添加本地供应商",
   },
-  "providers.refiner_hint": { en: "Refiner tip", zh: "精炼层建议" },
   "providers.compat_tip_title": {
     en: "If requests return 400",
     zh: "如果请求报 400",

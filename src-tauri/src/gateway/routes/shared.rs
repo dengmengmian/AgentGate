@@ -486,15 +486,23 @@ fn last_user_content_has_images(body: &Value, image_types: &[&str]) -> bool {
 /// Chat Completions 请求体最后一条 user message 是否含图片(`image_url`)。
 pub(crate) fn chat_request_has_images(body: &str) -> bool {
     serde_json::from_str::<Value>(body)
-        .map(|v| last_user_content_has_images(&v, &["image_url"]))
+        .map(|v| chat_request_has_images_value(&v))
         .unwrap_or(false)
+}
+
+pub(crate) fn chat_request_has_images_value(body: &Value) -> bool {
+    last_user_content_has_images(body, &["image_url"])
 }
 
 /// Anthropic Messages 请求体最后一条 user message 是否含图片(`image` block)。
 pub(crate) fn anthropic_request_has_images(body: &str) -> bool {
     serde_json::from_str::<Value>(body)
-        .map(|v| last_user_content_has_images(&v, &["image"]))
+        .map(|v| anthropic_request_has_images_value(&v))
         .unwrap_or(false)
+}
+
+pub(crate) fn anthropic_request_has_images_value(body: &Value) -> bool {
+    last_user_content_has_images(body, &["image"])
 }
 
 pub(crate) fn sanitize_body(body: &str) -> String {

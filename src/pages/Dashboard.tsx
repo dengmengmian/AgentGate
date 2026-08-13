@@ -210,42 +210,17 @@ export function Dashboard() {
   const [costByStrategy, setCostByStrategy] = useState<CostBreakdown[]>([]);
   const [rangeDays, setRangeDays] = useState<RangeDays>(7);
 
-  const load = useCallback(async () => {
+  const loadLive = useCallback(async () => {
     try {
-      // providers / route profiles / gateway status 走全局 store——刷新到
-      // store,其它页面切回来不会再重发 invoke。status 的 fetch 与 Topbar
-      // 轮询并发时自动合并成一次 invoke。
-      const [tl, l, st, cm, cc, rs, codex, claude, opencode, gemini, atom] =
-        await Promise.all([
-          api.listTools(),
-          api.listRequestLogs({ limit: 5 }),
-          api.getRequestStatsRange(rangeDays),
-          api.aggregateCostByModel(rangeDays, 8),
-          api.aggregateCostByClient(rangeDays, 8),
-          api.aggregateRouteProfileStats(rangeDays).catch(() => []),
-          api.detectCodexConfig().catch(() => null),
-          api.detectClaudeCodeEnv().catch(() => null),
-          api.detectOpenCodeConfig().catch(() => null),
-          api.detectGeminiConfig().catch(() => null),
-          api.detectAtomCodeConfig().catch(() => null),
-          useGatewayStatus.getState().fetch(),
-          useProviders.getState().refetch(),
-          useRouteProfiles
-            .getState()
-            .refetch()
-            .catch(() => {}),
-        ]);
-      const ps = useProviders.getState().items;
+      const [l, st, cm, cc, rs] = await Promise.all([
+        api.listRequestLogs({ limit: 5 }),
+        api.getRequestStatsRange(rangeDays),
+        api.aggregateCostByModel(rangeDays, 8),
+        api.aggregateCostByClient(rangeDays, 8),
+        api.aggregateRouteProfileStats(rangeDays).catch(() => []),
+        useGatewayStatus.getState().fetch(),
+      ]);
       const rp = useRouteProfiles.getState().items;
-      // 只认 has_agentgate：本机有 ~/.codex 等文件 ≠ 已 apply AgentGate。
-      const wired: string[] = [];
-      if (codex?.has_agentgate) wired.push("codex");
-      if (claude?.has_agentgate) wired.push("claude_code");
-      if (opencode?.has_agentgate) wired.push("opencode");
-      if (gemini?.has_agentgate) wired.push("gemini");
-      if (atom?.has_agentgate) wired.push("atomcode");
-      // 按策略成本：route_profile stats(含 cost/请求数) + profile 名字，转成
-      // 和按模型/客户端一致的 CostBreakdown 形态复用 CostList。
       const nameMap = Object.fromEntries(rp.map((p) => [p.id, p.name]));
       const byStrategy: CostBreakdown[] = rs
         .map((x) => ({
@@ -261,8 +236,6 @@ export function Dashboard() {
         }))
         .filter((x) => x.request_count > 0)
         .sort((a, b) => b.cost - a.cost);
-      // 首次请求 celebration：lifetime total 从 0 翻到 ≥1 时 toast 一次。
-      // 用 localStorage 标记"已庆祝过"——避免清日志后再次触发。
       const lifetimeTotal = st.total;
       if (
         lifetimeTotal >= 1 &&
@@ -272,12 +245,6 @@ export function Dashboard() {
         toast("success", t("dashboard.first_request_seen"));
       }
 
-      // Incremental update：只在数据实际变化时 setState，避免每 5 秒整页
-      // re-render 让数字闪烁、按钮跳动。浅比对 JSON 字符串虽然不最高效，
-      // 但对这点 payload 来说是常数时间，且写法最直接。
-      setTools((prev) => (shallowEqual(prev, tl) ? prev : tl));
-      setWiredClientIds((prev) => (shallowEqual(prev, wired) ? prev : wired));
-      setProviderCount((prev) => (prev === ps.length ? prev : ps.length));
       setRecentLogs((prev) => (shallowEqual(prev, l) ? prev : l));
       setStats((prev) => (shallowEqual(prev, st) ? prev : st));
       setCostByModel((prev) => (shallowEqual(prev, cm) ? prev : cm));
@@ -290,10 +257,42 @@ export function Dashboard() {
     }
   }, [rangeDays, t]);
 
+  const loadClients = useCallback(async () => {
+    try {
+      const [tl, codex, claude, opencode, gemini, atom] = await Promise.all([
+        api.listTools(),
+        api.detectCodexConfig().catch(() => null),
+        api.detectClaudeCodeEnv().catch(() => null),
+        api.detectOpenCodeConfig().catch(() => null),
+        api.detectGeminiConfig().catch(() => null),
+        api.detectAtomCodeConfig().catch(() => null),
+        useProviders.getState().refetch(),
+        useRouteProfiles
+          .getState()
+          .refetch()
+          .catch(() => {}),
+      ]);
+      const ps = useProviders.getState().items;
+      const wired: string[] = [];
+      if (codex?.has_agentgate) wired.push("codex");
+      if (claude?.has_agentgate) wired.push("claude_code");
+      if (opencode?.has_agentgate) wired.push("opencode");
+      if (gemini?.has_agentgate) wired.push("gemini");
+      if (atom?.has_agentgate) wired.push("atomcode");
+      setTools((prev) => (shallowEqual(prev, tl) ? prev : tl));
+      setWiredClientIds((prev) => (shallowEqual(prev, wired) ? prev : wired));
+      setProviderCount((prev) => (prev === ps.length ? prev : ps.length));
+    } catch (err) {
+      toast("error", (err as api.AppError).message);
+    }
+  }, []);
+
   useEffect(() => {
-    load();
-  }, [load]);
-  usePolling(load, 5000);
+    loadLive();
+    loadClients();
+  }, [loadLive, loadClients]);
+  usePolling(loadLive, 5000);
+  usePolling(loadClients, 30_000);
 
   // 命令返回最新状态，直接写入 store——Topbar 徽章同步更新，无需等下个轮询。
   const setStatus = useGatewayStatus.getState().setValue;

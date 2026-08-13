@@ -28,11 +28,17 @@
 
 | Your machine | Download |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [AgentGate_1.6.2_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_aarch64.dmg) |
-| 🍎 macOS — Intel | [AgentGate_1.6.2_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64.dmg) |
-| 🪟 Windows 10 / 11 | [AgentGate_1.6.2_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [AgentGate_1.6.2_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.deb) |
-| 🐧 Linux — other distros | [AgentGate_1.6.2_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [AgentGate_1.6.3_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_aarch64.dmg) |
+| 🍎 macOS — Intel | [AgentGate_1.6.3_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64.dmg) |
+| 🪟 Windows 10 / 11 | [AgentGate_1.6.3_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [AgentGate_1.6.3_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.deb) |
+| 🐧 Linux — other distros | [AgentGate_1.6.3_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.AppImage) |
+
+On macOS you can also install with Homebrew:
+
+```bash
+brew install --cask dengmengmian/tap/agentgate
+```
 
 > Headless CLI (`agentgate-serve`) tarballs and all versions: [Releases](https://github.com/dengmengmian/agentgate-ai/releases)
 
@@ -150,7 +156,8 @@ Rule of thumb: **protocol match decides pass-through vs conversion; Model Mappin
 - Multi-API-key per provider: round-robin rotation, auto-switch on 429
 
 **Smart Routing**
-- Task-level routing conditions: route by input size, images, tools, system keywords
+- Task-level routing conditions: route by input size, images, tools, system keywords, and model-name match. The same conditions apply to Codex Responses, Chat Completions, Anthropic Messages, and Gemini.
+- Optional daily budget gate (`notify only` / `block` / `force cheapest`) applies to all of those routes, including Gemini `generateContent`
 - Failover selection strategy per route: **priority** (default) / **cheapest** (by model unit price) / **fastest** (by recent gateway latency)
 - Preset scenes: Image Requests / Reasoning / Background / Long Text / Tool-Heavy
 - Prompt cache injection for Anthropic (auto `cache_control`, ~90% input cost savings)
@@ -202,6 +209,12 @@ Rule of thumb: **protocol match decides pass-through vs conversion; Model Mappin
 - MCP servers: read, add, edit, delete, and sync MCP server configs across Codex and Claude Code from one panel; env values are never shown in the list; JSON import/export with keys excluded by default
 - Local skills: list, enable/disable, and delete skills under `~/.claude/skills` and `~/.codex/skills`; install from a local `.zip` (zip-slip guarded, no network download) and JSON backup/restore
 - Local gateway access token (`ag_local_*`) authentication
+
+**Outbound HTTP proxy**
+- Settings → **Outbound HTTP proxy**: send provider API calls through a local `http://` or `https://` proxy (Clash / V2Ray). SOCKS is not supported.
+- Loopback (`127.0.0.1` / `localhost` / `::1`) is always excluded so local probes stay on-box.
+- Switch off: reqwest still honours `HTTP(S)_PROXY` from the environment.
+- Empty URL: the switch does nothing. Fill in a URL for the UI proxy to take effect. Changing the setting restarts a running gateway.
 
 **Desktop Experience**
 - System tray background operation when the window is closed

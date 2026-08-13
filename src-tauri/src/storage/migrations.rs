@@ -4,7 +4,7 @@ use crate::errors::AppError;
 
 /// 当前 schema 版本。每加一段新迁移就 +1,放到 `run_versioned_migrations`
 /// 里 match 上对应的 version。读 `PRAGMA user_version` 决定该跑哪些。
-const CURRENT_SCHEMA_VERSION: u32 = 10;
+const CURRENT_SCHEMA_VERSION: u32 = 11;
 
 fn get_user_version(conn: &Connection) -> Result<u32, AppError> {
     let v: u32 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
@@ -166,6 +166,37 @@ fn run_versioned_migrations(conn: &Connection, from_version: u32) -> Result<(), 
             )?;
         }
         set_user_version(conn, 10)?;
+    }
+    if from_version < 11 {
+        // v11: outbound HTTP proxy + request_logs columns used by hot-path queries.
+        let has_proxy = conn
+            .prepare("SELECT outbound_proxy_enabled FROM gateway_settings LIMIT 0")
+            .is_ok();
+        if !has_proxy {
+            conn.execute_batch(
+                "ALTER TABLE gateway_settings ADD COLUMN outbound_proxy_enabled INTEGER NOT NULL DEFAULT 0;
+                 ALTER TABLE gateway_settings ADD COLUMN outbound_proxy_url TEXT;",
+            )?;
+        }
+        let has_route_col = conn
+            .prepare("SELECT route_profile_id FROM request_logs LIMIT 0")
+            .is_ok();
+        if !has_route_col {
+            conn.execute_batch("ALTER TABLE request_logs ADD COLUMN route_profile_id TEXT;")?;
+        }
+        conn.execute_batch(
+            "CREATE INDEX IF NOT EXISTS idx_request_logs_session_id
+                ON request_logs(session_id)
+                WHERE session_id IS NOT NULL AND session_id != '';
+             CREATE INDEX IF NOT EXISTS idx_request_logs_route_profile_id
+                ON request_logs(route_profile_id)
+                WHERE route_profile_id IS NOT NULL AND route_profile_id != '';
+             UPDATE request_logs
+                SET route_profile_id = json_extract(trace_json, '$.route_decision.profile_id')
+              WHERE (route_profile_id IS NULL OR route_profile_id = '')
+                AND trace_json IS NOT NULL;",
+        )?;
+        set_user_version(conn, 11)?;
     }
     Ok(())
 }

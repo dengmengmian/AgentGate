@@ -28,17 +28,17 @@
   <img src="docs/demo-header-v2.gif" width="800" alt="AgentGate intercepts requests from Claude Code, Codex, and Gemini CLI at a local gateway — converting, passing through, routing, or failing over to 26 providers, with every request traced live">
 </p>
 
-> **New in v1.6.2 — first-run clarity & failure timeline:** Quick Setup only marks complete when provider, gateway, client apply, and probe succeed; the dashboard no longer treats every local config file as “ready.” Failed request details show a stream failure timeline (start → route → upstream → last SSE → failover → end). Sessions UI and local-model discovery are cleaner. [See the v1.6.2 release notes](./docs/release-notes/1.6.2.md).
+> **New in v1.6.3 — outbound proxy & routing that matches the request:** Settings can send provider API calls through a local HTTP/HTTPS proxy (Clash / V2Ray). Chat Completions, Anthropic Messages, and Gemini now evaluate the same routing conditions as Codex Responses. Gemini also follows the daily budget gate. [See the v1.6.3 release notes](./docs/release-notes/1.6.3.md).
 
 ## Download
 
 | Your machine | Download |
 |---|---|
-| macOS Apple Silicon | [AgentGate_1.6.2_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_aarch64.dmg) |
-| macOS Intel | [AgentGate_1.6.2_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64.dmg) |
-| Windows 10 / 11 | [AgentGate_1.6.2_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64-setup.exe) |
-| Debian / Ubuntu | [AgentGate_1.6.2_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.deb) |
-| Other Linux distros | [AgentGate_1.6.2_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.AppImage) |
+| macOS Apple Silicon | [AgentGate_1.6.3_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_aarch64.dmg) |
+| macOS Intel | [AgentGate_1.6.3_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64.dmg) |
+| Windows 10 / 11 | [AgentGate_1.6.3_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64-setup.exe) |
+| Debian / Ubuntu | [AgentGate_1.6.3_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.deb) |
+| Other Linux distros | [AgentGate_1.6.3_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.AppImage) |
 
 **Windows install note:** Edge/Chrome may say the file is “usually not downloaded,” and SmartScreen may show **Windows protected your PC**. That is expected: the installer is not Authenticode-signed. There is no free, widely trusted Windows code-signing certificate (Let’s Encrypt only covers HTTPS, not `.exe`), so open-source builds often ship unsigned — this is **not** a virus report. Download only from [GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases). In the browser choose **Keep** / **Keep anyway**, then when SmartScreen appears click **More info** → **Run anyway**.
 
@@ -93,6 +93,8 @@ Provider presets fill common base URLs, protocols, model defaults, and capabilit
 | Cap daily spend | Optional daily budget gate with `notify only` / `block` / `force cheapest` policies. Only new requests are gated; in-flight streams are never cut mid-response. |
 | Keep a conversation on one provider | Session affinity sticks a multi-turn chat to the upstream it started on, so cache hits and behavior stay consistent. Failover and force-cheapest still override it. |
 | Run local models | Scans Ollama / LM Studio and other common local OpenAI-compatible ports, then adds them as providers in one click. |
+| Send upstream calls through a local proxy | Settings → Outbound HTTP proxy. `http://` / `https://` only (Clash / V2Ray). Loopback stays direct. Empty URL means the switch does nothing; off keeps using `HTTP(S)_PROXY` from the environment. |
+| Route by what the request actually contains | Route conditions (input size, images, tools, system keywords, model name) now apply to Chat Completions, Anthropic Messages, and Gemini, not only Codex Responses. |
 
 <details>
 <summary>Supported providers</summary>

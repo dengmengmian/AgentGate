@@ -16,6 +16,7 @@ static STORE: Mutex<Option<HashMap<String, (String, u64)>>> = Mutex::new(None);
 static ACCESS_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 const MAX_ENTRIES: usize = 500;
+const MAX_STORE_BYTES: usize = 16 * 1024 * 1024;
 
 fn with_store<F, R>(f: F) -> R
 where
@@ -30,6 +31,30 @@ where
 
 fn next_counter() -> u64 {
     ACCESS_COUNTER.fetch_add(1, Ordering::Relaxed)
+}
+
+fn evict_reasoning(map: &mut HashMap<String, (String, u64)>) {
+    let over_count = map.len() > MAX_ENTRIES;
+    let total_bytes: usize = map.values().map(|(s, _)| s.len()).sum();
+    if !over_count && total_bytes <= MAX_STORE_BYTES {
+        return;
+    }
+    let mut entries: Vec<(String, u64, usize)> = map
+        .iter()
+        .map(|(k, (s, c))| (k.clone(), *c, s.len()))
+        .collect();
+    entries.sort_by_key(|(_, c, _)| *c);
+    let mut remaining = total_bytes;
+    for (k, _, bytes) in entries {
+        if map.len() <= 1 {
+            break;
+        }
+        if map.len() <= MAX_ENTRIES && remaining <= MAX_STORE_BYTES {
+            break;
+        }
+        map.remove(&k);
+        remaining = remaining.saturating_sub(bytes);
+    }
 }
 
 fn content_hash(text: &str) -> String {
@@ -54,16 +79,7 @@ pub fn store(text: &str, reasoning: &str, tool_call_ids: &[String]) {
     }
     let counter = next_counter();
     with_store(|map| {
-        // LRU eviction: remove entries with lowest access counter
-        if map.len() > MAX_ENTRIES {
-            let mut entries: Vec<(String, u64)> =
-                map.iter().map(|(k, (_, c))| (k.clone(), *c)).collect();
-            entries.sort_by_key(|(_, c)| *c);
-            let to_remove = entries.len() / 4;
-            for (k, _) in entries.into_iter().take(to_remove) {
-                map.remove(&k);
-            }
-        }
+        evict_reasoning(map);
 
         let h = content_hash(text);
         map.insert(h, (reasoning.to_string(), counter));

@@ -43,6 +43,8 @@ function baseSettings(over: Record<string, unknown> = {}) {
     wake_request_control: false,
     wake_cooldown_seconds: 900,
     wake_keep_display_awake: false,
+    outbound_proxy_enabled: false,
+    outbound_proxy_url: null,
     updated_at: "",
     ...over,
   };
@@ -51,6 +53,7 @@ function baseSettings(over: Record<string, unknown> = {}) {
 function setup(over: Record<string, unknown> = {}) {
   const handleUpdateCostAlert = vi.fn();
   const handleUpdateRequestBodyLimit = vi.fn();
+  const handleUpdateProxy = vi.fn();
   renderWithProviders(
     <GeneralTab
       settings={baseSettings(over) as any}
@@ -62,6 +65,7 @@ function setup(over: Record<string, unknown> = {}) {
       handleUpdateRefinerGlobal={vi.fn()}
       handleUpdateCostAlert={handleUpdateCostAlert}
       handleUpdateRequestBodyLimit={handleUpdateRequestBodyLimit}
+      handleUpdateProxy={handleUpdateProxy}
       wakeStatus={null}
       handleUpdateWake={vi.fn()}
       t={(k: string) => k}
@@ -69,7 +73,11 @@ function setup(over: Record<string, unknown> = {}) {
       ThemePicker={ThemePicker}
     />
   );
-  return { handleUpdateCostAlert, handleUpdateRequestBodyLimit };
+  return {
+    handleUpdateCostAlert,
+    handleUpdateRequestBodyLimit,
+    handleUpdateProxy,
+  };
 }
 
 function openAdvanced() {
@@ -158,5 +166,42 @@ describe("GeneralTab 成本预警", () => {
       target: { value: "4096" },
     });
     expect(handleUpdateRequestBodyLimit).not.toHaveBeenCalled();
+  });
+});
+
+describe("GeneralTab 出站代理", () => {
+  it("打开代理开关会写入 enabled", () => {
+    const { handleUpdateProxy } = setup();
+    const boxes = screen.getAllByRole("checkbox");
+    fireEvent.click(boxes[2]);
+    expect(handleUpdateProxy).toHaveBeenCalledWith({
+      outbound_proxy_enabled: true,
+    });
+  });
+
+  it("开启后地址栏在同一组里，说明只出现一次", () => {
+    const { handleUpdateProxy } = setup({
+      outbound_proxy_enabled: true,
+      outbound_proxy_url: "",
+    });
+    expect(screen.getAllByText("settings.outbound_proxy_desc")).toHaveLength(1);
+    expect(
+      screen.queryByText("settings.outbound_proxy_url")
+    ).not.toBeInTheDocument();
+    const input = screen.getByPlaceholderText("settings.outbound_proxy_url_ph");
+    fireEvent.blur(input, { target: { value: "http://127.0.0.1:7890" } });
+    expect(handleUpdateProxy).toHaveBeenCalledWith({
+      outbound_proxy_url: "http://127.0.0.1:7890",
+    });
+  });
+
+  it("开启但地址为空时提示不会走代理", () => {
+    setup({
+      outbound_proxy_enabled: true,
+      outbound_proxy_url: "",
+    });
+    expect(
+      screen.getByText("settings.outbound_proxy_empty")
+    ).toBeInTheDocument();
   });
 });

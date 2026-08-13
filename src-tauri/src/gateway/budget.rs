@@ -57,10 +57,19 @@ pub fn evaluate(
 }
 
 /// Read settings + today's cost from DB and evaluate. Call at request entry only.
+///
+/// Budget off / no threshold → no `request_logs` scan.
 pub fn evaluate_from_db(db: &DbPool) -> Result<BudgetDecision, AppError> {
     let conn = db.get().map_err(|_| AppError::internal("DB lock failed"))?;
     let settings = crate::storage::gateway_settings::get(&conn)?;
-    let today_cost = crate::storage::request_logs::get_stats(&conn)?.today_cost;
+    if !settings.cost_budget_enabled
+        || settings
+            .cost_budget_threshold
+            .is_none_or(|t| !t.is_finite() || t <= 0.0)
+    {
+        return Ok(BudgetDecision::Allow);
+    }
+    let today_cost = crate::storage::request_logs::today_cost_cached(&conn)?;
     Ok(evaluate(
         settings.cost_budget_enabled,
         settings.cost_budget_threshold,
@@ -221,5 +230,75 @@ mod tests {
     fn normalize_strategy_defaults_unknown() {
         assert_eq!(normalize_strategy("block"), STRATEGY_BLOCK);
         assert_eq!(normalize_strategy("nope"), STRATEGY_NOTIFY_ONLY);
+    }
+
+    #[test]
+    fn evaluate_from_db_skips_logs_when_disabled() {
+        let dir =
+            std::env::temp_dir().join(format!("agentgate_budget_skip_{}", uuid::Uuid::new_v4()));
+        let pool = crate::storage::db::init_database(&dir).unwrap();
+        let decision = evaluate_from_db(&pool).unwrap();
+        assert_eq!(decision, BudgetDecision::Allow);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn evaluate_from_db_blocks_when_today_cost_over_threshold() {
+        let dir =
+            std::env::temp_dir().join(format!("agentgate_budget_block_{}", uuid::Uuid::new_v4()));
+        let pool = crate::storage::db::init_database(&dir).unwrap();
+        {
+            let conn = pool.get().unwrap();
+            crate::storage::gateway_settings::update(
+                &conn,
+                crate::models::gateway::UpdateGatewaySettingsInput {
+                    cost_budget_enabled: Some(true),
+                    cost_budget_threshold: Some(1.0),
+                    cost_budget_strategy: Some(STRATEGY_BLOCK.into()),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+            crate::storage::request_logs::insert(
+                &conn,
+                "req_budget",
+                "Codex",
+                "DeepSeek",
+                "deepseek-chat",
+                "/v1/responses",
+                200,
+                10,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some(100),
+                Some(10),
+                Some(2.5),
+                None,
+                None,
+                Some("gateway"),
+                None,
+                None,
+            )
+            .unwrap();
+        }
+        crate::storage::request_logs::invalidate_cost_caches();
+        let decision = evaluate_from_db(&pool).unwrap();
+        match decision {
+            BudgetDecision::Block {
+                today_cost,
+                threshold,
+            } => {
+                assert!((today_cost - 2.5).abs() < 1e-9);
+                assert_eq!(threshold, 1.0);
+            }
+            other => panic!("expected Block, got {other:?}"),
+        }
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

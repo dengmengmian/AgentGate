@@ -100,7 +100,7 @@
         "url": "https://dengmengmian.github.io/agentgate-ai/",
         "sameAs": "https://github.com/dengmengmian/agentgate-ai",
         "downloadUrl": "https://github.com/dengmengmian/agentgate-ai/releases",
-        "softwareVersion": "1.6.0",
+        "softwareVersion": "1.6.3",
         "license": "https://github.com/dengmengmian/agentgate-ai/blob/main/LICENSE",
         "author": {
           "@type": "Person",
@@ -129,7 +129,7 @@
         <a href="./" class="flex items-center gap-2 text-ink">
           <span class="text-amber">▲</span>
           <span class="font-medium">agentgate</span>
-          <span data-version class="text-faint">v1.6.0</span>
+          <span data-version class="text-faint">v1.6.3</span>
         </a>
         <nav class="flex items-center gap-5 text-ink-soft">
           <a
@@ -170,7 +170,7 @@
           <span class="text-ink-soft">running on</span>
           <span class="text-cyan">127.0.0.1:9090</span>
           <span class="text-faint">·</span>
-          <span data-version class="text-ink-soft">v1.6.0</span>
+          <span data-version class="text-ink-soft">v1.6.3</span>
           <span class="text-faint">·</span>
           <span class="text-ink-soft">26 providers</span>
         </div>
@@ -349,6 +349,30 @@
               macOS 和 Windows 默认防休眠，也可按 AI 请求智能控制，并从托盘快速切换。
             </p>
           </article>
+
+          <!-- card 5 -->
+          <article class="reveal frame rounded p-6 md:p-8">
+            <div class="text-xs uppercase tracking-wider text-amber">
+              <span class="text-faint">#</span> outbound proxy · v1.6.3
+            </div>
+            <p class="mt-4 text-base text-ink">
+              Settings can send provider API calls through a local
+              <code class="text-cyan">http://</code> /
+              <code class="text-cyan">https://</code> proxy (Clash / V2Ray).
+              Loopback stays direct. Off keeps
+              <code class="text-ink-soft">HTTP(S)_PROXY</code> from the
+              environment. An empty URL does not apply the UI proxy.
+            </p>
+            <p class="mt-4 text-base text-ink">
+              Routing conditions (input size, images, tools, keywords, model
+              name) now evaluate on Chat Completions, Anthropic Messages, and
+              Gemini — not only Codex Responses. Gemini also follows the daily
+              budget gate.
+            </p>
+            <p class="comment-zh zh mt-3">
+              设置里可配出站 HTTP 代理。Chat / Messages / Gemini 也会看路由条件。
+            </p>
+          </article>
         </div>
 
         <!-- positioning blurb -->
@@ -377,7 +401,7 @@
           </p>
           <p class="mt-3 text-xs text-muted">
             <span class="text-faint"># latest </span>
-            <span data-version class="text-cyan">v1.6.0</span>
+            <span data-version class="text-cyan">v1.6.3</span>
             <span class="text-faint">·</span>
             <span data-released class="text-ink-soft">recently</span>
           </p>
@@ -460,7 +484,11 @@
           </table>
         </div>
 
-        <p class="reveal mt-6 text-sm text-muted">
+        <p class="reveal mt-6 text-sm text-ink-soft">
+          macOS via Homebrew:
+          <code class="text-cyan">brew install --cask dengmengmian/tap/agentgate</code>
+        </p>
+        <p class="reveal mt-3 text-sm text-muted">
           <span class="text-faint"># </span>headless CLI
           (<code class="text-ink-soft">agentgate-serve</code>) 与历史版本：
           <a
@@ -626,7 +654,7 @@
           <span class="text-faint">·</span>
           <span class="text-muted">MIT</span>
           <span class="text-faint">·</span>
-          <span data-version class="text-muted">v1.6.0</span>
+          <span data-version class="text-muted">v1.6.3</span>
         </div>
         <nav class="flex items-center gap-5 text-ink-soft">
           <a

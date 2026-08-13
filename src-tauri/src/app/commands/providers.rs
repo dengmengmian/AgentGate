@@ -298,10 +298,12 @@ pub async fn fetch_provider_models(
         }
     };
 
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(timeout_seconds as u64))
-        .build()
-        .map_err(|e| AppError::internal(format!("HTTP client error: {e}")))?;
+    let client = crate::gateway::http_client::apply_optional_proxy(
+        reqwest::Client::builder().timeout(std::time::Duration::from_secs(timeout_seconds as u64)),
+        crate::gateway::http_client::proxy_from_db(&state.db),
+    )
+    .build()
+    .map_err(|e| AppError::internal(format!("HTTP client error: {e}")))?;
 
     // Try /models then /v1/models
     let base = base_url.trim_end_matches('/');
@@ -456,10 +458,12 @@ pub async fn test_provider(
         }
     };
 
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(timeout_seconds as u64))
-        .build()
-        .map_err(|e| AppError::internal(format!("Failed to create HTTP client: {e}")))?;
+    let client = crate::gateway::http_client::apply_optional_proxy(
+        reqwest::Client::builder().timeout(std::time::Duration::from_secs(timeout_seconds as u64)),
+        crate::gateway::http_client::proxy_from_db(&state.db),
+    )
+    .build()
+    .map_err(|e| AppError::internal(format!("Failed to create HTTP client: {e}")))?;
 
     let urls = vec![
         format!("{}/models", base_url.trim_end_matches('/')),
@@ -588,12 +592,14 @@ pub async fn detect_provider_vision(
         }
     };
 
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(
+    let client = crate::gateway::http_client::apply_optional_proxy(
+        reqwest::Client::builder().timeout(std::time::Duration::from_secs(
             provider.timeout_seconds as u64,
-        ))
-        .build()
-        .map_err(|e| AppError::internal(format!("HTTP client error: {e}")))?;
+        )),
+        crate::gateway::http_client::proxy_from_db(&state.db),
+    )
+    .build()
+    .map_err(|e| AppError::internal(format!("HTTP client error: {e}")))?;
 
     // 1x1 red PNG, ~68 bytes base64
     let tiny_image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==";
@@ -975,10 +981,12 @@ pub async fn detect_provider_cache(
     // 上游若不支持 Anthropic 格式（如错配了 anthropic_base_url 的 OpenAI 系 provider），
     // 否则会卡满 provider 默认 timeout（往往 120s+），前端 dialog 永远在转。
     let probe_timeout = std::cmp::min(provider.timeout_seconds as u64, 15);
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(probe_timeout))
-        .build()
-        .map_err(|e| AppError::internal(format!("HTTP client error: {e}")))?;
+    let client = crate::gateway::http_client::apply_optional_proxy(
+        reqwest::Client::builder().timeout(std::time::Duration::from_secs(probe_timeout)),
+        crate::gateway::http_client::proxy_from_db(&state.db),
+    )
+    .build()
+    .map_err(|e| AppError::internal(format!("HTTP client error: {e}")))?;
 
     // Build a large enough system prompt (>1024 tokens for cache eligibility)
     let long_system = "You are a helpful assistant. ".repeat(100); // ~600 words, >1024 tokens

@@ -30,11 +30,17 @@ English: [Main Reference](./full-reference.md)
 
 | 你的机器 | 下载 |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [AgentGate_1.6.2_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_aarch64.dmg) |
-| 🍎 macOS — Intel | [AgentGate_1.6.2_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64.dmg) |
-| 🪟 Windows 10 / 11 | [AgentGate_1.6.2_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [AgentGate_1.6.2_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.deb) |
-| 🐧 Linux — 其他发行版 | [AgentGate_1.6.2_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [AgentGate_1.6.3_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_aarch64.dmg) |
+| 🍎 macOS — Intel | [AgentGate_1.6.3_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64.dmg) |
+| 🪟 Windows 10 / 11 | [AgentGate_1.6.3_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [AgentGate_1.6.3_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.deb) |
+| 🐧 Linux — 其他发行版 | [AgentGate_1.6.3_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.AppImage) |
+
+macOS 也可以用 Homebrew 安装：
+
+```bash
+brew install --cask dengmengmian/tap/agentgate
+```
 
 > 无界面 CLI（`agentgate-serve`）的 tarball 包和所有历史版本：[Releases](https://github.com/dengmengmian/agentgate-ai/releases)
 
@@ -152,7 +158,8 @@ AgentGate 的事就一句话：**让官方客户端的入口在本地可控**—
 - 每个 Provider 多 API Key：轮询，429 时自动切换
 
 **智能路由**
-- 任务级路由条件：按输入大小、是否有图、是否有工具、系统关键词来路由
+- 任务级路由条件：按输入大小、是否有图、是否有工具、系统关键词、模型名匹配来路由。同一套条件对 Codex Responses、Chat Completions、Anthropic Messages、Gemini 都生效。
+- 可选日预算闸（仅提醒 / 拦截 / 强制最便宜）覆盖上述全部入口，包括 Gemini `generateContent`
 - 每条路由的 故障转移 选择策略：**优先级**（默认）/ **最便宜**（按模型单价）/ **最快**（按最近网关延迟）
 - 预置场景：图片请求 / 推理 / 后台 / 长文 / 工具密集
 - Anthropic 自动注入 prompt cache（`cache_control` 自动加，约 90% 输入成本省下来）
@@ -204,6 +211,12 @@ AgentGate 的事就一句话：**让官方客户端的入口在本地可控**—
 - MCP 服务器：一个面板搞定 Codex 和 Claude Code 的 MCP 服务器配置的读、加、改、删、同步；env 值在列表里不显示；JSON 导入 / 导出默认不带 Key
 - 本地 **技能**：列出、启用 / 禁用、删除 `~/.claude/skills` 和 `~/.codex/skills` 下的技能；从本地 `.zip` 安装（防 zip-slip，不联网下载），JSON 备份 / 恢复
 - 本地网关 access token（`ag_local_*`）认证
+
+**出站 HTTP 代理**
+- 设置 → **出站 HTTP 代理**：让访问上游供应商的请求走本机 `http://` 或 `https://` 代理（Clash / V2Ray）。不支持 SOCKS。
+- 回环地址（`127.0.0.1` / `localhost` / `::1`）始终直连，本机探针不会绕出去。
+- 开关关闭：仍尊重环境变量 `HTTP(S)_PROXY`。
+- 地址为空：开关不会生效。填了 URL 才会走设置里的代理。改这项会重启正在运行的网关。
 
 **桌面体验**
 - 窗口关闭后系统托盘后台运行

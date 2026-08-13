@@ -16,7 +16,8 @@ pub fn get(conn: &Connection) -> Result<GatewaySettings, AppError> {
                 wake_enabled, wake_request_control, wake_cooldown_seconds,
                 wake_keep_display_awake,
                 cost_budget_enabled, cost_budget_threshold, cost_budget_strategy,
-                auto_compact_enabled, auto_compact_usage_percent
+                auto_compact_enabled, auto_compact_usage_percent,
+                outbound_proxy_enabled, outbound_proxy_url
          FROM gateway_settings WHERE id = 1",
         [],
         |row| {
@@ -50,6 +51,8 @@ pub fn get(conn: &Connection) -> Result<GatewaySettings, AppError> {
                     .unwrap_or_else(|| "notify_only".into()),
                 auto_compact_enabled: row.get(25)?,
                 auto_compact_usage_percent: row.get(26)?,
+                outbound_proxy_enabled: row.get::<_, Option<i64>>(27)?.unwrap_or(0) != 0,
+                outbound_proxy_url: row.get(28)?,
             })
         },
     )
@@ -138,7 +141,13 @@ pub fn update(
     let wake_keep_display_awake = input
         .wake_keep_display_awake
         .unwrap_or(existing.wake_keep_display_awake);
-
+    let outbound_proxy_enabled = input
+        .outbound_proxy_enabled
+        .unwrap_or(existing.outbound_proxy_enabled);
+    let outbound_proxy_url = match input.outbound_proxy_url {
+        Some(raw) => crate::gateway::http_client::parse_proxy_url(&raw)?,
+        None => existing.outbound_proxy_url,
+    };
     conn.execute(
         "UPDATE gateway_settings SET host=?1, port=?2, active_provider_id=?3,
                 input_protocol=?4, output_protocol=?5, auto_start=?6,
@@ -153,7 +162,8 @@ pub fn update(
                 cost_budget_enabled=?21, cost_budget_threshold=?22,
                 cost_budget_strategy=?23,
                 auto_compact_enabled=?24, auto_compact_usage_percent=?25,
-                updated_at=?26
+                outbound_proxy_enabled=?26, outbound_proxy_url=?27,
+                updated_at=?28
          WHERE id = 1",
         params![
             &host,
@@ -181,6 +191,8 @@ pub fn update(
             &cost_budget_strategy,
             auto_compact_enabled,
             auto_compact_usage_percent,
+            outbound_proxy_enabled,
+            &outbound_proxy_url,
             &now,
         ],
     )?;
@@ -209,6 +221,37 @@ mod tests {
         assert_eq!(settings.request_body_limit_mb, 32);
         assert!(!settings.cost_budget_enabled);
         assert_eq!(settings.cost_budget_strategy, "notify_only");
+        assert!(!settings.outbound_proxy_enabled);
+        assert!(settings.outbound_proxy_url.is_none());
+    }
+
+    #[test]
+    fn outbound_proxy_roundtrip_and_rejects_socks() {
+        let conn = setup_db();
+        let updated = update(
+            &conn,
+            UpdateGatewaySettingsInput {
+                outbound_proxy_enabled: Some(true),
+                outbound_proxy_url: Some("http://127.0.0.1:7890".into()),
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        assert!(updated.outbound_proxy_enabled);
+        assert_eq!(
+            updated.outbound_proxy_url.as_deref(),
+            Some("http://127.0.0.1:7890")
+        );
+
+        let err = update(
+            &conn,
+            UpdateGatewaySettingsInput {
+                outbound_proxy_url: Some("socks5://127.0.0.1:1080".into()),
+                ..Default::default()
+            },
+        )
+        .unwrap_err();
+        assert_eq!(err.code, "VALIDATION_ERROR");
     }
 
     #[test]
@@ -237,7 +280,7 @@ mod tests {
         let v: u32 = conn
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(v, 10);
+        assert_eq!(v, 11);
         let ok = conn
             .prepare(
                 "SELECT cost_budget_enabled, cost_budget_strategy, auto_compact_enabled, auto_compact_usage_percent FROM gateway_settings LIMIT 0",

@@ -95,7 +95,7 @@ export function RuntimeFooter() {
   useEffect(() => {
     load();
   }, [load]);
-  usePolling(load, 5000);
+  usePolling(load, 15_000);
 
   if (!kpis) return null;
 

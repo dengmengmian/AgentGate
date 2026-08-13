@@ -157,10 +157,7 @@ pub async fn process_upstream_stream_inner(
     // any complete SSE frames that bootstrap already pulled.
     loop {
         // First, parse out any complete lines already buffered.
-        while let Some(line_end) = buffer.find('\n') {
-            let line = buffer[..line_end].trim_end_matches('\r').to_string();
-            buffer = buffer[line_end + 1..].to_string();
-
+        for line in crate::gateway::sse_buffer::take_complete_lines(&mut buffer) {
             match dispatch_line(
                 &line,
                 &tx,

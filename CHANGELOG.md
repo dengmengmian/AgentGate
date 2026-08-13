@@ -1,5 +1,20 @@
 # Changelog / 更新日志
 
+## [1.6.3] - 2026-08-13
+
+### Added / 新增
+
+- **Outbound HTTP proxy / 出站 HTTP 代理** —— Settings can send provider API calls through a local `http://` / `https://` proxy (Clash / V2Ray). Loopback stays direct. Off keeps using `HTTP(S)_PROXY` from the environment. An empty URL does not apply the UI proxy. 设置里可让访问上游的请求走本机 HTTP/HTTPS 代理；回环地址仍直连。关闭时继续尊重环境变量。地址为空时开关不会生效。
+
+### Improvements / 改进
+
+- **Routing conditions on every protocol / 路由条件覆盖全部协议入口** —— Chat Completions, Anthropic Messages, and Gemini now evaluate the same body conditions as Codex Responses (`min/max_input_chars`, `has_images`, `has_tools`, `system_keywords`, `model_name_match`). Existing route profiles are unchanged; conditions that were previously ignored on those routes now apply. Chat / Messages / Gemini 与 Codex Responses 使用同一套请求体条件；已有路由配置不用改，只是以前被忽略的条件现在会生效。
+- **Daily budget on Gemini / Gemini 也走日预算闸** —— Gemini generateContent is gated by the same daily spend policy as other routes. Gemini 请求同样受日预算策略约束。
+
+### Performance / 性能
+
+- **Hot-path work cut / 热路径减负** —— Budget off skips the lifetime stats scan; daily spend uses a cheap SUM with a short cache. Request JSON is parsed once per route. SSE line splitting is shared. Session lookup has an in-process cache. Dashboard / footer poll less often. 预算关闭时不再扫全量统计；日花费用短缓存 SUM。请求 JSON 每条路由只解析一次。SSE 拆行共用。会话查找有进程内缓存。概览与页脚轮询更慢。
+
 ## [1.6.2] - 2026-08-12
 
 ### Added / 新增

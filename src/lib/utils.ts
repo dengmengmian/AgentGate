@@ -18,16 +18,6 @@ export function formatTimestamp(iso: string, locale: string = "en-US"): string {
   return `${month}-${day} ${time}`;
 }
 
-export function formatDate(iso: string, locale: string = "en-US"): string {
-  const d = new Date(iso);
-  const loc = locale === "zh" ? "zh-CN" : locale;
-  return d.toLocaleDateString(loc, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 export function formatLatency(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
@@ -36,11 +26,4 @@ export function formatLatency(ms: number): string {
 export function formatOptionalLatency(ms: number | null): string {
   if (ms === null || ms <= 0) return "—";
   return formatLatency(ms);
-}
-
-export function formatUptime(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
 }

@@ -129,7 +129,7 @@ pub(super) async fn handle_non_stream_response(
 
     match result {
         Ok(upstream_json) => {
-            converted_request = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+            converted_request = serde_json::to_string(&chat_req).unwrap_or_default();
             let resp_id = format!("resp_{}", &request_id[4..]);
             let tool_call_resolution =
                 crate::transform::tool_calls::build_tool_call_resolution_map(&raw_request);
@@ -319,8 +319,8 @@ pub(super) async fn handle_non_stream_response(
                 &request_id,
                 &raw_request,
                 &converted_request,
-                &serde_json::to_string_pretty(&upstream_json).unwrap_or_default(),
-                &serde_json::to_string_pretty(&responses_resp).unwrap_or_default(),
+                &serde_json::to_string(&upstream_json).unwrap_or_default(),
+                &serde_json::to_string(&responses_resp).unwrap_or_default(),
                 if tool_calls_json.is_empty() {
                     None
                 } else {
@@ -455,8 +455,7 @@ pub(super) async fn handle_stream_response(
                                 "stream_bootstrap_web_search_disabled",
                             ),
                         );
-                        converted_request =
-                            serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+                        converted_request = serde_json::to_string(&chat_req).unwrap_or_default();
                         degraded_bootstrap_web_search = true;
                         tracing::warn!(
                             provider = %config.name,
@@ -473,7 +472,7 @@ pub(super) async fn handle_stream_response(
 
     match upstream_resp {
         Ok(boot) => {
-            converted_request = serde_json::to_string_pretty(&chat_req).unwrap_or_default();
+            converted_request = serde_json::to_string(&chat_req).unwrap_or_default();
             let resp_id = format!("resp_{}", &request_id[4..]);
             let (tx, rx) = mpsc::channel::<String>(256);
 

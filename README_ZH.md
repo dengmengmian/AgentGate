@@ -28,17 +28,17 @@
   <img src="docs/demo-header-v2.gif" width="800" alt="AgentGate 在本地网关截获 Claude Code、Codex、Gemini CLI 的请求——转换 / 直连 / 路由 / 故障转移到 26 家上游，每条请求都在本地可追踪">
 </p>
 
-> **v1.6.2 首装更清楚 + 失败时间轴：** 快速配置仅在供应商、网关、客户端 apply、探针都成功时算完成；概览不再把「本机有配置文件」当成已就绪。失败请求详情展示流式失败时间轴（开始 → 选路 → 上游 → 末次 SSE → 故障转移 → 结束）。会话页与本地模型入口也更干净。[查看 v1.6.2 更新说明](./docs/release-notes/1.6.2.md)。
+> **v1.6.3 出站代理 + 路由按请求内容生效：** 设置里可让访问上游的请求走本机 HTTP/HTTPS 代理（Clash / V2Ray）。Chat Completions、Anthropic Messages、Gemini 与 Codex Responses 使用同一套路由条件。Gemini 也走日预算闸。[查看 v1.6.3 更新说明](./docs/release-notes/1.6.3.md)。
 
 ## 下载
 
 | 你的机器 | 下载 |
 |---|---|
-| macOS Apple 芯片 | [AgentGate_1.6.2_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_aarch64.dmg) |
-| macOS Intel 芯片 | [AgentGate_1.6.2_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64.dmg) |
-| Windows 10 / 11 | [AgentGate_1.6.2_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_x64-setup.exe) |
-| Debian / Ubuntu | [AgentGate_1.6.2_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.deb) |
-| 其他 Linux 发行版 | [AgentGate_1.6.2_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.2/AgentGate_1.6.2_amd64.AppImage) |
+| macOS Apple 芯片 | [AgentGate_1.6.3_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_aarch64.dmg) |
+| macOS Intel 芯片 | [AgentGate_1.6.3_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64.dmg) |
+| Windows 10 / 11 | [AgentGate_1.6.3_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64-setup.exe) |
+| Debian / Ubuntu | [AgentGate_1.6.3_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.deb) |
+| 其他 Linux 发行版 | [AgentGate_1.6.3_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.AppImage) |
 
 **Windows 安装提示：** Edge/Chrome 可能提示「通常不会下载」，SmartScreen 可能提示「Windows 已保护你的电脑」。这是预期行为：安装包目前**未做 Authenticode 代码签名**。业界没有像 Let’s Encrypt 那样「免费且被 Windows 默认信任」的代码签名证书（免费证书只管 HTTPS 网站，不能签 `.exe`），开源项目常见先发未签名包——**不是病毒报错**。请只从 [GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases) 下载；浏览器里选 **保留 / 仍要保留**，运行时点 **更多信息** → **仍要运行**。
 
@@ -92,6 +92,8 @@ Provider 预设会填好常见 base URL、协议、默认模型和能力矩阵�
 | 控制每天花多少钱 | 可选日预算闸，支持仅提醒 / 拦截 / 强制最便宜三种策略；只卡新请求，不会把正在跑的流式响应掐断。 |
 | 让一轮对话固定走同一个上游 | 会话亲和让多轮对话粘在最初命中的上游，缓存命中和模型表现更稳定；故障转移与强制最便宜仍可覆盖。 |
 | 跑本地模型 | 扫描 Ollama / LM Studio 及常见本地 OpenAI 兼容端口，一键添加为 Provider。 |
+| 让上游请求走本机代理 | 设置 → 出站 HTTP 代理。只支持 `http://` / `https://`（Clash / V2Ray）。回环地址仍直连。地址为空时开关不生效；关闭则继续尊重环境变量 `HTTP(S)_PROXY`。 |
+| 按请求内容选路 | 输入长度、是否有图、是否有工具、系统关键词、模型名匹配，现在 Chat Completions / Anthropic Messages / Gemini 也会评估，不再只对 Codex Responses 生效。 |
 
 <details>
 <summary>支持的 Provider</summary>

@@ -54,6 +54,10 @@ pub struct GatewaySettings {
     pub wake_cooldown_seconds: i64,
     /// 在保持系统唤醒的同时保持显示器常亮。
     pub wake_keep_display_awake: bool,
+    /// 出站 HTTP 代理开关。关时仍尊重环境变量 HTTP(S)_PROXY。
+    pub outbound_proxy_enabled: bool,
+    /// 例如 `http://127.0.0.1:7890`。仅 http/https。
+    pub outbound_proxy_url: Option<String>,
     pub updated_at: String,
 }
 
@@ -84,6 +88,8 @@ pub struct UpdateGatewaySettingsInput {
     pub wake_request_control: Option<bool>,
     pub wake_cooldown_seconds: Option<i64>,
     pub wake_keep_display_awake: Option<bool>,
+    pub outbound_proxy_enabled: Option<bool>,
+    pub outbound_proxy_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Type)]
@@ -144,6 +150,8 @@ mod tests {
             wake_request_control: false,
             wake_cooldown_seconds: 900,
             wake_keep_display_awake: false,
+            outbound_proxy_enabled: false,
+            outbound_proxy_url: None,
             updated_at: "2024-01-01T00:00:00Z".into(),
         };
         let json = serde_json::to_string(&s).unwrap();
