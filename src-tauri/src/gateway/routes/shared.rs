@@ -484,6 +484,7 @@ fn last_user_content_has_images(body: &Value, image_types: &[&str]) -> bool {
 }
 
 /// Chat Completions 请求体最后一条 user message 是否含图片(`image_url`)。
+#[cfg(test)]
 pub(crate) fn chat_request_has_images(body: &str) -> bool {
     serde_json::from_str::<Value>(body)
         .map(|v| chat_request_has_images_value(&v))
@@ -495,6 +496,7 @@ pub(crate) fn chat_request_has_images_value(body: &Value) -> bool {
 }
 
 /// Anthropic Messages 请求体最后一条 user message 是否含图片(`image` block)。
+#[cfg(test)]
 pub(crate) fn anthropic_request_has_images(body: &str) -> bool {
     serde_json::from_str::<Value>(body)
         .map(|v| anthropic_request_has_images_value(&v))

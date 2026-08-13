@@ -12,14 +12,16 @@ pub mod shared;
 // 以及 tests 继续按原名直接引用,无需触碰 fn body。
 #[allow(unused_imports)]
 pub(crate) use shared::{
-    anthropic_request_has_images, anthropic_request_has_images_value, chat_request_has_images,
-    chat_request_has_images_value, detect_client_from_ua, enrich_trace_with_route_decision,
-    get_active_provider, lock_db, log_request_error, log_request_error_full, log_request_success,
-    native_model_override, refine_struct_body, refine_value_body, request_body_or_gateway_error,
-    request_contains_images, request_contains_images_pub, route_candidate_skip_reasons,
-    route_fallback_chain, sanitize_body, trace_with_degradation_events, truncate_str,
-    validate_auth, GatewayError,
+    anthropic_request_has_images_value, chat_request_has_images_value, detect_client_from_ua,
+    enrich_trace_with_route_decision, get_active_provider, lock_db, log_request_error,
+    log_request_error_full, log_request_success, native_model_override, refine_struct_body,
+    refine_value_body, request_body_or_gateway_error, request_contains_images,
+    request_contains_images_pub, route_candidate_skip_reasons, route_fallback_chain, sanitize_body,
+    trace_with_degradation_events, truncate_str, validate_auth, GatewayError,
 };
+#[cfg(test)]
+#[allow(unused_imports)]
+pub(crate) use shared::{anthropic_request_has_images, chat_request_has_images};
 #[allow(unused_imports)]
 pub(crate) use shared::{host_is_allowed, origin_is_allowed, validate_request_boundary};
 
