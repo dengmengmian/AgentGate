@@ -10,6 +10,9 @@ pub mod shared;
 
 // 把所有 shared helper 重新导出到本模块命名空间,让 mod.rs 里现存的 endpoint 入口
 // 以及 tests 继续按原名直接引用,无需触碰 fn body。
+#[cfg(test)]
+#[allow(unused_imports)]
+pub(crate) use shared::{anthropic_request_has_images, chat_request_has_images};
 #[allow(unused_imports)]
 pub(crate) use shared::{
     anthropic_request_has_images_value, chat_request_has_images_value, detect_client_from_ua,
@@ -19,9 +22,6 @@ pub(crate) use shared::{
     request_contains_images_pub, route_candidate_skip_reasons, route_fallback_chain, sanitize_body,
     trace_with_degradation_events, truncate_str, validate_auth, GatewayError,
 };
-#[cfg(test)]
-#[allow(unused_imports)]
-pub(crate) use shared::{anthropic_request_has_images, chat_request_has_images};
 #[allow(unused_imports)]
 pub(crate) use shared::{host_is_allowed, origin_is_allowed, validate_request_boundary};
 
