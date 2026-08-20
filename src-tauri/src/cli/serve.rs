@@ -1,4 +1,4 @@
-//! Headless AgentGate server — runs without Tauri/GUI.
+//! Headless MuxLayer server — runs without Tauri/GUI.
 //!
 //! Usage:
 //!   agentgate-serve                          # defaults: 127.0.0.1:9090
@@ -9,22 +9,23 @@
 //! Environment variables:
 //!   AGENTGATE_HOST     — bind address (default: 127.0.0.1)
 //!   AGENTGATE_PORT     — port (default: 9090)
-//!   AGENTGATE_DB_PATH  — SQLite database directory (default: ~/.agentgate)
+//!   MUXLAYER_DB_PATH   — SQLite database directory
+//!   AGENTGATE_DB_PATH  — legacy alias for MUXLAYER_DB_PATH
 
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use agentgate_lib::storage::db::{DbConn, DbPool};
 
 #[derive(Parser)]
 #[command(
     name = "agentgate",
-    about = "AgentGate — Local AI gateway for coding agents",
+    about = "MuxLayer — The local model control layer for coding agents",
     version
 )]
 struct Cli {
     /// Database directory path
-    #[arg(long, global = true, env = "AGENTGATE_DB_PATH")]
+    #[arg(long, global = true)]
     db_path: Option<String>,
 
     #[command(subcommand)]
@@ -124,7 +125,7 @@ enum Commands {
         /// Client model name (what your agent sends)
         #[arg(long)]
         from: String,
-        /// Upstream model name (what AgentGate forwards)
+        /// Upstream model name (what MuxLayer forwards)
         #[arg(long)]
         to: String,
     },
@@ -183,11 +184,15 @@ enum Commands {
 fn get_db_dir(cli: &Cli) -> PathBuf {
     if let Some(ref path) = cli.db_path {
         PathBuf::from(path)
+    } else if let Some(path) =
+        agentgate_lib::compat::env_value("MUXLAYER_DB_PATH", "AGENTGATE_DB_PATH")
+    {
+        PathBuf::from(path)
     } else {
         let home = std::env::var("HOME")
             .or_else(|_| std::env::var("USERPROFILE"))
             .unwrap_or_else(|_| ".".to_string());
-        PathBuf::from(home).join(".agentgate")
+        agentgate_lib::compat::default_cli_data_dir(Path::new(&home))
     }
 }
 
@@ -457,7 +462,7 @@ async fn cmd_serve(
     };
     let scheme = if tls.is_some() { "https" } else { "http" };
 
-    eprintln!("AgentGate headless server");
+    eprintln!("MuxLayer headless server");
     eprintln!("  Database:   {}", db_dir.display());
     eprintln!(
         "  Providers:  {}",
@@ -754,7 +759,7 @@ fn cmd_status(cli: &Cli) {
     let active = providers.iter().find(|p| p.is_active);
     let token = agentgate_lib::security::local_token::read_token().unwrap_or_default();
 
-    println!("AgentGate Status");
+    println!("MuxLayer Status");
     println!("  Database:   {}", db_dir.display());
     println!("  Providers:  {} configured", providers.len());
     if let Some(a) = active {
@@ -1042,7 +1047,7 @@ fn cmd_stats(cli: &Cli, days: i64) {
     };
 
     println!(
-        "AgentGate Stats (last {days} day{}, plus all-time)\n",
+        "MuxLayer Stats (last {days} day{}, plus all-time)\n",
         if days == 1 { "" } else { "s" }
     );
 

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dengmengmian.github.io/agentgate-ai/sitemap.xml
+Sitemap: https://dengmengmian.github.io/muxlayer/sitemap.xml

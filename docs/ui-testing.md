@@ -1,6 +1,6 @@
 # UI Testing
 
-AgentGate uses Vitest, React Testing Library, and jsdom for UI tests. Add browser E2E tests only for a few critical flows after component and page tests are stable.
+MuxLayer uses Vitest, React Testing Library, and jsdom for UI tests. Add browser E2E tests only for a few critical flows after component and page tests are stable.
 
 ## Commands
 

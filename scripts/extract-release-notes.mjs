@@ -21,7 +21,7 @@ const header = new RegExp(`^## \\[${escapeRegExp(version)}\\][^\\n]*\\n`, "m");
 const match = changelog.match(header);
 
 if (!match || match.index === undefined) {
-  process.stdout.write(`## AgentGate ${version}\n\nRelease ${version}.\n`);
+  process.stdout.write(`## MuxLayer ${version}\n\nRelease ${version}.\n`);
   process.exit(0);
 }
 
@@ -39,7 +39,7 @@ const bilingualBody = body
   .replace(/^### 文档$/gm, "### Documentation / 文档")
   .replace(/^### 重命名$/gm, "### Renamed / 重命名");
 
-process.stdout.write(`## AgentGate ${version}\n\n`);
+process.stdout.write(`## MuxLayer ${version}\n\n`);
 process.stdout.write("> English section headings are generated automatically. Detailed notes follow the bilingual changelog source.\n\n");
 process.stdout.write(`${bilingualBody}\n`);
 

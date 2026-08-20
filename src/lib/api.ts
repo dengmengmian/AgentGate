@@ -1,4 +1,4 @@
-// AgentGate 前端 API 客户端。
+// MuxLayer 前端 API 客户端。
 //
 // **类型来源**: src/lib/bindings.ts 由 Rust 端 cargo test 自动生成
 // （tauri-specta 反射 #[tauri::command] + #[specta::specta]）。所有 input /
@@ -250,7 +250,7 @@ export const syncGeminiSessions = () => unwrap(bindings.syncGeminiSessions());
 export const listTools = () => unwrap(bindings.listTools());
 export const generateCodexConfig = () => unwrap(bindings.generateCodexConfig());
 
-// ── Claude Desktop（接入 AgentGate 网关）──
+// ── Claude Desktop（接入 MuxLayer 网关）──
 // detect_claude_desktop Rust 侧返回裸值不是 Result,bindings 直接 Promise<T>,
 // 不走 unwrap。
 export const detectClaudeDesktop = () => bindings.detectClaudeDesktop();

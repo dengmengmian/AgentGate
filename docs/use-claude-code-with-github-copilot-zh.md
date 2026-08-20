@@ -1,21 +1,21 @@
 # 用 GitHub Copilot 订阅跑 Claude Code
 
-English: [Use Claude Code with GitHub Copilot through AgentGate](./use-claude-code-with-github-copilot.md)
+English: [Use Claude Code with GitHub Copilot through MuxLayer](./use-claude-code-with-github-copilot.md)
 
-AgentGate 把 Claude Code 的 Anthropic Messages 入口变成本地模型入口，再把选中的请求路由到 GitHub Copilot 订阅里包含的 Claude 模型。这是一个可选功能，仅用于个人评估；在官方客户端之外使用 Copilot 属于 GitHub 服务条款的灰色地带。
+MuxLayer 把 Claude Code 的 Anthropic Messages 入口变成本地模型入口，再把选中的请求路由到 GitHub Copilot 订阅里包含的 Claude 模型。这是一个可选功能，仅用于个人评估；在官方客户端之外使用 Copilot 属于 GitHub 服务条款的灰色地带。
 
 ## 什么时候用这个
 
 如果你想：
 
 - 让 Claude Code 使用 Copilot 提供的 Claude 模型，不用额外申请 Anthropic API Key。
-- 让 AgentGate 自动把你的 GitHub OAuth token 兑换成 Copilot API 凭证。
+- 让 MuxLayer 自动把你的 GitHub OAuth token 兑换成 Copilot API 凭证。
 - 把工具续写和历史压缩的请求标记成 agent 流量，**不消耗** premium 高级请求额度。
 - 在日志里看到每条请求的 `x-initiator` 分类。
 
 ## 风险声明
 
-这个功能完全可选。如果你没有添加 `copilot` 类型的 Provider，AgentGate 不会走这条路径。
+这个功能完全可选。如果你没有添加 `copilot` 类型的 Provider，MuxLayer 不会走这条路径。
 
 在官方客户端之外使用 Copilot 订阅，属于服务条款的灰色地带。社区里类似行为的工具存在很久了，但**账号风险无法完全排除**。**不要用重要的公司账号做实验。**
 
@@ -23,13 +23,13 @@ AgentGate 把 Claude Code 的 Anthropic Messages 入口变成本地模型入口�
 
 1. 确认你有一个可用的 GitHub Copilot 订阅。
 2. 拿到一个 GitHub OAuth token。如果你登录过 VS Code Copilot，可以在 `~/.config/github-copilot/apps.json` 里找到 `oauth_token`。
-3. 打开 AgentGate，进入 **供应商**，添加一个类型为 **GitHub Copilot** 的 Provider。
-4. 把 `gho_` 或 `ghu_` 开头的 token 粘贴成 API Key。AgentGate 会自动填好 base URL 和模型列表。
+3. 打开 MuxLayer，进入 **供应商**，添加一个类型为 **GitHub Copilot** 的 Provider。
+4. 把 `gho_` 或 `ghu_` 开头的 token 粘贴成 API Key。MuxLayer 会自动填好 base URL 和模型列表。
 5. 在 **概览** 或 **网关** 启动网关。
 6. 打开 **客户端**，应用 Claude Code 配置。
 7. 发一条测试消息，在 **日志** 里查 Provider 是 `GitHub Copilot`，以及 `x-initiator` 的分类。
 
-## AgentGate 处理了什么
+## MuxLayer 处理了什么
 
 | 方面 | 行为 |
 |---|---|

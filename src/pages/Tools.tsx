@@ -48,8 +48,8 @@ type ClientId =
   | "claude_desktop";
 
 /// 把每个客户端在「列表行」上需要的状态压成统一三态：
-/// - `active`：已接入 AgentGate
-/// - `detected`：检测到配置但未接入 AgentGate
+/// - `active`：已接入 MuxLayer
+/// - `detected`：检测到配置但未接入 MuxLayer
 /// - `absent`：未检测到
 type ClientPresence = "active" | "detected" | "absent";
 
@@ -254,7 +254,7 @@ export function Tools() {
       if (result.success) {
         const label =
           result.new_provider === "agentgate"
-            ? "AgentGate"
+            ? "MuxLayer"
             : result.new_provider;
         toast("success", `${t("tools.switched_to")} ${label}`);
         await showPostApply("codex", "Codex", result.config_path);
@@ -289,7 +289,7 @@ export function Tools() {
       if (result.success) {
         const label =
           result.new_provider === "agentgate"
-            ? "AgentGate"
+            ? "MuxLayer"
             : t("tools.official");
         toast("success", `${t("tools.switched_to")} ${label}`);
         await showPostApply("claude_code", "Claude Code", result.config_path);
@@ -341,7 +341,7 @@ export function Tools() {
       if (result.success) {
         const label =
           result.new_provider === "agentgate"
-            ? "AgentGate"
+            ? "MuxLayer"
             : t("tools.official");
         toast("success", `${t("tools.switched_to")} ${label}`);
         await showPostApply("gemini", "Gemini CLI", result.config_path);
@@ -371,7 +371,7 @@ export function Tools() {
       if (result.success) {
         const label =
           result.new_provider === "agentgate"
-            ? "AgentGate"
+            ? "MuxLayer"
             : t("tools.official");
         toast("success", `${t("tools.switched_to")} ${label}`);
         await showPostApply("atomcode", "AtomCode", result.config_path);

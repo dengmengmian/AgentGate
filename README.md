@@ -1,46 +1,54 @@
 <p align="center">
-  <img src="docs/logo.svg" width="128" height="128" alt="AgentGate Logo">
+  <img src="docs/logo.svg" width="128" height="128" alt="MuxLayer Logo">
 </p>
 
-<h1 align="center">AgentGate</h1>
+<h1 align="center">MuxLayer</h1>
 
 <p align="center">
-  <b>One local gateway for your AI model requests.</b><br>
-  AgentGate is a local AI gateway for AI apps and clients, including Codex, Claude Code, Gemini CLI, OpenCode, AtomCode, and apps compatible with OpenAI, Anthropic, or Gemini protocols. It routes each request to the model you choose, fails over automatically when a provider breaks, traces everything locally, bridges protocol differences across OpenAI-compatible providers, and keeps long-running AI tasks from being interrupted by automatic sleep on macOS and Windows.
+  <b>The local model control layer for coding agents.</b><br>
+  MuxLayer sits between your coding agents and AI model providers. Route, convert,
+  fail over, and trace model requests locally.
 </p>
 
 <p align="center">
-  <a href="https://github.com/dengmengmian/agentgate-ai/releases"><img src="https://img.shields.io/github/v/release/dengmengmian/agentgate-ai?style=flat-square&color=blue" alt="Release"></a>
-  <a href="https://github.com/dengmengmian/agentgate-ai/stargazers"><img src="https://img.shields.io/github/stars/dengmengmian/agentgate-ai?style=flat-square&cacheSeconds=3600" alt="Stars"></a>
-  <a href="https://github.com/dengmengmian/agentgate-ai/releases"><img src="https://img.shields.io/github/downloads/dengmengmian/agentgate-ai/total?style=flat-square&color=green&cacheSeconds=3600" alt="Downloads"></a>
+  Codex · Claude Code · Gemini CLI · OpenCode · CodeLeveler<br>
+  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · Ollama · 20+ providers
+</p>
+
+> MuxLayer — formerly AgentGate
+
+<p align="center">
+  <a href="https://github.com/dengmengmian/muxlayer/releases"><img src="https://img.shields.io/github/v/release/dengmengmian/muxlayer?style=flat-square&color=blue" alt="Release"></a>
+  <a href="https://github.com/dengmengmian/muxlayer/stargazers"><img src="https://img.shields.io/github/stars/dengmengmian/muxlayer?style=flat-square&cacheSeconds=3600" alt="Stars"></a>
+  <a href="https://github.com/dengmengmian/muxlayer/releases"><img src="https://img.shields.io/github/downloads/dengmengmian/muxlayer/total?style=flat-square&color=green&cacheSeconds=3600" alt="Downloads"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
 </p>
 
 <p align="center">
-  <a href="./README_ZH.md">中文</a> · <a href="https://github.com/dengmengmian/agentgate-ai/releases">Download</a> · <a href="#5-minute-quick-start">5-Minute Quick Start</a> · <a href="./docs/full-reference.md">Full Reference</a> · <a href="https://github.com/dengmengmian/agentgate-ai/discussions">💬 Discussions</a>
+  <a href="./README_ZH.md">中文</a> · <a href="https://github.com/dengmengmian/muxlayer/releases">Download</a> · <a href="#5-minute-quick-start">5-Minute Quick Start</a> · <a href="./docs/full-reference.md">Full Reference</a> · <a href="https://github.com/dengmengmian/muxlayer/discussions">💬 Discussions</a>
 </p>
 
 <p align="center">
-  GitHub: <a href="https://github.com/dengmengmian/agentgate-ai">dengmengmian/agentgate-ai</a>
+  GitHub: <a href="https://github.com/dengmengmian/muxlayer">dengmengmian/muxlayer</a>
 </p>
 
 <p align="center">
-  <img src="docs/demo-header-v2.gif" width="800" alt="AgentGate intercepts requests from Claude Code, Codex, and Gemini CLI at a local gateway — converting, passing through, routing, or failing over to 26 providers, with every request traced live">
+  <img src="docs/demo-header-v2.gif" width="800" alt="MuxLayer intercepts requests from Claude Code, Codex, and Gemini CLI at a local gateway — converting, passing through, routing, or failing over to 26 providers, with every request traced live">
 </p>
 
-> **New in v1.6.3 — outbound proxy & routing that matches the request:** Settings can send provider API calls through a local HTTP/HTTPS proxy (Clash / V2Ray). Chat Completions, Anthropic Messages, and Gemini now evaluate the same routing conditions as Codex Responses. Gemini also follows the daily budget gate. [See the v1.6.3 release notes](./docs/release-notes/1.6.3.md).
+> **New in v2.0.0 — MuxLayer brand migration with automatic legacy data adoption:** Existing desktop installations keep their update identity and data directory, while new headless installs use `~/.muxlayer` and automatically continue using an existing `~/.agentgate` database or token. [See the v2.0.0 release notes](./docs/release-notes/2.0.0.md).
 
 ## Download
 
 | Your machine | Download |
 |---|---|
-| macOS Apple Silicon | [AgentGate_1.6.3_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_aarch64.dmg) |
-| macOS Intel | [AgentGate_1.6.3_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64.dmg) |
-| Windows 10 / 11 | [AgentGate_1.6.3_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64-setup.exe) |
-| Debian / Ubuntu | [AgentGate_1.6.3_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.deb) |
-| Other Linux distros | [AgentGate_1.6.3_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.AppImage) |
+| macOS Apple Silicon | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_aarch64.dmg) |
+| macOS Intel | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_amd64.deb) |
+| Other Linux distros | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_amd64.AppImage) |
 
-**Windows install note:** Edge/Chrome may say the file is “usually not downloaded,” and SmartScreen may show **Windows protected your PC**. That is expected: the installer is not Authenticode-signed. There is no free, widely trusted Windows code-signing certificate (Let’s Encrypt only covers HTTPS, not `.exe`), so open-source builds often ship unsigned — this is **not** a virus report. Download only from [GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases). In the browser choose **Keep** / **Keep anyway**, then when SmartScreen appears click **More info** → **Run anyway**.
+**Windows install note:** Edge/Chrome may say the file is “usually not downloaded,” and SmartScreen may show **Windows protected your PC**. That is expected: the installer is not Authenticode-signed. There is no free, widely trusted Windows code-signing certificate (Let’s Encrypt only covers HTTPS, not `.exe`), so open-source builds often ship unsigned — this is **not** a virus report. Download only from [GitHub Releases](https://github.com/dengmengmian/muxlayer/releases). In the browser choose **Keep** / **Keep anyway**, then when SmartScreen appears click **More info** → **Run anyway**.
 
 On macOS you can also install with Homebrew:
 
@@ -48,31 +56,34 @@ On macOS you can also install with Homebrew:
 brew install --cask dengmengmian/tap/agentgate
 ```
 
-Headless CLI (`agentgate-serve`) tarballs and older versions are on the [Releases](https://github.com/dengmengmian/agentgate-ai/releases) page.
+The Homebrew cask name and existing installer filenames remain `agentgate` during
+the compatibility phase. They will migrate separately with an upgrade path.
 
-## Why AgentGate
+Headless CLI (`agentgate-serve`) tarballs and older versions are on the [Releases](https://github.com/dengmengmian/muxlayer/releases) page.
+
+## Why MuxLayer
 
 | Official experience intact | Model routing is yours | Every request visible |
 |:---|:---|:---|
-| Keeps Codex / Claude Code / Gemini CLI / OpenCode / AtomCode usable the way you already use them, with one-click restore to official configs. | Official client requests enter AgentGate first, then route through protocol conversion or native pass-through to the upstream provider you choose. | Route decisions, converted payloads, upstream errors, tokens, cost, latency, and failover attempts are traced locally. |
+| Keeps Codex / Claude Code / Gemini CLI / OpenCode / AtomCode usable the way you already use them, with one-click restore to official configs. | Official client requests enter MuxLayer first, then route through protocol conversion or native pass-through to the upstream provider you choose. | Route decisions, converted payloads, upstream errors, tokens, cost, latency, and failover attempts are traced locally. |
 
-AgentGate is not a hosted API reseller or a generic proxy. It is a local entry point for AI model requests — every request enters AgentGate first, then routes, converts, fails over, or passes through under your control.
+MuxLayer is not a hosted API reseller or a generic proxy. It is a local entry point for AI model requests — every request enters MuxLayer first, then routes, converts, fails over, or passes through under your control.
 
 ## Three focused tools, one workflow
 
-**CodeLeveler writes the code. ReviewGate reviews it. AgentGate connects both
+**CodeLeveler writes the code. ReviewGate reviews it. MuxLayer connects both
 to your model APIs.** Each tool works independently, or they can be used
 together:
 
 | Tool | Focus |
 |---|---|
-| **AgentGate** | Adapt model APIs behind one local gateway |
+| **MuxLayer** | Adapt model APIs behind one local gateway |
 | [CodeLeveler](https://github.com/dengmengmian/CodeLeveler) | Inspect, edit, run, and verify code in the terminal |
 | [ReviewGate](https://github.com/dengmengmian/ReviewGate) | Review code changes and surface high-confidence issues |
 
 ## 5-Minute Quick Start
 
-1. Download and install AgentGate.
+1. Download and install MuxLayer.
 2. Open **Quick Setup** or **Providers**, then paste your provider API key.
 3. Click **Start Gateway** on **Overview** or **Gateway**. The default endpoint is `127.0.0.1:9090`.
 4. On **Clients**, click **Apply Config** for Codex, Claude Code, OpenCode, Gemini CLI, or AtomCode.
@@ -82,10 +93,10 @@ Provider presets fill common base URLs, protocols, model defaults, and capabilit
 
 ## Common Uses
 
-| Goal | What AgentGate does |
+| Goal | What MuxLayer does |
 |---|---|
 | Use Codex with DeepSeek or MiMo | Lets Codex keep sending official Responses API traffic, then converts or passes it through to the selected upstream. |
-| Keep Codex Desktop plugins working | Preserves the official OpenAI-authenticated provider path while routing model requests through AgentGate. |
+| Keep Codex Desktop plugins working | Preserves the official OpenAI-authenticated provider path while routing model requests through MuxLayer. |
 | Use Claude Code with DeepSeek / MiMo / Copilot | Supports Anthropic-compatible pass-through, model-name mapping, and optional GitHub Copilot provider setup. |
 | Avoid provider outages or quota stalls | Tries failover providers on configured status codes, keywords, timeouts, and cooldown state. |
 | Keep long AI tasks running unattended | Prevents automatic sleep on macOS and Windows by default, with optional request-aware control and quick system-tray toggles. |
@@ -158,9 +169,10 @@ Provider presets fill common base URLs, protocols, model defaults, and capabilit
 
 ## Notes
 
+- Brand migration and compatibility boundaries: [MuxLayer brand migration plan](./docs/brand-migration.md)
 - GitHub Copilot provider support is optional. Using Copilot subscriptions outside official clients may carry account risk; read the dedicated guide before enabling it.
 - The gateway endpoint is `127.0.0.1:9090`; `localhost:1420` is only the development UI port.
-- AgentGate is local-first and single-user. If you operate a shared API server or billing platform, tools like one-api, new-api, or LiteLLM may fit better.
+- MuxLayer is local-first and single-user. If you operate a shared API server or billing platform, tools like one-api, new-api, or LiteLLM may fit better.
 
 ## Development
 
@@ -179,8 +191,8 @@ cd src-tauri && cargo test
 
 ## Community
 
-- Questions and setup help: [Discussions](https://github.com/dengmengmian/agentgate-ai/discussions)
-- Bugs and provider requests: [Issues](https://github.com/dengmengmian/agentgate-ai/issues)
+- Questions and setup help: [Discussions](https://github.com/dengmengmian/muxlayer/discussions)
+- Bugs and provider requests: [Issues](https://github.com/dengmengmian/muxlayer/issues)
 - Contributing: [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## License

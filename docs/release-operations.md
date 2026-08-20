@@ -2,13 +2,13 @@
 
 中文：发版运营与下载数据口径
 
-This page documents how to interpret GitHub release assets for AgentGate. It is meant for maintainers looking at adoption, release quality, and user support signals.
+This page documents how to interpret GitHub release assets for MuxLayer. It is meant for maintainers looking at adoption, release quality, and user support signals.
 
 ## Download metrics
 
 GitHub's total download count is useful as a rough activity signal, but it should not be treated as the number of real desktop installs.
 
-AgentGate releases include several asset types:
+MuxLayer releases include several asset types:
 
 | Asset type | Examples | How to interpret |
 |---|---|---|

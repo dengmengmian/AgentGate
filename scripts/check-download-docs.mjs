@@ -19,7 +19,7 @@ for (const file of downloadDocs) {
   const content = fs.readFileSync(path.join(root, file), "utf8");
   const releaseVersions = [
     ...content.matchAll(
-      /github\.com\/dengmengmian\/agentgate-ai\/releases\/download\/v([0-9]+\.[0-9]+\.[0-9]+)/g,
+      /github\.com\/dengmengmian\/muxlayer\/releases\/download\/v([0-9]+\.[0-9]+\.[0-9]+)/g,
     ),
   ].map((match) => match[1]);
   const assetVersions = [

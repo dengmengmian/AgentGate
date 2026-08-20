@@ -1,12 +1,12 @@
 # Code of Conduct
 
-AgentGate is a small open-source project for people building and using local AI coding-agent workflows. We want the issue tracker, discussions, and pull requests to stay useful, concrete, and welcoming.
+MuxLayer is a small open-source project for people building and using local AI coding-agent workflows. We want the issue tracker, discussions, and pull requests to stay useful, concrete, and welcoming.
 
 ## Expected behavior
 
 - Be respectful when reporting bugs, asking questions, or reviewing code.
 - Assume good intent, but be precise about facts, logs, versions, and reproduction steps.
-- Keep discussions focused on AgentGate, supported clients, providers, diagnostics, and adjacent setup problems.
+- Keep discussions focused on MuxLayer, supported clients, providers, diagnostics, and adjacent setup problems.
 - Redact API keys, account tokens, private endpoints, and sensitive local paths before posting logs.
 - Accept maintainer decisions about scope, security risk, and long-term maintainability.
 

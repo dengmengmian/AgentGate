@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="logo.svg" width="128" height="128" alt="AgentGate Logo">
+  <img src="logo.svg" width="128" height="128" alt="MuxLayer Logo">
 </p>
 
-<h1 align="center">AgentGate</h1>
+<h1 align="center">MuxLayer</h1>
 
 <p align="center">
   <b>One local gateway for your AI model requests.</b><br>
@@ -10,29 +10,29 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/dengmengmian/agentgate-ai/releases"><img src="https://img.shields.io/github/v/release/dengmengmian/agentgate-ai?style=flat-square&color=blue" alt="Release"></a>
-  <a href="https://github.com/dengmengmian/agentgate-ai/stargazers"><img src="https://img.shields.io/github/stars/dengmengmian/agentgate-ai?style=flat-square&cacheSeconds=3600" alt="Stars"></a>
-  <a href="https://github.com/dengmengmian/agentgate-ai/releases"><img src="https://img.shields.io/github/downloads/dengmengmian/agentgate-ai/total?style=flat-square&color=green&cacheSeconds=3600" alt="Downloads"></a>
+  <a href="https://github.com/dengmengmian/muxlayer/releases"><img src="https://img.shields.io/github/v/release/dengmengmian/muxlayer?style=flat-square&color=blue" alt="Release"></a>
+  <a href="https://github.com/dengmengmian/muxlayer/stargazers"><img src="https://img.shields.io/github/stars/dengmengmian/muxlayer?style=flat-square&cacheSeconds=3600" alt="Stars"></a>
+  <a href="https://github.com/dengmengmian/muxlayer/releases"><img src="https://img.shields.io/github/downloads/dengmengmian/muxlayer/total?style=flat-square&color=green&cacheSeconds=3600" alt="Downloads"></a>
   <a href="../LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
 </p>
 
 <p align="center">
-  <a href="./full-reference-zh.md">中文版</a> · <a href="../README_ZH.md">中文 README</a> · <a href="https://github.com/dengmengmian/agentgate-ai/releases">Download</a> · <a href="#5-minute-quick-start">5-Minute Quick Start</a> · <a href="./use-codex-with-deepseek.md">Codex + DeepSeek</a> · <a href="./use-claude-code-with-deepseek.md">Claude Code + DeepSeek</a> · <a href="./use-gemini-cli-with-agentgate.md">Gemini CLI</a>
+  <a href="./full-reference-zh.md">中文版</a> · <a href="../README_ZH.md">中文 README</a> · <a href="https://github.com/dengmengmian/muxlayer/releases">Download</a> · <a href="#5-minute-quick-start">5-Minute Quick Start</a> · <a href="./use-codex-with-deepseek.md">Codex + DeepSeek</a> · <a href="./use-claude-code-with-deepseek.md">Claude Code + DeepSeek</a> · <a href="./use-gemini-cli-with-agentgate.md">Gemini CLI</a>
 </p>
 
 <p align="center">
-  <img src="demo-header-v2.gif" width="800" alt="AgentGate brings AI agent requests into a local gateway for conversion, pass-through, routing, and tracing">
+  <img src="demo-header-v2.gif" width="800" alt="MuxLayer brings AI agent requests into a local gateway for conversion, pass-through, routing, and tracing">
 </p>
 
 ## Download for your OS
 
 | Your machine | Download |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [AgentGate_1.6.3_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_aarch64.dmg) |
-| 🍎 macOS — Intel | [AgentGate_1.6.3_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64.dmg) |
-| 🪟 Windows 10 / 11 | [AgentGate_1.6.3_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [AgentGate_1.6.3_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.deb) |
-| 🐧 Linux — other distros | [AgentGate_1.6.3_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_aarch64.dmg) |
+| 🍎 macOS — Intel | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_x64.dmg) |
+| 🪟 Windows 10 / 11 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_amd64.deb) |
+| 🐧 Linux — other distros | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_amd64.AppImage) |
 
 On macOS you can also install with Homebrew:
 
@@ -40,31 +40,31 @@ On macOS you can also install with Homebrew:
 brew install --cask dengmengmian/tap/agentgate
 ```
 
-> Headless CLI (`agentgate-serve`) tarballs and all versions: [Releases](https://github.com/dengmengmian/agentgate-ai/releases)
+> Headless CLI (`agentgate-serve`) tarballs and all versions: [Releases](https://github.com/dengmengmian/muxlayer/releases)
 
 **Windows install note:** Edge/Chrome may warn that the file is “usually not downloaded,” and SmartScreen may show **Windows protected your PC**. Expected: the installer is not Authenticode-signed. There is no free, widely trusted Windows code-signing certificate (Let’s Encrypt is for HTTPS only, not `.exe`), so many open-source projects ship unsigned — not a malware verdict. Download only from official Releases; **Keep** the file in the browser, then **More info** → **Run anyway** on SmartScreen.
 
-## Why AgentGate
+## Why MuxLayer
 
 | Official experience intact | Model routing is yours | Every request visible |
 |:---|:---|:---|
-| Keep AI agent clients usable the way they expect, with one-click restore to official configs | Let official client requests enter AgentGate first, then convert or pass through to your chosen upstream | Trace route decisions, converted payloads, upstream errors, tokens, cost, latency, and failover attempts |
+| Keep AI agent clients usable the way they expect, with one-click restore to official configs | Let official client requests enter MuxLayer first, then convert or pass through to your chosen upstream | Trace route decisions, converted payloads, upstream errors, tokens, cost, latency, and failover attempts |
 
 ## 5-Minute Quick Start
 
-1. Download AgentGate from the table above and install it.
+1. Download MuxLayer from the table above and install it.
 2. Open **Quick Setup** or **Providers**, then paste your provider API key.
 3. Click **Start Gateway** on **Overview** or **Gateway**. The default client endpoint is `127.0.0.1:9090`.
 4. On **Clients**, click **Apply Config** for Codex / Claude Code / OpenCode / Gemini CLI / AtomCode.
 5. Send a test message in the client. Click **Switch to Official** whenever you want to restore the original client config.
 
-AgentGate fills common base URLs, protocols, model defaults, and capability matrices from provider presets. Most users do not need to touch model mapping or advanced endpoint fields at first.
+MuxLayer fills common base URLs, protocols, model defaults, and capability matrices from provider presets. Most users do not need to touch model mapping or advanced endpoint fields at first.
 
 ---
 
-AgentGate is a **local gateway for AI app and client model requests**. It takes requests that would normally go straight to official endpoints, brings them into your desktop first, then decides whether to convert protocols or pass through natively to 26 providers including Xiaomi MiMo, DeepSeek, OpenAI, Anthropic, GitHub Copilot, Kimi, GLM, DashScope, SiliconFlow, Volcengine, and more.
+MuxLayer is a **local gateway for AI app and client model requests**. It takes requests that would normally go straight to official endpoints, brings them into your desktop first, then decides whether to convert protocols or pass through natively to 26 providers including Xiaomi MiMo, DeepSeek, OpenAI, Anthropic, GitHub Copilot, Kimi, GLM, DashScope, SiliconFlow, Volcengine, and more.
 
-> **One local gateway for your AI model requests.** Codex, Claude Code, Gemini CLI, OpenCode, AtomCode, and apps compatible with OpenAI / Anthropic / Gemini protocols keep their familiar client flow, while AgentGate handles upstream choice, protocol differences, failover, cost, and traceability locally.
+> **One local gateway for your AI model requests.** Codex, Claude Code, Gemini CLI, OpenCode, AtomCode, and apps compatible with OpenAI / Anthropic / Gemini protocols keep their familiar client flow, while MuxLayer handles upstream choice, protocol differences, failover, cost, and traceability locally.
 
 ![Cost dashboard](screenshots/dashboard.png)
 
@@ -77,13 +77,13 @@ It is built for real integration problems:
 - Multiple providers and multiple API keys should fail over automatically, with request logs, token stats, and cost tracking.
 - Switching models should not mean hand-editing `~/.codex/config.toml` or `~/.claude/settings.json`.
 
-AgentGate's job is: **make the official client entry point local and controllable** — one-click client apply / restore, protocol conversion when needed, native pass-through when possible, route profiles, failover, request logs, cost tracking, and diagnostics.
+MuxLayer's job is: **make the official client entry point local and controllable** — one-click client apply / restore, protocol conversion when needed, native pass-through when possible, route profiles, failover, request logs, cost tracking, and diagnostics.
 
 ## How It Compares
 
-There are great LLM proxies out there. AgentGate's niche is **a local desktop entry point for AI model requests** — it focuses on preserving client behavior while moving the model entry point into a local GUI you control, not operating a shared API server.
+There are great LLM proxies out there. MuxLayer's niche is **a local desktop entry point for AI model requests** — it focuses on preserving client behavior while moving the model entry point into a local GUI you control, not operating a shared API server.
 
-| Tool | What it's best at | How AgentGate differs |
+| Tool | What it's best at | How MuxLayer differs |
 |---|---|---|
 | **Plain proxy** | Swapping a base URL | Keeps client-specific behavior, converts protocols when needed, supports native pass-through, and traces the full request path |
 | **claude-code-router** | Routing Claude Code (CLI) to other models | Also covers Codex Responses API, Gemini CLI, OpenCode — plus a GUI and cost dashboard |
@@ -96,13 +96,13 @@ There are great LLM proxies out there. AgentGate's niche is **a local desktop en
 
 Guides: [Codex Desktop plugins](./use-codex-desktop-with-third-party-api-and-plugins.md) · [Codex + DeepSeek](./use-codex-with-deepseek.md) · [Codex + Xiaomi MiMo](./use-codex-with-mimo.md) · [Claude Code + DeepSeek](./use-claude-code-with-deepseek.md) · [Claude Code + GitHub Copilot](./use-claude-code-with-github-copilot.md) · [Gemini CLI](./use-gemini-cli-with-agentgate.md) · [OpenCode](./use-opencode-with-agentgate.md)
 
-| Goal | What AgentGate does |
+| Goal | What MuxLayer does |
 |---|---|
 | Use Codex with DeepSeek | Converts Codex's OpenAI Responses API requests to DeepSeek-compatible Chat Completions or Anthropic-compatible endpoints. |
-| Use Codex with Xiaomi MiMo | Turns Codex's Responses entry into a local AgentGate entry, then routes to MiMo models with model mapping, reasoning support, and capability checks. |
+| Use Codex with Xiaomi MiMo | Turns Codex's Responses entry into a local MuxLayer entry, then routes to MiMo models with model mapping, reasoning support, and capability checks. |
 | Run Claude Code on a GitHub Copilot subscription | Exchanges your GitHub token for Copilot credentials automatically and tags tool continuations / compaction as agent traffic so they don't consume premium requests. See [the dedicated section](#run-claude-code--codex-on-your-github-copilot-subscription). |
 | Long sessions on small-context models | When history exceeds the model's context window, the gateway auto-summarizes the middle of the conversation (keeping system + recent turns verbatim) — a 128K-window model survives 300K+ token sessions. |
-| Use Codex Desktop plugins with third-party APIs | Keeps Codex Desktop on its official OpenAI-authenticated provider path so plugin and account features can keep working while model requests route through AgentGate. |
+| Use Codex Desktop plugins with third-party APIs | Keeps Codex Desktop on its official OpenAI-authenticated provider path so plugin and account features can keep working while model requests route through MuxLayer. |
 | Use Claude Code with DeepSeek / MiMo | Uses Anthropic-compatible pass-through plus model mapping for DeepSeek and MiMo endpoints. |
 | Switch Codex between providers | One local endpoint lets Codex switch between DeepSeek, MiMo, OpenAI, Kimi, GLM, DashScope, and more without hand-editing config files. |
 
@@ -110,16 +110,16 @@ Guides: [Codex Desktop plugins](./use-codex-desktop-with-third-party-api-and-plu
 
 ## Optional: Run Claude Code / Codex on Your GitHub Copilot Subscription
 
-If you have a Copilot subscription (Pro / Business), Claude Code can run on the Claude models it includes — **no separate Anthropic API billing**. AgentGate handles three things:
+If you have a Copilot subscription (Pro / Business), Claude Code can run on the Claude models it includes — **no separate Anthropic API billing**. MuxLayer handles three things:
 
 1. **Credential exchange**: you provide a GitHub OAuth token (`gho_...`); the gateway exchanges and renews the Copilot API credential automatically (cached by hash, never stored in plaintext).
-2. **Premium-request optimization**: most agent-workflow requests are tool-result continuations and history compaction — AgentGate tags those `x-initiator: agent`, so **only the messages you actually send consume premium requests**. One instruction with 10 tool round-trips counts as 1.
+2. **Premium-request optimization**: most agent-workflow requests are tool-result continuations and history compaction — MuxLayer tags those `x-initiator: agent`, so **only the messages you actually send consume premium requests**. One instruction with 10 tool round-trips counts as 1.
 3. **Model name normalization**: `claude-sonnet-4-6` from Claude Code becomes the `claude-sonnet-4.6` form the Copilot endpoint expects — no mapping needed.
 
 **Steps:**
 
 1. Get a GitHub token: if you're signed into VS Code Copilot, read `oauth_token` from `~/.config/github-copilot/apps.json`.
-2. AgentGate → Providers → Add, choose type **GitHub Copilot**, paste the `gho_` token as the API key (base URL and models auto-fill).
+2. MuxLayer → Providers → Add, choose type **GitHub Copilot**, paste the `gho_` token as the API key (base URL and models auto-fill).
 3. Apply the Claude Code config on the Clients page and start chatting. The Logs page shows the `x-initiator` classification per request.
 
 > ⚠️ **Risk disclosure**: using a Copilot subscription outside official clients is a gray area under GitHub's Terms of Service. Similar community tools have existed for a long time without mass enforcement, but **account risk cannot be ruled out — evaluate it yourself**, and avoid important corporate accounts. This feature is entirely opt-in; if you never add a copilot-type provider, none of this applies.
@@ -132,7 +132,7 @@ If you have a Copilot subscription (Pro / Business), Claude Code can run on the 
 | **Native Pass-through** | Client protocol matches a native upstream endpoint | Request `model` is preserved unless a Model Mapping matches; the virtual `agentgate` model resolves to the model selected by routing | OpenCode / curl → Chat Completions |
 | **Pass-through + Model Mapping** | Protocol matches, but client model names differ from upstream names | Model Mapping rewrites `model` | Claude Code `claude-*` → DeepSeek / MiMo model |
 
-Rule of thumb: **protocol match decides pass-through vs conversion; Model Mapping only renames models.** For one-click client integrations, `agentgate` is a virtual model name that means "let AgentGate pick the provider model for this request."
+Rule of thumb: **protocol match decides pass-through vs conversion; Model Mapping only renames models.** For one-click client integrations, `agentgate` is a virtual model name that means "let MuxLayer pick the provider model for this request."
 
 ## Features
 
@@ -189,7 +189,7 @@ Rule of thumb: **protocol match decides pass-through vs conversion; Model Mappin
   - **Aggregator**: OpenRouter
   - **Custom**: any OpenAI-compatible endpoint (vLLM / Ollama / LiteLLM / local proxies)
 - MiMo first-class support: 5 chat models (`mimo-v2.5-pro` / `mimo-v2-pro` / `mimo-v2.5` / `mimo-v2-omni` / `mimo-v2-flash`), multi-turn `reasoning_content` round-trip, `sk-*` / `tp-*` keys auto-route to the correct Open API or Token Plan host, region-aware Token Plan URLs (`cn` / `sgp` / `ams`), and automatic `web_search` degradation when the paid plugin is unavailable
-- Claude Code passthrough for MiMo / DeepSeek uses ordinary provider model IDs by default; AgentGate no longer auto-configures `[1m]` suffixed models.
+- Claude Code passthrough for MiMo / DeepSeek uses ordinary provider model IDs by default; MuxLayer no longer auto-configures `[1m]` suffixed models.
 - Route Profiles with multi-provider priority chains, auto-matched by protocol
 - Manual switching or automatic failover
 - Provider cooldown and runtime status tracking
@@ -200,12 +200,12 @@ Rule of thumb: **protocol match decides pass-through vs conversion; Model Mappin
 - Connection stability: HTTP client tuned with `pool_idle_timeout` and `tcp_keepalive`, plus app-layer retry on transient connect/timeout errors (avoids stale keep-alive failures after a pause)
 
 **Client Configuration**
-- Codex: one-click config + toggle between official and AgentGate (preserves conversations)
+- Codex: one-click config + toggle between official and MuxLayer (preserves conversations)
 - Codex Desktop compatibility: routes model requests to third-party APIs while preserving the official OpenAI provider path, signed-in account state, and plugin/account feature compatibility
-- Claude Code: one-click config + toggle between official and AgentGate
+- Claude Code: one-click config + toggle between official and MuxLayer
 - OpenCode: one-click config
-- Claude Desktop (macOS / Windows): point its third-party inference gateway at AgentGate; one-click apply with history rollback
-- Global instruction files: edit `~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md` from inside AgentGate with 6 built-in templates grouped by purpose (general / coding / review / debug / security / docs); overwrite or append, with auto-snapshot, one-click rollback, and JSON backup/restore
+- Claude Desktop (macOS / Windows): point its third-party inference gateway at MuxLayer; one-click apply with history rollback
+- Global instruction files: edit `~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md` from inside MuxLayer with 6 built-in templates grouped by purpose (general / coding / review / debug / security / docs); overwrite or append, with auto-snapshot, one-click rollback, and JSON backup/restore
 - MCP servers: read, add, edit, delete, and sync MCP server configs across Codex and Claude Code from one panel; env values are never shown in the list; JSON import/export with keys excluded by default
 - Local skills: list, enable/disable, and delete skills under `~/.claude/skills` and `~/.codex/skills`; install from a local `.zip` (zip-slip guarded, no network download) and JSON backup/restore
 - Local gateway access token (`ag_local_*`) authentication
@@ -295,19 +295,19 @@ Download the installer for your platform from the [Releases](../../releases) pag
 If macOS Gatekeeper blocks the app, use one of these options:
 
 **Option 1: System Settings (recommended)**
-1. Double-click AgentGate, click **Cancel** on the prompt
+1. Double-click MuxLayer, click **Cancel** on the prompt
 2. Open **System Settings → Privacy & Security**
-3. Scroll down, find `"AgentGate" was blocked` → click **Open Anyway**
-4. Open AgentGate again, click **Open**
+3. Scroll down, find `"MuxLayer" was blocked` → click **Open Anyway**
+4. Open MuxLayer again, click **Open**
 
 **Option 2: Right-click open**
-1. Find AgentGate.app in Finder
+1. Find MuxLayer.app in Finder
 2. Hold **Control** and click (or right-click) → select **Open**
 3. Click **Open** on the prompt
 
 **Option 3: Terminal**
 ```bash
-xattr -d com.apple.quarantine /Applications/AgentGate.app
+xattr -d com.apple.quarantine /Applications/MuxLayer.app
 ```
 
 > Only needed once.
@@ -322,9 +322,9 @@ The NSIS installer is not Authenticode-signed, so first-time download and launch
 1. **Browser (Edge/Chrome):** “Usually won’t download” / “Make sure you trust …” → open the ⋯ menu → **Keep** / **Keep anyway**.
 2. **SmartScreen:** “Windows protected your PC” → **More info** → **Run anyway**.
 
-**Why unsigned?** Commercial Windows code-signing certificates cost money. There is no free equivalent that Windows trusts by default (Let’s Encrypt covers HTTPS sites, not desktop installers). AgentGate ships unsigned for now and documents this path instead.
+**Why unsigned?** Commercial Windows code-signing certificates cost money. There is no free equivalent that Windows trusts by default (Let’s Encrypt covers HTTPS sites, not desktop installers). MuxLayer ships unsigned for now and documents this path instead.
 
-Download only from [official GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases). These prompts are reputation/signature checks, not a confirmed malware scan result. You typically only need to confirm once per machine.
+Download only from [official GitHub Releases](https://github.com/dengmengmian/muxlayer/releases). These prompts are reputation/signature checks, not a confirmed malware scan result. You typically only need to confirm once per machine.
 
 </details>
 
@@ -357,7 +357,7 @@ pnpm tauri build
 
 ## Headless / Server Mode
 
-Run AgentGate without GUI — for servers, CI, Docker, and team deployments.
+Run MuxLayer without GUI — for servers, CI, Docker, and team deployments.
 
 ```bash
 # Add a provider
@@ -384,7 +384,7 @@ docker build -t agentgate . && docker run -p 9090:9090 \
   -e AGENTGATE_PROVIDER=deepseek -e AGENTGATE_API_KEY=sk-xxx agentgate
 ```
 
-**Environment variables:** `AGENTGATE_HOST`, `AGENTGATE_PORT`, `AGENTGATE_DB_PATH`, `AGENTGATE_PROVIDER`, `AGENTGATE_API_KEY`.
+**Environment variables:** `MUXLAYER_DB_PATH` and `MUXLAYER_TOKEN` are the preferred MuxLayer names. `AGENTGATE_DB_PATH` and `AGENTGATE_TOKEN` remain compatible aliases; the other existing `AGENTGATE_*` server variables continue to work during the migration cycle. New headless installs use `~/.muxlayer`; an existing `~/.agentgate` database or token is adopted automatically.
 
 ## Usage Guide
 
@@ -395,12 +395,12 @@ Most users only need the [5-Minute Quick Start](#5-minute-quick-start) above. Ex
 
 ### 1. Add a Provider
 
-Launch AgentGate → **Providers** → **Add Provider**
+Launch MuxLayer → **Providers** → **Add Provider**
 
 **Fast path (recommended) — paste API key:**
 
 1. Paste your provider API key into the top input
-2. AgentGate detects known key prefixes (`sk-ant-` / `deepseek-` / `gsk_` / …). If the prefix is ambiguous, select the provider type manually
+2. MuxLayer detects known key prefixes (`sk-ant-` / `deepseek-` / `gsk_` / …). If the prefix is ambiguous, select the provider type manually
 3. Click **Create** — name, base URL, protocols, default/reasoning model, capabilities are all filled in for you. Done.
 
 **Manual mode — 3 sections, only Section A is required:**
@@ -411,7 +411,7 @@ Launch AgentGate → **Providers** → **Add Provider**
 | **Models & Capabilities** | Default model · Reasoning model · `Fetch & detect` button · capability matrix toggle | On a freshly created provider, this is **auto-run in the background** — you get newest non-mini model as default + newest reasoning model + per-model capability matrix without clicking anything |
 | **Advanced** *(collapsed, "usually no need to touch")* | Protocols + their endpoints (Chat / Responses / Anthropic) · Extra Headers · Timeout · Auto cache control · Model Mapping | Each protocol you tick shows its own URL — one place to read "which native endpoints this upstream supports" |
 
-**Model Mapping** is at the bottom of Advanced for a reason: usually not needed. AgentGate auto-fills recommended MiMo / DeepSeek mappings when you create the provider, fetch models, test the provider, or apply Codex / Claude Code config. Existing mappings are preserved. Native pass-through keeps `model` unchanged unless a mapping matches or the client sends the virtual `agentgate` model; protocol conversion uses mapping first, then falls back to `default_model` for compatibility with clients like Codex, Claude Code, and Gemini CLI.
+**Model Mapping** is at the bottom of Advanced for a reason: usually not needed. MuxLayer auto-fills recommended MiMo / DeepSeek mappings when you create the provider, fetch models, test the provider, or apply Codex / Claude Code config. Existing mappings are preserved. Native pass-through keeps `model` unchanged unless a mapping matches or the client sends the virtual `agentgate` model; protocol conversion uses mapping first, then falls back to `default_model` for compatibility with clients like Codex, Claude Code, and Gemini CLI.
 
 **Provider configuration examples:**
 
@@ -531,10 +531,10 @@ Listens on `127.0.0.1:9090` by default.
 
 **Clients** → **Codex** → **Apply Config**
 
-AgentGate will automatically:
+MuxLayer will automatically:
 
 - Save original `~/.codex/config.toml` and `auth.json`
-- Write AgentGate provider settings and local token
+- Write MuxLayer provider settings and local token
 
 Click **Switch to Official** to restore the original config at any time — conversations are preserved.
 
@@ -542,7 +542,7 @@ Click **Switch to Official** to restore the original config at any time — conv
 
 **Clients** → **Claude Code** → **Apply Config**
 
-AgentGate writes to `~/.claude/settings.json`, setting `ANTHROPIC_BASE_URL` to the local gateway and `ANTHROPIC_API_KEY` to the AgentGate local token.
+MuxLayer writes to `~/.claude/settings.json`, setting `ANTHROPIC_BASE_URL` to the local gateway and `ANTHROPIC_API_KEY` to the MuxLayer local token.
 
 Click **Switch to Official** to restore the original settings.json.
 
@@ -550,19 +550,19 @@ Click **Switch to Official** to restore the original settings.json.
 
 **Clients** → **OpenCode** → **Apply Config**
 
-AgentGate writes to `~/.config/opencode/opencode.json`, configuring an OpenAI-compatible provider pointing to the local gateway. It uses `openai/agentgate` as a virtual model so switching providers in AgentGate does not require editing OpenCode again.
+MuxLayer writes to `~/.config/opencode/opencode.json`, configuring an OpenAI-compatible provider pointing to the local gateway. It uses `openai/agentgate` as a virtual model so switching providers in MuxLayer does not require editing OpenCode again.
 
 ### 6. Configure Gemini CLI
 
 **Clients** → **Gemini CLI** → **Apply Config**
 
-AgentGate writes Gemini CLI's config to point at the local gateway's `/v1beta/...` route (Gemini-compatible). One-click toggle back to official.
+MuxLayer writes Gemini CLI's config to point at the local gateway's `/v1beta/...` route (Gemini-compatible). One-click toggle back to official.
 
 ### 7. Configure AtomCode
 
 **Clients** → **AtomCode** → **Apply Config**
 
-AtomCode integration writes its config to use AgentGate as the upstream — same toggle pattern as the others. It uses `agentgate` as a virtual model so the gateway can resolve DeepSeek / MiMo / other provider model names at request time.
+AtomCode integration writes its config to use MuxLayer as the upstream — same toggle pattern as the others. It uses `agentgate` as a virtual model so the gateway can resolve DeepSeek / MiMo / other provider model names at request time.
 
 ### 8. Direct API Calls
 
@@ -570,10 +570,10 @@ All endpoints (except `/health`) require a local access token.
 
 **Getting the token:**
 
-- **Copy from UI**: AgentGate → **Settings** → **Gateway Auth** → click the copy button next to the token
+- **Copy from UI**: MuxLayer → **Settings** → **Gateway Auth** → click the copy button next to the token
 - **Read from terminal**:
   ```bash
-  TOKEN=$(cat ~/.agentgate/token)
+  TOKEN=$(cat ~/.muxlayer/token 2>/dev/null || cat ~/.agentgate/token)
   ```
 - **Regenerate**: **Settings** → **Regenerate Token** (old token is immediately invalidated)
 
@@ -626,7 +626,7 @@ First check whether the gateway port is actually running:
 curl http://127.0.0.1:9090/health
 ```
 
-- If the connection fails: go back to AgentGate **Overview / Gateway / Clients** and click **Start Gateway**.
+- If the connection fails: go back to MuxLayer **Overview / Gateway / Clients** and click **Start Gateway**.
 - If health works: use the **Clients** page connection test to narrow it down: Config → Gateway → Provider.
 - `http://localhost:1420` is only the development UI; Codex / Claude Code / OpenCode / Gemini CLI / AtomCode call `http://127.0.0.1:9090`.
 
@@ -641,7 +641,7 @@ Configure Route Profiles on the **Routes** page:
 
 ### 10. Capability-Aware Routing (Multimodal & Reasoning)
 
-AgentGate tracks **per-model** capabilities across 8 dimensions and uses them for routing — when your request contains images / audio / tools, the gateway picks a model that actually supports it.
+MuxLayer tracks **per-model** capabilities across 8 dimensions and uses them for routing — when your request contains images / audio / tools, the gateway picks a model that actually supports it.
 
 **Capability matrix per model:**
 
@@ -680,7 +680,7 @@ On the **Diagnostics** page:
 
 - **Run Self-Check** — checks gateway, provider, config, and database status
 - **Export Diagnostic Bundle** — generates a redacted diagnostic report for troubleshooting
-- Request log `trace_json` includes `degradation_events` when AgentGate strips unsupported capabilities such as images, native web search, MCP connectors, or tool-output images.
+- Request log `trace_json` includes `degradation_events` when MuxLayer strips unsupported capabilities such as images, native web search, MCP connectors, or tool-output images.
 
 </details>
 
@@ -729,11 +729,11 @@ Providers marked **Provider-specific handling** have dedicated transform code in
 
 ### Data Flow
 
-AgentGate separates protocol handling from model naming. There are three common request modes:
+MuxLayer separates protocol handling from model naming. There are three common request modes:
 
 > **How to tell?** First check whether the client protocol matches a native provider endpoint. If it matches, the request is forwarded without protocol conversion. Model names are a separate concern: a matching Model Mapping can still rename `model`.
 
-| Client | Sends | Downstream Provider | AgentGate Mode | Trigger |
+| Client | Sends | Downstream Provider | MuxLayer Mode | Trigger |
 |---|---|---|---|---|
 | Codex | Responses API | Chat Completions | Protocol Conversion | Default (no special URL) |
 | Codex | Responses API | Claude Messages API | Protocol Conversion | `provider_type` is `anthropic` |
@@ -745,7 +745,7 @@ AgentGate separates protocol handling from model naming. There are three common 
 
 ### Protocol Conversion
 
-When the client protocol differs from the downstream provider, AgentGate converts the format. This is the most complex path, including vision-aware routing and provider-specific processing.
+When the client protocol differs from the downstream provider, MuxLayer converts the format. This is the most complex path, including vision-aware routing and provider-specific processing.
 
 ```
 ┌──────────────────┐    ┌──────────────────┐
@@ -755,7 +755,7 @@ When the client protocol differs from the downstream provider, AgentGate convert
          │                       │
          ▼                       ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    AgentGate (127.0.0.1:9090)                           │
+│                    MuxLayer (127.0.0.1:9090)                           │
 │                                                                         │
 │  ① Auth: validate local token (ag_local_*)                              │
 │                         ▼                                               │
@@ -794,7 +794,7 @@ When the client protocol differs from the downstream provider, AgentGate convert
 
 ### Native Passthrough
 
-When the client protocol matches the downstream provider, AgentGate does not convert the request format. It replaces the URL and credentials. Model handling follows one rule: Model Mapping wins; otherwise the request model is preserved. If the request model is `agentgate` or `openai/agentgate`, AgentGate resolves it to the model selected by routing for that request. If the client omits `model`, AgentGate uses the provider default.
+When the client protocol matches the downstream provider, MuxLayer does not convert the request format. It replaces the URL and credentials. Model handling follows one rule: Model Mapping wins; otherwise the request model is preserved. If the request model is `agentgate` or `openai/agentgate`, MuxLayer resolves it to the model selected by routing for that request. If the client omits `model`, MuxLayer uses the provider default.
 
 ```
 ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
@@ -804,7 +804,7 @@ When the client protocol matches the downstream provider, AgentGate does not con
          │                     │                      │
          ▼                     ▼                      ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    AgentGate (127.0.0.1:9090)                           │
+│                    MuxLayer (127.0.0.1:9090)                           │
 │                                                                         │
 │  ① Auth: validate local token (ag_local_*)                              │
 │                         ▼                                               │
@@ -890,7 +890,7 @@ Client sends Chat Completions request
 ## Project Structure
 
 ```
-AgentGate/
+MuxLayer/
 ├── provider-catalog/             # Provider/model source of truth for generated defaults
 ├── src/                          # Frontend (React)
 │   ├── app/App.tsx               # App entry point
@@ -927,14 +927,14 @@ AgentGate/
 
 ## FAQ
 
-**Are my API keys safe? Does AgentGate phone home?**
-Keys live only in a local SQLite file on your machine and are never sent to clients or to any AgentGate server — there is no AgentGate backend. Your keys go only to the upstream provider you configured. The desktop app binds to `127.0.0.1`; only headless mode with an explicit `--host 0.0.0.0` exposes it, with built-in Host / Origin validation.
+**Are my API keys safe? Does MuxLayer phone home?**
+Keys live only in a local SQLite file on your machine and are never sent to clients or to any MuxLayer server — there is no MuxLayer backend. Your keys go only to the upstream provider you configured. The desktop app binds to `127.0.0.1`; only headless mode with an explicit `--host 0.0.0.0` exposes it, with built-in Host / Origin validation.
 
 **Can running Claude Code on a Copilot subscription get my account banned?**
 It's a gray area under GitHub's Terms of Service: similar community tools have existed for a long time without mass enforcement, but the risk can't be ruled out — see the [risk disclosure](#run-claude-code--codex-on-your-github-copilot-subscription). If you never add a copilot-type provider, none of this applies.
 
 **Will it break my Codex / ChatGPT login or Codex Desktop plugins?**
-No. AgentGate keeps Codex on the official OpenAI-authenticated provider path, so your signed-in account, plugins, Browser / Computer-Use / Mobile and quota lookup keep working while chat requests route to third-party models. **Switch to Official** restores the original config at any time — conversations are preserved.
+No. MuxLayer keeps Codex on the official OpenAI-authenticated provider path, so your signed-in account, plugins, Browser / Computer-Use / Mobile and quota lookup keep working while chat requests route to third-party models. **Switch to Official** restores the original config at any time — conversations are preserved.
 
 **Can I run it offline / on a server without the GUI?**
 Yes. Headless mode (`agentgate-serve`) and Docker run without a window — see [Headless / Server Mode](#headless--server-mode).
@@ -990,17 +990,17 @@ Upstream model sync is intentionally a local maintenance step, not part of the G
 
 ## Community & Support
 
-- 🐛 **Found a bug or want a feature?** Open an [Issue](https://github.com/dengmengmian/agentgate-ai/issues) — include a redacted diagnostic bundle (Diagnostics → Export) when reporting gateway problems.
-- 💡 **Questions & ideas:** use [Discussions](https://github.com/dengmengmian/agentgate-ai/discussions) for setup help, provider requests, workflow ideas, and success stories.
+- 🐛 **Found a bug or want a feature?** Open an [Issue](https://github.com/dengmengmian/muxlayer/issues) — include a redacted diagnostic bundle (Diagnostics → Export) when reporting gateway problems.
+- 💡 **Questions & ideas:** use [Discussions](https://github.com/dengmengmian/muxlayer/discussions) for setup help, provider requests, workflow ideas, and success stories.
 - 🧩 **Want to contribute?** Start with [CONTRIBUTING.md](../CONTRIBUTING.md), the [PR template](../.github/pull_request_template.md), and issues labeled `good first issue`.
-- ⭐ **If AgentGate saves you money or time, a star helps others find it** — and helps us prioritize what to build next.
+- ⭐ **If MuxLayer saves you money or time, a star helps others find it** — and helps us prioritize what to build next.
 
 The three pillars — smart routing, self-healing, and the cost dashboard — are shipped. What comes next is driven by Issues and Discussions, so tell us what you need.
 
 ## Star History
 
-<a href="https://star-history.com/#dengmengmian/agentgate-ai&Date">
-  <img src="https://api.star-history.com/svg?repos=dengmengmian/agentgate-ai&type=Date" alt="Star History Chart" width="600">
+<a href="https://star-history.com/#dengmengmian/muxlayer&Date">
+  <img src="https://api.star-history.com/svg?repos=dengmengmian/muxlayer&type=Date" alt="Star History Chart" width="600">
 </a>
 
 ## License

@@ -3,24 +3,24 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Local AI gateway for model routing, tracing, and failover | AgentGate</title>
-    <meta name="description" content="AgentGate is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
+    <title>Local AI gateway for model routing, tracing, and failover | MuxLayer</title>
+    <meta name="description" content="MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
     <meta name="keywords" content="local AI gateway, AI model gateway, local LLM proxy, OpenAI compatible gateway, Anthropic gateway" />
     <meta name="author" content="dengmengmian" />
-    <link rel="canonical" href="https://dengmengmian.github.io/agentgate-ai/guides/local-ai-gateway/" />
-    <link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/agentgate-ai/guides/local-ai-gateway/" />
-    <link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/agentgate-ai/zh/guides/local-ai-gateway/" />
-    <link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/agentgate-ai/guides/local-ai-gateway/" />
+    <link rel="canonical" href="https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/" />
+    <link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/muxlayer/zh/guides/local-ai-gateway/" />
+    <link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/" />
     <meta property="og:type" content="article" />
-    <meta property="og:site_name" content="AgentGate" />
-    <meta property="og:url" content="https://dengmengmian.github.io/agentgate-ai/guides/local-ai-gateway/" />
+    <meta property="og:site_name" content="MuxLayer" />
+    <meta property="og:url" content="https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/" />
     <meta property="og:title" content="Local AI gateway for model routing, tracing, and failover" />
-    <meta property="og:description" content="AgentGate is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
-    <meta property="og:image" content="https://dengmengmian.github.io/agentgate-ai/assets/demo-header.gif" />
+    <meta property="og:description" content="MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
+    <meta property="og:image" content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Local AI gateway for model routing, tracing, and failover" />
-    <meta name="twitter:description" content="AgentGate is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
-    <meta name="twitter:image" content="https://dengmengmian.github.io/agentgate-ai/assets/demo-header.gif" />
+    <meta name="twitter:description" content="MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
+    <meta name="twitter:image" content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif" />
     <link rel="icon" type="image/svg+xml" href="../../assets/logo.svg?v=2" />
     <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png" />
     <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
@@ -28,7 +28,7 @@
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "Local AI gateway for model routing, tracing, and failover",
-  "description": "AgentGate is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible.",
+  "description": "MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible.",
   "datePublished": "2026-06-16",
   "dateModified": "2026-07-03",
   "author": {
@@ -38,11 +38,11 @@
   },
   "publisher": {
     "@type": "Organization",
-    "name": "AgentGate",
-    "url": "https://dengmengmian.github.io/agentgate-ai",
-    "logo": "https://dengmengmian.github.io/agentgate-ai/assets/logo.svg"
+    "name": "MuxLayer",
+    "url": "https://dengmengmian.github.io/muxlayer",
+    "logo": "https://dengmengmian.github.io/muxlayer/assets/logo.svg"
   },
-  "mainEntityOfPage": "https://dengmengmian.github.io/agentgate-ai/guides/local-ai-gateway/"
+  "mainEntityOfPage": "https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/"
 }</script>
     <script type="application/ld+json">{
   "@context": "https://schema.org",
@@ -50,7 +50,7 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is AgentGate only for coding tools?",
+      "name": "Is MuxLayer only for coding tools?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "No. It works best with supported clients today, but the goal is broader AI app request routing."
@@ -58,7 +58,7 @@
     },
     {
       "@type": "Question",
-      "name": "Does AgentGate sell API keys?",
+      "name": "Does MuxLayer sell API keys?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "No. You bring your own provider keys and run the gateway locally."
@@ -77,11 +77,11 @@
       <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4 text-sm">
         <a href="../../" class="flex items-center gap-2 text-ink">
           <span class="text-amber">▲</span>
-          <span class="font-medium">agentgate</span>
+          <span class="font-medium">muxlayer</span>
         </a>
         <nav class="flex items-center gap-5 text-ink-soft">
-          <a href="https://github.com/dengmengmian/agentgate-ai/releases/latest" class="hover:text-ink">download <span class="text-faint">↗</span></a>
-          <a href="https://github.com/dengmengmian/agentgate-ai" class="hover:text-ink">github <span class="text-faint">↗</span></a>
+          <a href="https://github.com/dengmengmian/muxlayer/releases/latest" class="hover:text-ink">download <span class="text-faint">↗</span></a>
+          <a href="https://github.com/dengmengmian/muxlayer" class="hover:text-ink">github <span class="text-faint">↗</span></a>
           <span class="text-faint">·</span>
           <a href="../../zh/guides/local-ai-gateway/" class="hover:text-ink">中文</a>
         </nav>
@@ -92,20 +92,20 @@
       <section class="relative overflow-hidden border-b border-border-soft">
         <div class="absolute inset-0 grid-bg opacity-50"></div>
         <div class="relative mx-auto max-w-4xl px-6 pt-20 pb-16">
-          <div class="prompt text-sm text-ink-soft">agentgate guides/local-ai-gateway</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer guides/local-ai-gateway</div>
           <p class="mt-6 text-xs uppercase tracking-wider text-amber">Local AI gateway</p>
           <h1 class="h-display mt-5 text-ink">A local AI gateway for model requests.</h1>
-          <p class="mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">AgentGate sits on your machine and gives AI apps one local entry for provider routing, protocol conversion, tracing, and rollback.</p>
+          <p class="mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">MuxLayer sits on your machine and gives AI apps one local entry for provider routing, protocol conversion, tracing, and rollback.</p>
           <div class="mt-8 max-w-2xl border-l-2 border-amber/50 pl-4">
             <div class="text-xs uppercase tracking-wider text-amber">direct answer</div>
-            <p class="mt-3 text-base leading-relaxed text-ink">Short answer: AgentGate sits on your machine and gives AI apps one local entry for provider routing, protocol conversion, tracing, and rollback.</p>
+            <p class="mt-3 text-base leading-relaxed text-ink">Short answer: MuxLayer sits on your machine and gives AI apps one local entry for provider routing, protocol conversion, tracing, and rollback.</p>
           </div>
           <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-            <a href="https://github.com/dengmengmian/agentgate-ai/releases/latest" class="inline-flex items-center gap-2 rounded border border-amber bg-amber/10 px-4 py-2 font-medium text-amber transition-colors hover:bg-amber hover:text-bg">
+            <a href="https://github.com/dengmengmian/muxlayer/releases/latest" class="inline-flex items-center gap-2 rounded border border-amber bg-amber/10 px-4 py-2 font-medium text-amber transition-colors hover:bg-amber hover:text-bg">
               <span>▸</span>
-              <span>Download AgentGate</span>
+              <span>Download MuxLayer</span>
             </a>
-            <a href="https://github.com/dengmengmian/agentgate-ai" class="hover-prompt text-ink-soft hover:text-ink">dengmengmian/agentgate-ai <span class="text-faint">↗</span></a>
+            <a href="https://github.com/dengmengmian/muxlayer" class="hover-prompt text-ink-soft hover:text-ink">dengmengmian/muxlayer <span class="text-faint">↗</span></a>
           </div>
         </div>
       </section>
@@ -133,8 +133,8 @@
               <p class="mt-4 leading-relaxed text-ink-soft">It gives your AI apps a stable local endpoint, then decides which upstream provider and model should handle each request.</p>
             </section>
 <section class="frame rounded p-6">
-              <h2 class="text-xl font-medium text-ink">Why AgentGate</h2>
-              <p class="mt-4 leading-relaxed text-ink-soft">AgentGate focuses on client compatibility, local logs, provider failover, multi-key rotation, and reversible config changes instead of hiding everything behind a hosted service.</p>
+              <h2 class="text-xl font-medium text-ink">Why MuxLayer</h2>
+              <p class="mt-4 leading-relaxed text-ink-soft">MuxLayer focuses on client compatibility, local logs, provider failover, multi-key rotation, and reversible config changes instead of hiding everything behind a hosted service.</p>
             </section>
 <section class="frame rounded p-6">
               <h2 class="text-xl font-medium text-ink">Who it is for</h2>
@@ -145,13 +145,13 @@
           <aside class="space-y-4 text-sm">
             <div class="frame rounded p-5">
               <div class="text-xs uppercase tracking-wider text-amber">search intent</div>
-              <p class="mt-3 text-ink-soft">AgentGate is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible.</p>
+              <p class="mt-3 text-ink-soft">MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible.</p>
             </div>
             <div class="frame rounded p-5">
               <div class="text-xs uppercase tracking-wider text-amber">quick links</div>
               <div class="mt-3 space-y-2">
-                <a class="hover-prompt block text-ink-soft hover:text-ink" href="https://github.com/dengmengmian/agentgate-ai/releases/latest">Latest release <span class="text-faint">↗</span></a>
-                <a class="hover-prompt block text-ink-soft hover:text-ink" href="https://github.com/dengmengmian/agentgate-ai">GitHub <span class="text-faint">↗</span></a>
+                <a class="hover-prompt block text-ink-soft hover:text-ink" href="https://github.com/dengmengmian/muxlayer/releases/latest">Latest release <span class="text-faint">↗</span></a>
+                <a class="hover-prompt block text-ink-soft hover:text-ink" href="https://github.com/dengmengmian/muxlayer">GitHub <span class="text-faint">↗</span></a>
                 <a class="hover-prompt block text-ink-soft hover:text-ink" href="../../">Home</a>
               </div>
             </div>
@@ -161,15 +161,15 @@
 
       <section class="border-b border-border-soft">
         <div class="mx-auto max-w-4xl px-6 py-16">
-          <div class="prompt text-sm text-ink-soft">agentgate --faq</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer --faq</div>
           <h2 class="h-section mt-4">FAQ.</h2>
           <div class="mt-10 space-y-4">
             <details class="frame rounded p-5">
-              <summary class="cursor-pointer text-ink">Is AgentGate only for coding tools?</summary>
+              <summary class="cursor-pointer text-ink">Is MuxLayer only for coding tools?</summary>
               <p class="mt-3 leading-relaxed text-ink-soft">No. It works best with supported clients today, but the goal is broader AI app request routing.</p>
             </details>
 <details class="frame rounded p-5">
-              <summary class="cursor-pointer text-ink">Does AgentGate sell API keys?</summary>
+              <summary class="cursor-pointer text-ink">Does MuxLayer sell API keys?</summary>
               <p class="mt-3 leading-relaxed text-ink-soft">No. You bring your own provider keys and run the gateway locally.</p>
             </details>
           </div>
@@ -178,12 +178,12 @@
 
       <section class="bg-bg-soft/40">
         <div class="mx-auto max-w-4xl px-6 py-16">
-          <div class="prompt text-sm text-ink-soft">agentgate --related</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer --related</div>
           <h2 class="mt-4 text-xl font-medium">Keep reading.</h2>
           <div class="mt-8 space-y-3 text-sm">
-            <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../agentgate-vs-litellm/">AgentGate vs LiteLLM <span class="text-faint">— AgentGate vs LiteLLM: local desktop gateway or API proxy</span></a>
-<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../agentgate-vs-openrouter/">AgentGate vs OpenRouter <span class="text-faint">— AgentGate vs OpenRouter: local gateway or hosted model router</span></a>
-<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../agentgate-vs-direct-provider-config/">Gateway vs direct config <span class="text-faint">— AgentGate vs direct provider config for AI apps</span></a>
+            <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../agentgate-vs-litellm/">MuxLayer vs LiteLLM <span class="text-faint">— MuxLayer vs LiteLLM: local desktop gateway or API proxy</span></a>
+<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../agentgate-vs-openrouter/">MuxLayer vs OpenRouter <span class="text-faint">— MuxLayer vs OpenRouter: local gateway or hosted model router</span></a>
+<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../agentgate-vs-direct-provider-config/">Gateway vs direct config <span class="text-faint">— MuxLayer vs direct provider config for AI apps</span></a>
 <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../use-codex-with-deepseek/">Codex + DeepSeek <span class="text-faint">— Use Codex with DeepSeek</span></a>
           </div>
         </div>
@@ -198,7 +198,7 @@
           <span class="text-muted">MIT</span>
         </div>
         <nav class="flex items-center gap-5 text-ink-soft">
-          <a class="hover:text-ink" href="https://github.com/dengmengmian/agentgate-ai">dengmengmian/agentgate-ai</a>
+          <a class="hover:text-ink" href="https://github.com/dengmengmian/muxlayer">dengmengmian/muxlayer</a>
         </nav>
       </div>
     </footer>

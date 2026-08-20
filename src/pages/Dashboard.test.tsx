@@ -61,7 +61,7 @@ describe("Dashboard", () => {
       running: false,
     });
     vi.mocked(api.restartGateway).mockResolvedValue(gatewayStatus());
-    // Client detects: default = not AgentGate-wired (even if config files exist).
+    // Client detects: default = not MuxLayer-wired (even if config files exist).
     vi.mocked(api.detectCodexConfig).mockResolvedValue({
       exists: true,
       has_agentgate: false,
@@ -180,7 +180,7 @@ describe("Dashboard", () => {
     expect(screen.queryByText("codex")).toBeNull();
   });
 
-  it("asks to apply clients when key exists but no AgentGate-wired client", async () => {
+  it("asks to apply clients when key exists but no MuxLayer-wired client", async () => {
     vi.mocked(api.listProviders).mockResolvedValue([
       {
         id: "p1",
@@ -218,7 +218,7 @@ describe("Dashboard", () => {
     expect(screen.queryByText("gemini")).toBeNull();
   });
 
-  it("shows first-request commands only for AgentGate-wired clients", async () => {
+  it("shows first-request commands only for MuxLayer-wired clients", async () => {
     vi.mocked(api.listProviders).mockResolvedValue([
       {
         id: "p1",

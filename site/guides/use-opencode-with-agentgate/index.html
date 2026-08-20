@@ -3,32 +3,32 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Use OpenCode with AgentGate | AgentGate</title>
-    <meta name="description" content="Point OpenCode at a local AgentGate endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking." />
-    <meta name="keywords" content="OpenCode proxy, OpenCode local gateway, OpenCode provider switching, AgentGate" />
+    <title>Use OpenCode with MuxLayer | MuxLayer</title>
+    <meta name="description" content="Point OpenCode at a local MuxLayer endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking." />
+    <meta name="keywords" content="OpenCode proxy, OpenCode local gateway, OpenCode provider switching, MuxLayer" />
     <meta name="author" content="dengmengmian" />
-    <link rel="canonical" href="https://dengmengmian.github.io/agentgate-ai/guides/use-opencode-with-agentgate/" />
-    <link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/agentgate-ai/guides/use-opencode-with-agentgate/" />
-    <link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/agentgate-ai/zh/guides/use-opencode-with-agentgate/" />
-    <link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/agentgate-ai/guides/use-opencode-with-agentgate/" />
+    <link rel="canonical" href="https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-agentgate/" />
+    <link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-agentgate/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/muxlayer/zh/guides/use-opencode-with-agentgate/" />
+    <link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-agentgate/" />
     <meta property="og:type" content="article" />
-    <meta property="og:site_name" content="AgentGate" />
-    <meta property="og:url" content="https://dengmengmian.github.io/agentgate-ai/guides/use-opencode-with-agentgate/" />
-    <meta property="og:title" content="Use OpenCode with AgentGate" />
-    <meta property="og:description" content="Point OpenCode at a local AgentGate endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking." />
-    <meta property="og:image" content="https://dengmengmian.github.io/agentgate-ai/assets/demo-header.gif" />
+    <meta property="og:site_name" content="MuxLayer" />
+    <meta property="og:url" content="https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-agentgate/" />
+    <meta property="og:title" content="Use OpenCode with MuxLayer" />
+    <meta property="og:description" content="Point OpenCode at a local MuxLayer endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking." />
+    <meta property="og:image" content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Use OpenCode with AgentGate" />
-    <meta name="twitter:description" content="Point OpenCode at a local AgentGate endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking." />
-    <meta name="twitter:image" content="https://dengmengmian.github.io/agentgate-ai/assets/demo-header.gif" />
+    <meta name="twitter:title" content="Use OpenCode with MuxLayer" />
+    <meta name="twitter:description" content="Point OpenCode at a local MuxLayer endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking." />
+    <meta name="twitter:image" content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif" />
     <link rel="icon" type="image/svg+xml" href="../../assets/logo.svg?v=2" />
     <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png" />
     <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
     <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "Use OpenCode with AgentGate",
-  "description": "Point OpenCode at a local AgentGate endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking.",
+  "headline": "Use OpenCode with MuxLayer",
+  "description": "Point OpenCode at a local MuxLayer endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking.",
   "datePublished": "2026-06-13",
   "dateModified": "2026-06-13",
   "author": {
@@ -38,11 +38,11 @@
   },
   "publisher": {
     "@type": "Organization",
-    "name": "AgentGate",
-    "url": "https://dengmengmian.github.io/agentgate-ai",
-    "logo": "https://dengmengmian.github.io/agentgate-ai/assets/logo.svg"
+    "name": "MuxLayer",
+    "url": "https://dengmengmian.github.io/muxlayer",
+    "logo": "https://dengmengmian.github.io/muxlayer/assets/logo.svg"
   },
-  "mainEntityOfPage": "https://dengmengmian.github.io/agentgate-ai/guides/use-opencode-with-agentgate/"
+  "mainEntityOfPage": "https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-agentgate/"
 }</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -55,11 +55,11 @@
       <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4 text-sm">
         <a href="../../" class="flex items-center gap-2 text-ink">
           <span class="text-amber">▲</span>
-          <span class="font-medium">agentgate</span>
+          <span class="font-medium">muxlayer</span>
         </a>
         <nav class="flex items-center gap-5 text-ink-soft">
-          <a href="https://github.com/dengmengmian/agentgate-ai/releases/latest" class="hover:text-ink">download <span class="text-faint">↗</span></a>
-          <a href="https://github.com/dengmengmian/agentgate-ai" class="hover:text-ink">github <span class="text-faint">↗</span></a>
+          <a href="https://github.com/dengmengmian/muxlayer/releases/latest" class="hover:text-ink">download <span class="text-faint">↗</span></a>
+          <a href="https://github.com/dengmengmian/muxlayer" class="hover:text-ink">github <span class="text-faint">↗</span></a>
           <span class="text-faint">·</span>
           <a href="../../zh/guides/use-opencode-with-agentgate/" class="hover:text-ink">中文</a>
         </nav>
@@ -70,16 +70,16 @@
       <section class="relative overflow-hidden border-b border-border-soft">
         <div class="absolute inset-0 grid-bg opacity-50"></div>
         <div class="relative mx-auto max-w-4xl px-6 pt-20 pb-16">
-          <div class="prompt text-sm text-ink-soft">agentgate guides/use-opencode-with-agentgate</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer guides/use-opencode-with-agentgate</div>
           <p class="mt-6 text-xs uppercase tracking-wider text-amber">OpenCode</p>
-          <h1 class="h-display mt-5 text-ink">Use OpenCode with AgentGate</h1>
-          <p class="mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">AgentGate turns OpenCode's model endpoint into a local AgentGate entry while AgentGate handles provider selection, model mapping, failover, diagnostics, request tracing, and cost tracking.</p>
+          <h1 class="h-display mt-5 text-ink">Use OpenCode with MuxLayer</h1>
+          <p class="mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">MuxLayer turns OpenCode's model endpoint into a local MuxLayer entry while MuxLayer handles provider selection, model mapping, failover, diagnostics, request tracing, and cost tracking.</p>
           <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-            <a href="https://github.com/dengmengmian/agentgate-ai/releases/latest" class="inline-flex items-center gap-2 rounded border border-amber bg-amber/10 px-4 py-2 font-medium text-amber transition-colors hover:bg-amber hover:text-bg">
+            <a href="https://github.com/dengmengmian/muxlayer/releases/latest" class="inline-flex items-center gap-2 rounded border border-amber bg-amber/10 px-4 py-2 font-medium text-amber transition-colors hover:bg-amber hover:text-bg">
               <span>▸</span>
-              <span>Download AgentGate</span>
+              <span>Download MuxLayer</span>
             </a>
-            <a href="https://github.com/dengmengmian/agentgate-ai" class="hover-prompt text-ink-soft hover:text-ink">dengmengmian/agentgate-ai <span class="text-faint">↗</span></a>
+            <a href="https://github.com/dengmengmian/muxlayer" class="hover-prompt text-ink-soft hover:text-ink">dengmengmian/muxlayer <span class="text-faint">↗</span></a>
           </div>
         </div>
       </section>
@@ -97,19 +97,19 @@
 </ul>
 <h2>Quick Setup</h2>
 <ol>
-<li>Download AgentGate from <a href="https://github.com/dengmengmian/agentgate-ai/releases">Releases</a> and open the app.</li>
+<li>Download MuxLayer from <a href="https://github.com/dengmengmian/muxlayer/releases">Releases</a> and open the app.</li>
 <li>Add at least one provider in <strong>Quick Setup</strong> or <strong>Providers</strong>.</li>
 <li>Start the gateway from <strong>Overview</strong> or <strong>Gateway</strong>.</li>
 <li>Open <strong>Clients</strong> and click <strong>Apply Config</strong> on the OpenCode card.</li>
 <li>Send a test prompt from OpenCode.</li>
-<li>Check AgentGate <strong>Logs</strong> to confirm the OpenCode client, selected provider, model, and route.</li>
+<li>Check MuxLayer <strong>Logs</strong> to confirm the OpenCode client, selected provider, model, and route.</li>
 </ol>
-<h2>What AgentGate configures</h2>
+<h2>What MuxLayer configures</h2>
 <table>
 <thead>
 <tr>
 <th>OpenCode side</th>
-<th>AgentGate side</th>
+<th>MuxLayer side</th>
 <th>Provider side</th>
 </tr>
 </thead>
@@ -126,7 +126,7 @@
 <tr>
 <td>Client config</td>
 <td>Snapshot before write</td>
-<td>One-click restore from AgentGate</td>
+<td>One-click restore from MuxLayer</td>
 </tr>
 </tbody></table>
 <h2>Troubleshooting</h2>
@@ -156,10 +156,10 @@
 </tbody></table>
 <h2>Related</h2>
 <ul>
-<li><a href="https://dengmengmian.github.io/agentgate-ai/guides/use-gemini-cli-with-agentgate/">Use Gemini CLI with AgentGate</a></li>
-<li><a href="https://dengmengmian.github.io/agentgate-ai/guides/use-codex-with-deepseek/">Use Codex with DeepSeek</a></li>
-<li><a href="https://github.com/dengmengmian/agentgate-ai">Main README</a></li>
-<li><a href="https://github.com/dengmengmian/agentgate-ai/blob/main/README_ZH.md">中文 README</a></li>
+<li><a href="https://dengmengmian.github.io/muxlayer/guides/use-gemini-cli-with-agentgate/">Use Gemini CLI with MuxLayer</a></li>
+<li><a href="https://dengmengmian.github.io/muxlayer/guides/use-codex-with-deepseek/">Use Codex with DeepSeek</a></li>
+<li><a href="https://github.com/dengmengmian/muxlayer">Main README</a></li>
+<li><a href="https://github.com/dengmengmian/muxlayer/blob/main/README_ZH.md">中文 README</a></li>
 </ul>
 
           </article>
@@ -168,13 +168,13 @@
 
       <section class="bg-bg-soft/40">
         <div class="mx-auto max-w-4xl px-6 py-16">
-          <div class="prompt text-sm text-ink-soft">agentgate --related</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer --related</div>
           <h2 class="mt-4 text-xl font-medium">Keep reading.</h2>
           <div class="mt-8 space-y-3 text-sm">
             <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../use-codex-desktop-with-third-party-api-and-plugins/">Codex Desktop <span class="text-faint">— Use Codex Desktop with third-party APIs and plugins</span></a>
-<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../use-codex-with-openrouter/">Codex + OpenRouter <span class="text-faint">— Use Codex with OpenRouter through AgentGate</span></a>
+<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../use-codex-with-openrouter/">Codex + OpenRouter <span class="text-faint">— Use Codex with OpenRouter through MuxLayer</span></a>
 <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../use-claude-code-with-openrouter/">Claude Code + OpenRouter <span class="text-faint">— Use Claude Code with OpenRouter through a local gateway</span></a>
-<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../trace-codex-requests/">Request tracing <span class="text-faint">— Trace Codex model requests locally with AgentGate</span></a>
+<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../trace-codex-requests/">Request tracing <span class="text-faint">— Trace Codex model requests locally with MuxLayer</span></a>
           </div>
         </div>
       </section>
@@ -188,7 +188,7 @@
           <span class="text-muted">MIT</span>
         </div>
         <nav class="flex items-center gap-5 text-ink-soft">
-          <a class="hover:text-ink" href="https://github.com/dengmengmian/agentgate-ai">dengmengmian/agentgate-ai</a>
+          <a class="hover:text-ink" href="https://github.com/dengmengmian/muxlayer">dengmengmian/muxlayer</a>
         </nav>
       </div>
     </footer>

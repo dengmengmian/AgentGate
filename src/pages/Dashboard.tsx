@@ -203,7 +203,7 @@ export function Dashboard() {
   const [recentLogs, setRecentLogs] = useState<RequestLogListItem[]>([]);
   const [stats, setStats] = useState<RequestStats | null>(null);
   const [providerCount, setProviderCount] = useState<number | null>(null);
-  /// Clients actually wired to AgentGate (has_agentgate), not merely config_exists.
+  /// Clients actually wired to MuxLayer (has_agentgate), not merely config_exists.
   const [wiredClientIds, setWiredClientIds] = useState<string[]>([]);
   const [costByModel, setCostByModel] = useState<CostBreakdown[]>([]);
   const [costByClient, setCostByClient] = useState<CostBreakdown[]>([]);

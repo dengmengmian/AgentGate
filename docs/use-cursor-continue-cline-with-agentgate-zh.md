@@ -1,10 +1,10 @@
-# 用 Cursor / Continue / Cline 接入 AgentGate
+# 用 Cursor / Continue / Cline 接入 MuxLayer
 
-AgentGate 在本机提供 OpenAI 兼容入口。编辑器插件只需配置 `base_url` + API key，即可走 AgentGate 的路由、failover 与日志，无需深集成。
+MuxLayer 在本机提供 OpenAI 兼容入口。编辑器插件只需配置 `base_url` + API key，即可走 MuxLayer 的路由、failover 与日志，无需深集成。
 
 ## 前提
 
-1. 安装并打开 AgentGate。
+1. 安装并打开 MuxLayer。
 2. 配置至少一个供应商并启动网关（默认 `http://127.0.0.1:9090`）。
 3. 在 **设置 → 安全** 复制本地 access token（Gateway 页也有 Base URL 一键复制）。
 
@@ -19,7 +19,7 @@ AgentGate 在本机提供 OpenAI 兼容入口。编辑器插件只需配置 `bas
 
 鉴权：`Authorization: Bearer <ag_local_…>`（多数 UI 的 API key 填同一值）。
 
-模型：可用虚拟名 `agentgate`，或映射到 AgentGate 路由目标模型。
+模型：可用虚拟名 `agentgate`，或映射到 MuxLayer 路由目标模型。
 
 ## Cursor
 
@@ -34,7 +34,7 @@ AgentGate 在本机提供 OpenAI 兼容入口。编辑器插件只需配置 `bas
 {
   "models": [
     {
-      "title": "AgentGate",
+      "title": "MuxLayer",
       "provider": "openai",
       "model": "agentgate",
       "apiBase": "http://127.0.0.1:9090/v1",
@@ -50,6 +50,6 @@ OpenAI 兼容设置中填同样的 Base URL + token + 模型。
 
 ## 边界
 
-- 只保证 AgentGate 实现的 OpenAI / Responses / Anthropic 形态；插件私有协议不转换。
+- 只保证 MuxLayer 实现的 OpenAI / Responses / Anthropic 形态；插件私有协议不转换。
 - 使用期间保持网关运行。
-- 请求与费用在 AgentGate **日志 / 概览** 查看。
+- 请求与费用在 MuxLayer **日志 / 概览** 查看。

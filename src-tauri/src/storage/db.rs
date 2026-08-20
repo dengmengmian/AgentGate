@@ -20,9 +20,11 @@ const POOL_MAX_SIZE: u32 = 8;
 
 /// 每个连接初始化时统一开 WAL + 外键约束,跟旧单连接实现保持行为一致。
 fn init_connection(conn: &mut Connection) -> rusqlite::Result<()> {
-    conn.execute_batch("PRAGMA journal_mode=WAL;")?;
     // WAL 下多连接并发写仍会 SQLITE_BUSY。给 5s 重试窗口,避免高并发瞬间直接失败。
     conn.execute_batch("PRAGMA busy_timeout=5000;")?;
+    // Set the timeout before switching journal mode: r2d2 may initialize a
+    // second connection while the first one is still creating the database.
+    conn.execute_batch("PRAGMA journal_mode=WAL;")?;
     conn.execute_batch("PRAGMA foreign_keys=ON;")?;
     Ok(())
 }

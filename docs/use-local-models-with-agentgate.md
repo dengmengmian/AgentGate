@@ -1,11 +1,11 @@
-# Use local models (Ollama / LM Studio) with AgentGate
+# Use local models (Ollama / LM Studio) with MuxLayer
 
-AgentGate can route Codex / Claude Code / OpenAI-compatible clients to **local** models the same way it routes to cloud providers.
+MuxLayer can route Codex / Claude Code / OpenAI-compatible clients to **local** models the same way it routes to cloud providers.
 
 ## Quick path
 
 1. Start Ollama (`ollama serve`) or LM Studio local server.
-2. Open AgentGate → **Providers**.
+2. Open MuxLayer → **Providers**.
 3. Click **Scan** under **Local models**.
 4. Click **Add** on a reachable endpoint (or add offline and start the server later).
 5. **Start Gateway**, apply a client config, chat as usual.

@@ -1,8 +1,8 @@
-# Use OpenCode with AgentGate
+# Use OpenCode with MuxLayer
 
-中文：[让 OpenCode 通过 AgentGate 切换多供应商模型](./use-opencode-with-agentgate-zh.md)
+中文：[让 OpenCode 通过 MuxLayer 切换多供应商模型](./use-opencode-with-agentgate-zh.md)
 
-AgentGate turns OpenCode's model endpoint into a local AgentGate entry while AgentGate handles provider selection, model mapping, failover, diagnostics, request tracing, and cost tracking.
+MuxLayer turns OpenCode's model endpoint into a local MuxLayer entry while MuxLayer handles provider selection, model mapping, failover, diagnostics, request tracing, and cost tracking.
 
 ## When to use this
 
@@ -15,20 +15,20 @@ Use this guide if you want:
 
 ## Quick Setup
 
-1. Download AgentGate from [Releases](../../releases) and open the app.
+1. Download MuxLayer from [Releases](../../releases) and open the app.
 2. Add at least one provider in **Quick Setup** or **Providers**.
 3. Start the gateway from **Overview** or **Gateway**.
 4. Open **Clients** and click **Apply Config** on the OpenCode card.
 5. Send a test prompt from OpenCode.
-6. Check AgentGate **Logs** to confirm the OpenCode client, selected provider, model, and route.
+6. Check MuxLayer **Logs** to confirm the OpenCode client, selected provider, model, and route.
 
-## What AgentGate configures
+## What MuxLayer configures
 
-| OpenCode side | AgentGate side | Provider side |
+| OpenCode side | MuxLayer side | Provider side |
 |---|---|---|
 | OpenAI-compatible endpoint | `/v1/chat/completions` local gateway route | Chat-compatible upstream |
 | `openai/agentgate` virtual model | Route-selected real model | Provider-specific model ID |
-| Client config | Snapshot before write | One-click restore from AgentGate |
+| Client config | Snapshot before write | One-click restore from MuxLayer |
 
 ## Troubleshooting
 
@@ -41,7 +41,7 @@ Use this guide if you want:
 
 ## Related
 
-- [Use Gemini CLI with AgentGate](./use-gemini-cli-with-agentgate.md)
+- [Use Gemini CLI with MuxLayer](./use-gemini-cli-with-agentgate.md)
 - [Use Codex with DeepSeek](./use-codex-with-deepseek.md)
 - [Main README](../README.md)
 - [中文 README](../README_ZH.md)

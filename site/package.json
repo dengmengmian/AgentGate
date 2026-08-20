@@ -1,8 +1,8 @@
 {
-  "name": "agentgate-site",
+  "name": "muxlayer-site",
   "private": true,
   "version": "0.1.0",
-  "description": "AgentGate landing site",
+  "description": "MuxLayer landing site",
   "scripts": {
     "build:css": "tailwindcss -i ./input.css -o ./assets/tailwind.css --minify",
     "dev:css": "tailwindcss -i ./input.css -o ./assets/tailwind.css --watch",

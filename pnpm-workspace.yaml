@@ -1,6 +1,6 @@
 allowBuilds:
   esbuild: true
-# AgentGate is a client SPA (no React Router unstable RSC / server actions).
+# MuxLayer is a client SPA (no React Router unstable RSC / server actions).
 # GHSA-qwww-vcr4-c8h2 only affects RSC mode; fixed package is react-router@8.3.0
 # while react-router-dom latest is still 7.x — ignore until a matching 7.x fix
 # or a deliberate RR v8 migration ships.

@@ -10,8 +10,8 @@
 //   - i18n via document.documentElement.lang (en | zh).
 
 (function () {
-  const REPO = "dengmengmian/agentgate-ai";
-  const CACHE_KEY = "agentgate-release-cache-v1";
+  const REPO = "dengmengmian/muxlayer";
+  const CACHE_KEY = "muxlayer-release-cache-v1";
   const CACHE_TTL_MS = 60 * 60 * 1000;
 
   // Asset filename → platform. Build matcher list once.
@@ -212,7 +212,7 @@
       render(release, platformId);
     } catch (e) {
       // Leave HTML default rows in place. Log for debugging only.
-      console.warn("[agentgate] failed to load releases:", e);
+      console.warn("[muxlayer] failed to load releases:", e);
     }
   }
 
