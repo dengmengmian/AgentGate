@@ -23,7 +23,7 @@ for (const file of downloadDocs) {
     ),
   ].map((match) => match[1]);
   const assetVersions = [
-    ...content.matchAll(/AgentGate_([0-9]+\.[0-9]+\.[0-9]+)_/g),
+      ...content.matchAll(/MuxLayer_([0-9]+\.[0-9]+\.[0-9]+)_/g),
   ].map((match) => match[1]);
 
   const versions = new Set([...releaseVersions, ...assetVersions]);

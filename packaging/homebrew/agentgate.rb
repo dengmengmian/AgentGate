@@ -5,7 +5,7 @@ cask "agentgate" do
   sha256 arm:   "af5352eb127f0760deed0dbf97f505c331c2622a9adcd3a6842a55d9216a4437",
          intel: "dcec5277ddda7cf3e6fb3296096b604f8c90db894db180abc012d5d1861f2de2"
 
-  url "https://github.com/dengmengmian/muxlayer/releases/download/v#{version}/AgentGate_#{version}_#{arch}.dmg",
+  url "https://github.com/dengmengmian/muxlayer/releases/download/v#{version}/MuxLayer_#{version}_#{arch}.dmg",
       verified: "github.com/dengmengmian/muxlayer/"
   name "MuxLayer"
   desc "Local AI gateway that routes, converts, fails over, and traces model requests"

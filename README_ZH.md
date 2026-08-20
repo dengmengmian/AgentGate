@@ -41,8 +41,8 @@
 
 | 你的机器 | 下载 |
 |---|---|
-| macOS Apple 芯片 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_aarch64.dmg) |
-| macOS Intel 芯片 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_x64.dmg) |
+| macOS Apple 芯片 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_aarch64.dmg) |
+| macOS Intel 芯片 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64.dmg) |
 | Windows 10 / 11 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_x64-setup.exe) |
 | Debian / Ubuntu | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_amd64.deb) |
 | 其他 Linux 发行版 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/AgentGate_2.0.0_amd64.AppImage) |
