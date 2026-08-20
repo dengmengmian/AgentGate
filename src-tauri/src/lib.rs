@@ -634,7 +634,7 @@ pub fn run() {
                     "pet",
                     tauri::WebviewUrl::App("index.html".into()),
                 )
-                .title("AgentGate Pet")
+                .title("MuxLayer Pet")
                 .inner_size(PET_WIDTH, PET_HEIGHT)
                 .decorations(false)
                 .always_on_top(true)
@@ -927,9 +927,9 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let show = MenuItemBuilder::with_id(
         "show",
         if zh {
-            "显示 AgentGate"
+            "显示 MuxLayer"
         } else {
-            "Show AgentGate"
+            "Show MuxLayer"
         },
     )
     .build(app)?;
@@ -942,7 +942,7 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 
     let _tray = TrayIconBuilder::with_id(app::tray::TRAY_ID)
         .icon(app.default_window_icon().unwrap().clone())
-        .tooltip("AgentGate")
+        .tooltip("MuxLayer")
         .menu(&placeholder_menu)
         .on_menu_event(move |app, event| {
             let id = event.id().as_ref().to_string();

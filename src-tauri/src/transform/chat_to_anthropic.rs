@@ -204,7 +204,7 @@ fn user_content_to_blocks(content: Option<&Value>) -> Vec<Value> {
                             out.push(json!({
                                 "type": "text",
                                 "text": format!(
-                                    "[Note: image omitted — AgentGate could not convert this image URL for Anthropic. Use a data: base64 URL or http(s) URL. Original: {}]",
+                                    "[Note: image omitted — MuxLayer could not convert this image URL for Anthropic. Use a data: base64 URL or http(s) URL. Original: {}]",
                                     truncate_for_notice(url, 120)
                                 ),
                             }));

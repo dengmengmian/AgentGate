@@ -79,7 +79,7 @@ pub fn apply(
         mapped_code = "malformed_history".to_string();
         mapped_message = format!(
             "{} — 会话历史里可能残留了被截断的工具参数,上游无法解析。\
-             建议:开一个新会话;若反复出现请升级 AgentGate(新版本会在转发前自动修复截断参数)。",
+             建议:开一个新会话;若反复出现请升级 MuxLayer(新版本会在转发前自动修复截断参数)。",
             mapped_message.trim_end_matches(['。', '.', ' '])
         );
     }

@@ -12,6 +12,7 @@ run() {
 
 run pnpm lint
 run pnpm build
+run pnpm brand:check
 run node scripts/test-playwright-smoke.mjs
 run pnpm vitest run
 run pnpm docs:download:check

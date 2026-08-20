@@ -142,7 +142,7 @@ impl super::ProviderTransform for DeepSeekProvider {
                 "DeepSeek 账户余额不足。\n\
                  • 充值入口：https://platform.deepseek.com/top_up\n\
                  • 用量查询：https://platform.deepseek.com/usage\n\
-                 • 或临时切换到 AgentGate 里其它 provider（路由会自动 failover 到非冷却状态的候选）。"
+                 • 或临时切换到 MuxLayer 里其它 provider（路由会自动 failover 到非冷却状态的候选）。"
                     .to_string(),
             );
         }
@@ -150,13 +150,13 @@ impl super::ProviderTransform for DeepSeekProvider {
             return Some(
                 "DeepSeek API key 无效 / 过期。\n\
                  • 查看 / 重建 key：https://platform.deepseek.com/api_keys\n\
-                 • 检查 AgentGate provider 配置里的 key 是否粘贴完整。"
+                 • 检查 MuxLayer provider 配置里的 key 是否粘贴完整。"
                     .to_string(),
             );
         }
         if p::detect_rate_limit(status, body) {
             return Some(
-                "DeepSeek 触发限流。AgentGate 已自动冷却该 provider 一段时间；\n\
+                "DeepSeek 触发限流。MuxLayer 已自动冷却该 provider 一段时间；\n\
                  • 路由 profile 有其它 candidate 时会自动 failover\n\
                  • 配额信息：https://platform.deepseek.com/usage"
                     .to_string(),

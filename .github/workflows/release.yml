@@ -30,6 +30,9 @@ jobs:
       - name: Provider catalog drift check
         run: pnpm provider:catalog:check
 
+      - name: Brand asset consistency check
+        run: pnpm brand:check
+
       # gdk-sys / webkit headers needed for cargo to link the tauri-based
       # test binaries even though no GUI gets opened.
       - name: Install system deps
@@ -321,17 +324,24 @@ jobs:
           export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/tap_deploy_key -o IdentitiesOnly=yes"
 
           git clone --depth 1 git@github.com:dengmengmian/homebrew-tap.git tap
-          CASK=tap/Casks/agentgate.rb
-          sed -E -i "s/^  version \"[0-9.]+\"/  version \"${VERSION}\"/" "$CASK"
-          sed -E -i "s/(arm:   \")[0-9a-f]{64}/\1${ARM_SHA}/" "$CASK"
-          sed -E -i "s/(intel: \")[0-9a-f]{64}/\1${X64_SHA}/" "$CASK"
-          # 三处必须都替换成功,否则宁可失败也不推错误的 cask
-          grep -q "version \"${VERSION}\"" "$CASK"
-          grep -q "$ARM_SHA" "$CASK"
-          grep -q "$X64_SHA" "$CASK"
+          for CASK in tap/Casks/muxlayer.rb tap/Casks/agentgate.rb; do
+            test -f "$CASK"
+            sed -E -i "s/^  version \"[0-9.]+\"/  version \"${VERSION}\"/" "$CASK"
+            sed -E -i "s/(arm:   \")[0-9a-f]{64}/\1${ARM_SHA}/" "$CASK"
+            sed -E -i "s/(intel: \")[0-9a-f]{64}/\1${X64_SHA}/" "$CASK"
+            # Every maintained cask must receive the version and both real DMG hashes.
+            grep -q "version \"${VERSION}\"" "$CASK"
+            grep -q "$ARM_SHA" "$CASK"
+            grep -q "$X64_SHA" "$CASK"
+          done
 
           cd tap
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "muxlayer ${VERSION}"
+          git add -- Casks/muxlayer.rb Casks/agentgate.rb
+          if git diff --cached --quiet; then
+            echo "Homebrew casks are already current."
+            exit 0
+          fi
+          git commit -m "muxlayer ${VERSION}"
           git push

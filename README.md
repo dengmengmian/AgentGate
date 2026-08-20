@@ -12,7 +12,7 @@
 
 <p align="center">
   Codex · Claude Code · Gemini CLI · OpenCode · CodeLeveler<br>
-  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · Ollama · 20+ providers
+  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · Ollama · 25+ model providers
 </p>
 
 > MuxLayer — formerly AgentGate
@@ -33,7 +33,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/demo-header-v2.gif" width="800" alt="MuxLayer intercepts requests from Claude Code, Codex, and Gemini CLI at a local gateway — converting, passing through, routing, or failing over to 26 providers, with every request traced live">
+  <img src="docs/demo-header-v2.gif" width="800" alt="MuxLayer intercepts requests from Claude Code, Codex, and Gemini CLI at a local gateway — converting, passing through, routing, or failing over across 25+ model providers, with every request traced live">
 </p>
 
 > **New in v2.0.0 — MuxLayer brand migration with automatic legacy data adoption:** Existing desktop installations keep their update identity and data directory, while new headless installs use `~/.muxlayer` and automatically continue using an existing `~/.agentgate` database or token. [See the v2.0.0 release notes](./docs/release-notes/2.0.0.md).
@@ -53,11 +53,11 @@
 On macOS you can also install with Homebrew:
 
 ```bash
-brew install --cask dengmengmian/tap/agentgate
+brew install --cask dengmengmian/tap/muxlayer
 ```
 
-The Homebrew cask name and existing installer filenames remain `agentgate` during
-the compatibility phase. They will migrate separately with an upgrade path.
+Existing installs through the legacy `agentgate` cask remain supported and keep
+receiving the same MuxLayer app. New installations should use `muxlayer`.
 
 Headless CLI (`agentgate-serve`) tarballs and older versions are on the [Releases](https://github.com/dengmengmian/muxlayer/releases) page.
 

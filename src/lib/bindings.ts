@@ -1460,7 +1460,7 @@ export type CodexConfigStatus = { config_path: string; auth_json_path: string; e
  */
 is_agentgate_active: boolean; 
 /**
- * True if OPENAI_API_KEY in auth.json was overwritten with ag_local_ by old MuxLayer.
+ * True if OPENAI_API_KEY in auth.json was overwritten with ag_local_ by old AgentGate.
  */
 openai_key_polluted: boolean; 
 /**

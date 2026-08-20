@@ -153,7 +153,7 @@ impl super::ProviderTransform for MimoProvider {
                 "MiMo 账户余额 / Token Plan 配额不足。\n\
                  • 用量与充值：https://platform.xiaomimimo.com/#/console/usage\n\
                  • 如果用的是 Token Plan，可在 https://platform.xiaomimimo.com/#/console/token-plan 查看剩余\n\
-                 • AgentGate 路由会自动 failover 到其它非冷却 provider。"
+                 • MuxLayer 路由会自动 failover 到其它非冷却 provider。"
                     .to_string(),
             );
         }
@@ -167,7 +167,7 @@ impl super::ProviderTransform for MimoProvider {
         }
         if p::detect_rate_limit(status, body) {
             return Some(
-                "MiMo 触发限流。AgentGate 已冷却该 provider，路由会优先尝试其它候选。".to_string(),
+                "MiMo 触发限流。MuxLayer 已冷却该 provider，路由会优先尝试其它候选。".to_string(),
             );
         }
         // Fall back to shared context-overflow detection.

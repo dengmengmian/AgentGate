@@ -233,7 +233,7 @@ fn make_stream_error(status: u16, msg: &str, detail: &str) -> AppError {
 pub fn describe_stream_error(e: &reqwest::Error) -> String {
     if e.is_timeout() {
         return format!(
-            "上游响应静默超过 {} 秒未发送新数据，AgentGate 已主动放弃等待。\
+            "上游响应静默超过 {} 秒未发送新数据，MuxLayer 已主动放弃等待。\
              常见原因：thinking 模型 + 长 prompt 首字过慢、上游短暂抖动、或上游本身卡住。\
              建议重发请求；若 route profile 有其它 candidate，下一次会自动转到下个 provider。",
             STREAM_READ_IDLE_HINT_SECS

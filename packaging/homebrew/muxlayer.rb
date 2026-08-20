@@ -1,5 +1,4 @@
-# Legacy compatibility only. New users should install the muxlayer cask.
-cask "agentgate" do
+cask "muxlayer" do
   arch arm: "aarch64", intel: "x64"
 
   version "2.0.0"
@@ -8,8 +7,8 @@ cask "agentgate" do
 
   url "https://github.com/dengmengmian/muxlayer/releases/download/v#{version}/MuxLayer_#{version}_#{arch}.dmg",
       verified: "github.com/dengmengmian/muxlayer/"
-  name "MuxLayer (formerly AgentGate)"
-  desc "Legacy cask for the MuxLayer local model control layer"
+  name "MuxLayer"
+  desc "Local model control layer for coding agents"
   homepage "https://dengmengmian.github.io/muxlayer/"
 
   livecheck do
@@ -18,7 +17,7 @@ cask "agentgate" do
   end
 
   auto_updates true
-  conflicts_with cask: "muxlayer"
+  conflicts_with cask: "agentgate"
   depends_on :macos
 
   app "MuxLayer.app"
@@ -30,14 +29,4 @@ cask "agentgate" do
     "~/Library/Saved Application State/com.mengmian.agentgate.savedState",
     "~/Library/WebKit/com.mengmian.agentgate",
   ]
-
-  caveats <<~EOS
-    This cask remains available so existing AgentGate installations keep upgrading.
-    New installations should use:
-      brew install --cask dengmengmian/tap/muxlayer
-
-    To adopt the new cask name without deleting settings:
-      brew uninstall --cask agentgate
-      brew install --cask dengmengmian/tap/muxlayer
-  EOS
 end

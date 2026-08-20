@@ -276,9 +276,9 @@ fn build_menu(
     let show = MenuItemBuilder::with_id(
         "show",
         if zh {
-            "显示 AgentGate"
+            "显示 MuxLayer"
         } else {
-            "Show AgentGate"
+            "Show MuxLayer"
         },
     )
     .build(app)?;
@@ -384,7 +384,7 @@ fn build_menu(
 
 fn build_tooltip(snap: &Snapshot) -> String {
     let mut parts: Vec<String> = Vec::with_capacity(4);
-    parts.push("AgentGate".into());
+    parts.push("MuxLayer".into());
     if snap.gateway_running {
         parts.push(format!(":{}", snap.gateway_port));
     } else {
@@ -498,7 +498,7 @@ mod tests {
             ..Default::default()
         };
         let t = build_tooltip(&snap);
-        assert!(t.contains("AgentGate"));
+        assert!(t.contains("MuxLayer"));
         assert!(t.contains("Stopped"));
     }
 
@@ -513,7 +513,7 @@ mod tests {
             ..Default::default()
         };
         let t = build_tooltip(&snap);
-        assert!(t.contains("AgentGate"));
+        assert!(t.contains("MuxLayer"));
         assert!(t.contains(":7878"));
         assert!(t.contains("MiMo"));
         assert!(t.contains("42 reqs"), "got: {t}");

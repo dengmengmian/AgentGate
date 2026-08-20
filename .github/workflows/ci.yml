@@ -44,6 +44,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Brand asset consistency check
+        run: pnpm brand:check
+
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
 

@@ -298,7 +298,7 @@ pub(crate) fn validate_auth(headers: &HeaderMap) -> Result<(), GatewayError> {
                 "The request does not include Authorization: Bearer <token> or X-Api-Key <token>",
             )
             .with_suggestion(
-                "Re-apply the tool configuration from AgentGate or check the token file",
+                "Re-apply the tool configuration from MuxLayer or check the token file",
             ),
         ));
     }
@@ -320,7 +320,7 @@ pub(crate) fn request_body_or_gateway_error(
         GatewayError(
             AppError::new(
                 crate::errors::codes::REQUEST_BODY_TOO_LARGE,
-                "请求内容过大，AgentGate 无法接收本次上下文",
+                "请求内容过大，MuxLayer 无法接收本次上下文",
             )
             .with_detail(format!(
                 "通常是对话历史太长、粘贴了大文件/日志、图片或工具输出过长。原始错误: {e}"

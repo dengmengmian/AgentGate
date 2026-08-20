@@ -6,7 +6,7 @@ use std::borrow::Cow;
 use crate::errors::AppError;
 
 const MAX_LOG_FIELD_BYTES: usize = 1024 * 1024;
-const TRUNCATED_MARKER: &str = "\n...[truncated by AgentGate]";
+const TRUNCATED_MARKER: &str = "\n...[truncated by MuxLayer]";
 
 fn truncate_log_field(value: Option<&str>) -> Option<Cow<'_, str>> {
     let value = value?;

@@ -48,7 +48,7 @@ pub struct GatewaySettings {
     pub auto_compact_usage_percent: i64,
     /// 防休眠总开关。默认开启。
     pub wake_enabled: bool,
-    /// false=AgentGate 生命周期持续保持，true=仅按生成请求控制。
+    /// false=MuxLayer 生命周期持续保持，true=仅按生成请求控制。
     pub wake_request_control: bool,
     /// 最后一个生成请求结束后的保持秒数。
     pub wake_cooldown_seconds: i64,

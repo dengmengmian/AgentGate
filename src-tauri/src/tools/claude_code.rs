@@ -320,9 +320,8 @@ pub fn detect_env() -> ClaudeCodeEnvStatus {
 
     let mut recommendations = Vec::new();
     if !has_api_key && !has_auth_token && !has_agentgate {
-        recommendations.push(
-            "No credentials found. Apply AgentGate config to set up Claude Code.".to_string(),
-        );
+        recommendations
+            .push("No credentials found. Apply MuxLayer config to set up Claude Code.".to_string());
     }
     if has_api_key && has_auth_token {
         recommendations.push(

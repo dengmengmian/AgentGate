@@ -14,14 +14,14 @@ impl super::ProviderTransform for AnthropicProvider {
                 "Anthropic 账户余额不足。\n\
                  • 充值入口：https://console.anthropic.com/settings/billing\n\
                  • 用量查询：https://console.anthropic.com/settings/usage\n\
-                 • AgentGate 路由若有其它候选会自动 failover。"
+                 • MuxLayer 路由若有其它候选会自动 failover。"
                     .to_string(),
             );
         }
         if lower.contains("overloaded_error") {
             return Some(
                 "Anthropic 当前负载过高（overloaded_error）—— 不是你的账户问题。\n\
-                 AgentGate 已自动重试，仍失败建议稍后重发或切到 DeepSeek / MiMo 等其它 provider。"
+                 MuxLayer 已自动重试，仍失败建议稍后重发或切到 DeepSeek / MiMo 等其它 provider。"
                     .to_string(),
             );
         }

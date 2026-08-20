@@ -37,7 +37,7 @@
 On macOS you can also install with Homebrew:
 
 ```bash
-brew install --cask dengmengmian/tap/agentgate
+brew install --cask dengmengmian/tap/muxlayer
 ```
 
 > Headless CLI (`agentgate-serve`) tarballs and all versions: [Releases](https://github.com/dengmengmian/muxlayer/releases)
@@ -62,7 +62,7 @@ MuxLayer fills common base URLs, protocols, model defaults, and capability matri
 
 ---
 
-MuxLayer is a **local gateway for AI app and client model requests**. It takes requests that would normally go straight to official endpoints, brings them into your desktop first, then decides whether to convert protocols or pass through natively to 26 providers including Xiaomi MiMo, DeepSeek, OpenAI, Anthropic, GitHub Copilot, Kimi, GLM, DashScope, SiliconFlow, Volcengine, and more.
+MuxLayer is a **local gateway for AI app and client model requests**. It takes requests that would normally go straight to official endpoints, brings them into your desktop first, then decides whether to convert protocols or pass through natively across 25+ model providers, including Xiaomi MiMo, DeepSeek, OpenAI, Anthropic, GitHub Copilot, Kimi, GLM, DashScope, SiliconFlow, Volcengine, and more.
 
 > **One local gateway for your AI model requests.** Codex, Claude Code, Gemini CLI, OpenCode, AtomCode, and apps compatible with OpenAI / Anthropic / Gemini protocols keep their familiar client flow, while MuxLayer handles upstream choice, protocol differences, failover, cost, and traceability locally.
 

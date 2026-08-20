@@ -11,7 +11,7 @@
 
 <p align="center">
   Codex · Claude Code · Gemini CLI · OpenCode · CodeLeveler<br>
-  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · Ollama · 20+ 家 Provider
+  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · Ollama · 25+ 家模型供应商
 </p>
 
 > MuxLayer — formerly AgentGate
@@ -32,7 +32,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/demo-header-v2.gif" width="800" alt="MuxLayer 在本地网关截获 Claude Code、Codex、Gemini CLI 的请求——转换 / 直连 / 路由 / 故障转移到 26 家上游，每条请求都在本地可追踪">
+  <img src="docs/demo-header-v2.gif" width="800" alt="MuxLayer 在本地网关截获 Claude Code、Codex、Gemini CLI 的请求——在 25+ 家模型供应商之间转换、直连、路由或故障转移，每条请求都在本地可追踪">
 </p>
 
 > **v2.0.0 品牌迁移 + 老用户自动接管：** 现有桌面安装继续沿用原更新身份和数据目录；新的无界面安装使用 `~/.muxlayer`，并自动接管已有的 `~/.agentgate` 数据库或 token。[查看 v2.0.0 更新说明](./docs/release-notes/2.0.0.md)。
@@ -52,10 +52,10 @@
 macOS 也可以用 Homebrew 安装：
 
 ```bash
-brew install --cask dengmengmian/tap/agentgate
+brew install --cask dengmengmian/tap/muxlayer
 ```
 
-兼容迁移期间，Homebrew cask 名和现有安装包文件名仍保留 `agentgate`；它们会在后续阶段单独迁移，并提供升级路径。
+通过旧 `agentgate` cask 安装的用户仍可继续升级并获得同一个 MuxLayer 应用；新安装统一使用 `muxlayer`。
 
 无界面 CLI（`agentgate-serve`）压缩包和历史版本在 [Releases](https://github.com/dengmengmian/muxlayer/releases) 页面。
 

@@ -33,7 +33,7 @@ pub fn run_migrations(conn: &Connection) -> Result<(), AppError> {
     // 旧 app 看到高于自己认知的 schema 会读到不存在的列、静默出错。明确报错而不是硬跑。
     if current > CURRENT_SCHEMA_VERSION {
         return Err(AppError::internal(format!(
-            "数据库 schema 版本 {current} 高于当前应用支持的 {CURRENT_SCHEMA_VERSION},请升级 AgentGate 后再启动"
+            "数据库 schema 版本 {current} 高于当前应用支持的 {CURRENT_SCHEMA_VERSION},请升级 MuxLayer 后再启动"
         )));
     }
 

@@ -130,7 +130,7 @@ mod platform {
                 return Err("wake assertion is already active".to_string());
             }
 
-            let mut reason: Vec<u16> = "AgentGate AI task running"
+            let mut reason: Vec<u16> = "MuxLayer AI task running"
                 .encode_utf16()
                 .chain(std::iter::once(0))
                 .collect();

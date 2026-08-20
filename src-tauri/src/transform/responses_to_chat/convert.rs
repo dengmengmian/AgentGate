@@ -261,7 +261,7 @@ fn build_mcp_advisory_note(labels: &[String]) -> String {
         .collect::<Vec<_>>()
         .join(", ");
     let mut note = format!(
-        "AgentGate note: the user has OpenAI Responses MCP connector tool(s) enabled ({list}), \
+        "MuxLayer note: the user has OpenAI Responses MCP connector tool(s) enabled ({list}), \
          but this request is being converted to Chat Completions for the upstream provider. \
          That upstream does not implement OpenAI's MCP runtime, so these MCP connector tools are not callable here. \
          Do not pretend to call them. If the user asks for one of those connectors, explain that it is unavailable through this converted route and use an available shell/function alternative only if one is actually present."

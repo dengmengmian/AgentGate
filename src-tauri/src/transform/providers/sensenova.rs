@@ -67,7 +67,7 @@ impl super::ProviderTransform for SenseNovaProvider {
         }
         if p::detect_rate_limit(status, body) {
             return Some(
-                "SenseNova 触发限流。AgentGate 已冷却该 provider，路由会自动切换候选。".to_string(),
+                "SenseNova 触发限流。MuxLayer 已冷却该 provider，路由会自动切换候选。".to_string(),
             );
         }
         p::detect_common_400(status, body)

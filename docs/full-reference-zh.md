@@ -39,7 +39,7 @@ English: [Main Reference](./full-reference.md)
 macOS 也可以用 Homebrew 安装：
 
 ```bash
-brew install --cask dengmengmian/tap/agentgate
+brew install --cask dengmengmian/tap/muxlayer
 ```
 
 > 无界面 CLI（`agentgate-serve`）的 tarball 包和所有历史版本：[Releases](https://github.com/dengmengmian/muxlayer/releases)
@@ -64,7 +64,7 @@ MuxLayer 会从 Provider 预设里自动填好常见的 base URL、协议、默�
 
 ---
 
-MuxLayer 是一个 **给 AI 应用和客户端模型请求用的本地网关**。它把原本要直接发给官方 endpoint 的模型请求先接进你的桌面，再决定是做协议转换，还是原生直连到 26 个 Provider 里的某一个——包括小米 MiMo、DeepSeek、OpenAI、Anthropic、GitHub Copilot、Kimi、GLM、DashScope、SiliconFlow、Volcengine 等等。
+MuxLayer 是一个 **给 AI 应用和客户端模型请求用的本地网关**。它把原本要直接发给官方 endpoint 的模型请求先接进你的桌面，再决定是做协议转换，还是原生直连到 25+ 家模型供应商里的某一个——包括小米 MiMo、DeepSeek、OpenAI、Anthropic、GitHub Copilot、Kimi、GLM、DashScope、SiliconFlow、Volcengine 等等。
 
 > **一个本地入口，统一管理你的 AI 模型请求。** Codex、Claude Code、Gemini CLI、OpenCode、AtomCode，以及兼容 OpenAI / Anthropic / Gemini 协议的应用继续按它们熟悉的方式跑，MuxLayer 在本地处理上游选择、协议差异、故障转移、成本和可追溯性。
 

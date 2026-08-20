@@ -90,7 +90,7 @@ pub struct ClaudeDesktopStatus {
     pub profile_path: String,
     /// Claude Desktop 是否安装（normal config 目录存在）
     pub installed: bool,
-    /// 是否已存在 AgentGate profile
+    /// 是否已存在 MuxLayer profile
     pub has_agentgate_profile: bool,
     /// _meta.json 里当前生效的 profile（用于判断是否「已接入」）
     pub applied_profile_id: Option<String>,
@@ -153,8 +153,8 @@ pub fn detect() -> ClaudeDesktopStatus {
     }
 }
 
-/// 生成指向 AgentGate 网关的 3p profile JSON（不写盘，用于预览/对比）。
-/// host/port 是 AgentGate 网关地址，token 是 ag_local 本地访问令牌。
+/// 生成指向 MuxLayer 网关的 3p profile JSON（不写盘，用于预览/对比）。
+/// host/port 是 MuxLayer 网关地址，token 是 ag_local 本地访问令牌。
 pub fn generate_profile(host: &str, port: i64, token: &str) -> Value {
     let base_url = format!("http://{host}:{port}");
     // 极简 3 字段——用户机器上实测确认的 Claude Desktop 3p profile 真实 schema。
@@ -218,7 +218,7 @@ fn upsert_applied_profile(meta_path: &PathBuf, id: &str, name: &str) -> Result<(
     write_json(meta_path, &meta)
 }
 
-/// 接入 Claude Desktop：在 configLibrary 写一个指向 AgentGate 网关的 profile，并把
+/// 接入 Claude Desktop：在 configLibrary 写一个指向 MuxLayer 网关的 profile，并把
 /// _meta 的 appliedId 切过去。**只在 configLibrary 内操作**，不碰官方 1p 配置。
 /// 要求用户已启用过 3p（configLibrary 目录存在）——避免去猜 deploymentMode 写法。
 /// 回滚由调用方经 apply_history 快照 snapshot_paths() 完成。
@@ -239,7 +239,7 @@ pub fn apply(host: &str, port: i64, token: &str) -> Result<ClaudeDesktopApplyRes
     let base_url = format!("http://{host}:{port}");
     let profile = generate_profile(host, port, token);
     write_json(&p.profile, &profile)?;
-    upsert_applied_profile(&p.meta, PROFILE_ID, "AgentGate")?;
+    upsert_applied_profile(&p.meta, PROFILE_ID, "MuxLayer")?;
     Ok(ClaudeDesktopApplyResult {
         success: true,
         profile_path: p.profile.display().to_string(),

@@ -170,7 +170,7 @@ pub fn toggle_codex_provider(
     crate::tools::codex::toggle_provider(&host, port)
 }
 
-/// Restore Codex to its pre-AgentGate state — the saved config.toml is
+/// Restore Codex to its pre-MuxLayer state — the saved config.toml is
 /// copied back so the user gets the official `[plugins.*]` / `[mcp_servers.*]`
 /// blocks alive again. Used by the UI's "Switch to native mode" button.
 #[tauri::command]
@@ -203,7 +203,7 @@ pub fn detect_claude_desktop() -> crate::tools::claude_desktop::ClaudeDesktopSta
     crate::tools::claude_desktop::detect()
 }
 
-/// 生成指向 AgentGate 网关的 3p profile JSON（pretty），仅供和用户机器上实际的
+/// 生成指向 MuxLayer 网关的 3p profile JSON（pretty），仅供和用户机器上实际的
 /// Claude Desktop 3p 配置对比、确认 schema，不写任何文件。
 #[tauri::command]
 #[specta::specta]
@@ -222,7 +222,7 @@ pub fn preview_claude_desktop_profile(state: State<'_, AppState>) -> Result<Stri
         .map_err(|e| AppError::internal(format!("serialize profile failed: {e}")))
 }
 
-/// 接入 Claude Desktop：写 3p profile + 切 appliedId 到 AgentGate。apply 前先经
+/// 接入 Claude Desktop：写 3p profile + 切 appliedId 到 MuxLayer。apply 前先经
 /// apply_history 快照 profile/_meta，用户可在客户端历史里一键回滚。
 #[tauri::command]
 #[specta::specta]

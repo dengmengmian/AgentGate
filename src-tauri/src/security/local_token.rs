@@ -123,7 +123,7 @@ pub fn read_token() -> Result<String, AppError> {
             crate::errors::codes::LOCAL_ACCESS_TOKEN_NOT_FOUND,
             "Token file does not exist",
         )
-        .with_suggestion("Restart AgentGate to auto-generate a token"));
+        .with_suggestion("Restart MuxLayer to auto-generate a token"));
     }
     let token = fs::read_to_string(&path).map_err(|e| {
         AppError::new(

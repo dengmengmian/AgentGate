@@ -41,7 +41,7 @@ pub fn health_check(db: &crate::storage::db::DbPool) -> CheckReport {
     } else {
         checks.push(
             CheckItem::warning("token_file", "Token file", "Token file not found")
-                .with_suggestion("Restart AgentGate to auto-generate"),
+                .with_suggestion("Restart MuxLayer to auto-generate"),
         );
     }
 
@@ -179,7 +179,7 @@ pub fn gateway_auth_check(db: &crate::storage::db::DbPool) -> CheckReport {
         Err(_) => {
             checks.push(
                 CheckItem::failed("token_exists", "Token exists", "Cannot read token")
-                    .with_suggestion("Restart AgentGate to auto-generate"),
+                    .with_suggestion("Restart MuxLayer to auto-generate"),
             );
             return CheckReport::new("Gateway Auth Check", checks);
         }
@@ -311,7 +311,7 @@ pub fn codex_config_check(db: &crate::storage::db::DbPool) -> CheckReport {
         checks.push(CheckItem::ok(
             "not_configured",
             "Codex",
-            "Not configured for AgentGate (skipped)",
+            "Not configured for MuxLayer (skipped)",
         ));
         return CheckReport::new("Codex Config Check", checks);
     }
@@ -319,7 +319,7 @@ pub fn codex_config_check(db: &crate::storage::db::DbPool) -> CheckReport {
     checks.push(CheckItem::ok("config_exists", "Config file", "Exists"));
     checks.push(CheckItem::ok(
         "agentgate_provider",
-        "AgentGate provider",
+        "MuxLayer provider",
         "Configured",
     ));
 
@@ -361,23 +361,23 @@ pub fn codex_config_check(db: &crate::storage::db::DbPool) -> CheckReport {
     // model_provider = "agentgate"），跟 auth.json 是两码事。
     if !status.auth_json_exists {
         // auth.json 不存在不算问题——Codex 没登 ChatGPT 也能跑
-        checks.push(CheckItem::ok("auth_json", "auth.json", "Not present (Codex not signed in to ChatGPT — fine, AgentGate token lives in config.toml)"));
+        checks.push(CheckItem::ok("auth_json", "auth.json", "Not present (Codex not signed in to ChatGPT — fine, MuxLayer token lives in config.toml)"));
     } else if status.openai_key_polluted {
         checks.push(
             CheckItem::warning(
                 "auth_json",
                 "auth.json",
-                "Polluted: contains both AgentGate token and ChatGPT tokens (legacy bug)",
+                "Polluted: contains both MuxLayer token and ChatGPT tokens (legacy bug)",
             )
             .with_suggestion(
-                "Re-apply Codex config from Tools page — AgentGate will restore from saved backup",
+                "Re-apply Codex config from Tools page — MuxLayer will restore from saved backup",
             ),
         );
     } else {
         checks.push(CheckItem::ok(
             "auth_json",
             "auth.json",
-            "Clean (ChatGPT login state preserved, AgentGate token in config.toml)",
+            "Clean (ChatGPT login state preserved, MuxLayer token in config.toml)",
         ));
     }
 
@@ -421,7 +421,7 @@ pub fn claude_code_config_check(_db: &crate::storage::db::DbPool) -> CheckReport
         checks.push(CheckItem::ok(
             "not_configured",
             "Claude Code",
-            "Not configured for AgentGate (skipped)",
+            "Not configured for MuxLayer (skipped)",
         ));
         return CheckReport::new("Claude Code Config Check", checks);
     }
@@ -429,7 +429,7 @@ pub fn claude_code_config_check(_db: &crate::storage::db::DbPool) -> CheckReport
     // AgentGate is configured — verify it's correct
     checks.push(CheckItem::ok(
         "agentgate_token",
-        "AgentGate token",
+        "MuxLayer token",
         "Found in settings",
     ));
 
@@ -465,7 +465,7 @@ pub fn claude_code_config_check(_db: &crate::storage::db::DbPool) -> CheckReport
             checks.push(CheckItem::warning(
                 "base_url",
                 "Base URL",
-                &format!("Points to {url}, not AgentGate"),
+                &format!("Points to {url}, not MuxLayer"),
             ));
         }
     }
@@ -704,7 +704,7 @@ pub fn export_bundle(
     files.push("config_summaries.json".to_string());
 
     // 7. README
-    let readme = "AgentGate Diagnostic Bundle\n\
+    let readme = "MuxLayer Diagnostic Bundle\n\
         ==========================\n\n\
         This bundle contains diagnostic information for troubleshooting.\n\
         All API keys and tokens have been redacted.\n\n\

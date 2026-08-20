@@ -240,7 +240,7 @@ pub fn apply(host: &str, port: i64, model: &str) -> Result<ApplyConfigResult, Ap
     // Write .env file in ~/.gemini/ (Gemini CLI loads env from here)
     let env_path = env_file_path();
     let env_content = format!(
-        "# AgentGate configuration — do not edit manually\nGEMINI_API_KEY={token}\nGOOGLE_GEMINI_BASE_URL=http://{host}:{port}\n"
+        "# MuxLayer configuration — do not edit manually\nGEMINI_API_KEY={token}\nGOOGLE_GEMINI_BASE_URL=http://{host}:{port}\n"
     );
     fs::write(&env_path, &env_content).map_err(|e| {
         AppError::new(

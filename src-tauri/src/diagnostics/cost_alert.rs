@@ -113,7 +113,7 @@ fn notify(app_handle: &tauri::AppHandle, cost: f64, threshold: f64) {
     let _ = app_handle
         .notification()
         .builder()
-        .title("AgentGate")
+        .title("MuxLayer")
         .body(&body_zh)
         .show();
 

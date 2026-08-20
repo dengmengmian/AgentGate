@@ -43,7 +43,7 @@ pub fn import_config_json(
                 format!("Invalid config JSON: {e}"),
             )
             .with_suggestion(
-                "Make sure the file is an AgentGate config export, not a different JSON file.",
+                "Make sure the file is a MuxLayer config export, not a different JSON file.",
             )
         })?;
     let mut conn = state

@@ -113,7 +113,7 @@ fn has_saved_official() -> bool {
 ///
 /// Kept for legacy/manual use — the modern `toggle_provider` restore path
 /// inlines a config-only copy instead, so auth.json stays untouched. Useful
-/// if a user needs a full hard reset to pre-AgentGate state.
+/// if a user needs a full hard reset to pre-MuxLayer state.
 #[allow(dead_code)]
 fn restore_official_files() -> Result<(), AppError> {
     let dir = saved_dir();
@@ -461,7 +461,7 @@ pub fn apply(host: &str, port: i64) -> Result<ApplyConfigResult, AppError> {
     // endpoint instead of api.openai.com. The user should know that they
     // need to keep `codex login` valid for the IDE bits to keep working.
     warnings.push(
-        "已切换到代理模式：对话请求走 AgentGate，但 Codex.app 内嵌插件（Browser / \
+        "已切换到代理模式：对话请求走 MuxLayer，但 Codex.app 内嵌插件（Browser / \
          Computer-Use / Mobile / 配额查询）仍走 ChatGPT 官方登录态 —— 都可用。\
          如果之前没登录过 Codex，请先执行 `codex login` 完成 ChatGPT 认证。"
             .to_string(),
@@ -554,7 +554,7 @@ pub fn disable() -> Result<ApplyConfigResult, AppError> {
     if !saved_cfg.exists() {
         return Err(AppError::new(
             crate::errors::codes::CODEX_NO_SAVED_FILES,
-            "未找到 AgentGate 备份的官方 config.toml — 请先在 Codex 上至少跑过一次官方登录。",
+            "未找到 MuxLayer 备份的官方 config.toml — 请先在 Codex 上至少跑过一次官方登录。",
         ));
     }
 
@@ -577,7 +577,7 @@ pub fn disable() -> Result<ApplyConfigResult, AppError> {
     }
 
     warnings.push(
-        "已切回原生模式：Codex 直连 ChatGPT 官方，对话请求不再经过 AgentGate。\
+        "已切回原生模式：Codex 直连 ChatGPT 官方，对话请求不再经过 MuxLayer。\
          如需重新使用第三方模型路由，点击「应用配置」即可切回代理模式。"
             .to_string(),
     );

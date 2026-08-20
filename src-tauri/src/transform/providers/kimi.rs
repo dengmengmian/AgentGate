@@ -67,7 +67,7 @@ impl super::ProviderTransform for KimiProvider {
                  • 充值入口：https://platform.moonshot.cn/console/account\n\
                  • 用量查询：https://platform.moonshot.cn/console/usage\n\
                  • Kimi Code 会员：https://www.kimi.com/code/#pricing\n\
-                 • AgentGate 会自动 failover 到其它非冷却 provider。"
+                 • MuxLayer 会自动 failover 到其它非冷却 provider。"
                     .to_string(),
             );
         }
@@ -84,7 +84,7 @@ impl super::ProviderTransform for KimiProvider {
             return Some(
                 "Kimi 触发限流。RPM / TPM 上限因账户级别不同：\n\
                  • https://platform.moonshot.cn/console/info 查看你的速率配额\n\
-                 • AgentGate 已冷却该 provider，路由会优先尝试其它候选"
+                 • MuxLayer 已冷却该 provider，路由会优先尝试其它候选"
                     .to_string(),
             );
         }
