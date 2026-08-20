@@ -75,6 +75,43 @@ MuxLayer 不是托管 API 分发平台，也不是普通代理，而是位于 Co
 
 完整能力矩阵见[完整 Provider 兼容表](./docs/full-reference-zh.md#支持的-provider)，具体接入方式见[使用指南](./docs/full-reference-zh.md#使用指南)。
 
+<details>
+<summary>全部支持的 Provider</summary>
+
+<!-- PROVIDER_CATALOG_TABLE:START -->
+| Provider | 类型 | 原生协议 | 专属处理 |
+|---|---|---|---|
+| 小米 MiMo | `mimo` | Chat + Anthropic | 多轮 `reasoning_content` 回环、`tp-*` host 按区域自动切换、思考态剥 temperature、tool_choice 非 auto 剥除、omni web_search 剥除、web_search builtin 按矩阵翻译、Web Search Plugin 自动降级 / 重试 |
+| DeepSeek | `deepseek` | Chat + Anthropic | 图片剥离并注入可解释提示、DeepSeek V4 thinking 历史 reasoning 回填、schema 清洗、消息重排 |
+| Anthropic（Claude） | `anthropic` | Anthropic | `tool_use`/`tool_result`、`input_schema`、thinking budget、原生 cache_control |
+| GitHub Copilot | `copilot` | Chat + Anthropic | GitHub token → Copilot bearer 交换、`x-initiator` 计费分类、Claude 模型 dash→dot 归一化 |
+| OpenAI | `openai` | Chat + Responses | 无（Responses 透传或 Chat 转换） |
+| Google Gemini | `google_gemini` | Chat | 无 |
+| Kimi / Moonshot | `kimi` | Chat + Anthropic | `web_search` → `builtin_function`/`$web_search`；K3 使用 `reasoning_effort:max`（不用 K2 的 `thinking` 参数）；Coding 模型保留 thinking 开关控制 |
+| MiniMax | `minimax` | Chat | 去 reasoning_effort / response_format、`<think>` 提取 |
+| 智谱 GLM | `glm` | Chat | 通用 |
+| 通义千问 DashScope | `dashscope` | Chat | 通用 |
+| 硅基流动 SiliconFlow | `siliconflow` | Chat | 通用 |
+| 火山引擎（豆包） | `volcengine` | Chat | 通用 |
+| 百川 | `baichuan` | Chat | 通用 |
+| 阶跃星辰 StepFun | `stepfun` | Chat | 通用 |
+| 商汤日日新 SenseNova | `sensenova` | Chat | 清理 strict:null / response_format / 非 function 工具,合并 system 消息 |
+| 零一万物 Yi | `yi` | Chat | 通用 |
+| 魔搭 ModelScope | `modelscope` | Chat | 通用 |
+| xAI（Grok） | `xai` | Chat | 通用 |
+| Mistral | `mistral` | Chat | 通用 |
+| Groq | `groq` | Chat | 通用 |
+| Together | `together` | Chat | 通用 |
+| Fireworks | `fireworks` | Chat | 通用 |
+| Cerebras | `cerebras` | Chat | 通用 |
+| Perplexity | `perplexity` | Chat | 通用 |
+| Cohere | `cohere` | Chat | 通用 |
+| OpenRouter | `openrouter` | Chat | 无 |
+| 自定义 | `custom_openai_compatible` | Chat | 无（Base URL 用户自己填） |
+<!-- PROVIDER_CATALOG_TABLE:END -->
+
+</details>
+
 ## 安装
 
 | 平台 | 安装包 |

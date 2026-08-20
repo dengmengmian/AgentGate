@@ -75,6 +75,43 @@ Send a test request, then open **Logs** to see the selected provider, model, rou
 
 See the [full provider compatibility matrix](./docs/full-reference.md#supported-providers) and the [usage guides](./docs/full-reference.md#usage-guide).
 
+<details>
+<summary>All supported providers</summary>
+
+<!-- PROVIDER_CATALOG_TABLE:START -->
+| Provider | Type | Native Protocols | Provider-Specific Handling |
+|---|---|---|---|
+| Xiaomi MiMo | `mimo` | Chat + Anthropic | Multi-turn `reasoning_content` round-trip, region-aware `tp-*` host auto-routing, temperature strip in thinking mode, tool_choice non-auto strip, omni web_search strip, web_search builtin gated by matrix, Web Search Plugin auto-degrade / retry |
+| DeepSeek | `deepseek` | Chat + Anthropic | Image stripping with explicit notice, DeepSeek V4 thinking history reasoning backfill, schema cleaning, message reordering |
+| Anthropic (Claude) | `anthropic` | Anthropic | `tool_use`/`tool_result`, `input_schema`, thinking budget, native cache_control |
+| GitHub Copilot | `copilot` | Chat + Anthropic | GitHub token → Copilot bearer exchange, `x-initiator` billing classification, Claude model dash→dot normalization |
+| OpenAI | `openai` | Chat + Responses | None (Responses passthrough or Chat conversion) |
+| Google Gemini | `google_gemini` | Chat | None |
+| Kimi / Moonshot | `kimi` | Chat + Anthropic | `web_search` → `builtin_function`/`$web_search`; K3 uses `reasoning_effort:max` (no K2 `thinking` param); coding models keep thinking on/off control |
+| MiniMax | `minimax` | Chat | Strip reasoning_effort / response_format, `<think>` extraction |
+| GLM (Zhipu) | `glm` | Chat | Generic |
+| DashScope (Qwen) | `dashscope` | Chat | Generic |
+| SiliconFlow | `siliconflow` | Chat | Generic |
+| Volcengine (Doubao) | `volcengine` | Chat | Generic |
+| Baichuan | `baichuan` | Chat | Generic |
+| StepFun | `stepfun` | Chat | Generic |
+| SenseNova | `sensenova` | Chat | Drops null strict / response_format / non-function tools, merges system messages |
+| Yi (01.AI) | `yi` | Chat | Generic |
+| ModelScope | `modelscope` | Chat | Generic |
+| xAI (Grok) | `xai` | Chat | Generic |
+| Mistral | `mistral` | Chat | Generic |
+| Groq | `groq` | Chat | Generic |
+| Together | `together` | Chat | Generic |
+| Fireworks | `fireworks` | Chat | Generic |
+| Cerebras | `cerebras` | Chat | Generic |
+| Perplexity | `perplexity` | Chat | Generic |
+| Cohere | `cohere` | Chat | Generic |
+| OpenRouter | `openrouter` | Chat | None |
+| Custom | `custom_openai_compatible` | Chat | None (set Base URL yourself) |
+<!-- PROVIDER_CATALOG_TABLE:END -->
+
+</details>
+
 ## Install
 
 | Platform | Package |
