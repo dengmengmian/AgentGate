@@ -23,14 +23,21 @@ for (const file of downloadDocs) {
     ),
   ].map((match) => match[1]);
   const assetVersions = [
-      ...content.matchAll(/MuxLayer_([0-9]+\.[0-9]+\.[0-9]+)_/g),
+    ...content.matchAll(/MuxLayer_([0-9]+\.[0-9]+\.[0-9]+)_/g),
   ].map((match) => match[1]);
+  const legacyAssetRefs = [
+    ...content.matchAll(/AgentGate_[0-9]+\.[0-9]+\.[0-9]+_/g),
+  ];
 
   const versions = new Set([...releaseVersions, ...assetVersions]);
-  if (versions.size !== 1 || !versions.has(packageJson.version)) {
+  if (
+    legacyAssetRefs.length > 0 ||
+    versions.size !== 1 ||
+    !versions.has(packageJson.version)
+  ) {
     failed = true;
     console.error(
-      `${file} download version mismatch: expected ${packageJson.version}, found ${[...versions].join(", ") || "none"}`,
+      `${file} download reference mismatch: expected MuxLayer ${packageJson.version}, found ${[...versions].join(", ") || "none"}${legacyAssetRefs.length > 0 ? "; legacy AgentGate asset reference found" : ""}`,
     );
   }
 }

@@ -16,11 +16,11 @@
 
   // Asset filename → platform. Build matcher list once.
   // Filenames look like:
-  //   AgentGate_1.4.1_aarch64.dmg
-  //   AgentGate_1.4.1_x64.dmg
-  //   AgentGate_1.4.1_x64-setup.exe
-  //   AgentGate_1.4.1_amd64.deb
-  //   AgentGate_1.4.1_amd64.AppImage
+  //   MuxLayer_2.0.0_aarch64.dmg
+  //   MuxLayer_2.0.0_x64.dmg
+  //   MuxLayer_2.0.0_x64-setup.exe
+  //   MuxLayer_2.0.0_amd64.deb
+  //   MuxLayer_2.0.0_amd64.AppImage
   const PLATFORMS = [
     { id: "mac-arm", match: /aarch64\.dmg$/i },
     { id: "mac-x86", match: /_x64\.dmg$/i },
