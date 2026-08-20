@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="./full-reference-zh.md">中文版</a> · <a href="../README_ZH.md">中文 README</a> · <a href="https://github.com/dengmengmian/muxlayer/releases">Download</a> · <a href="#5-minute-quick-start">5-Minute Quick Start</a> · <a href="./use-codex-with-deepseek.md">Codex + DeepSeek</a> · <a href="./use-claude-code-with-deepseek.md">Claude Code + DeepSeek</a> · <a href="./use-gemini-cli-with-agentgate.md">Gemini CLI</a>
+  <a href="./full-reference-zh.md">中文版</a> · <a href="../README_ZH.md">中文 README</a> · <a href="https://github.com/dengmengmian/muxlayer/releases">Download</a> · <a href="#5-minute-quick-start">5-Minute Quick Start</a> · <a href="./use-codex-with-deepseek.md">Codex + DeepSeek</a> · <a href="./use-claude-code-with-deepseek.md">Claude Code + DeepSeek</a> · <a href="./use-gemini-cli-with-muxlayer.md">Gemini CLI</a>
 </p>
 
 <p align="center">
@@ -94,7 +94,7 @@ There are great LLM proxies out there. MuxLayer's niche is **a local desktop ent
 
 ## Common Use Cases
 
-Guides: [Codex Desktop plugins](./use-codex-desktop-with-third-party-api-and-plugins.md) · [Codex + DeepSeek](./use-codex-with-deepseek.md) · [Codex + Xiaomi MiMo](./use-codex-with-mimo.md) · [Claude Code + DeepSeek](./use-claude-code-with-deepseek.md) · [Claude Code + GitHub Copilot](./use-claude-code-with-github-copilot.md) · [Gemini CLI](./use-gemini-cli-with-agentgate.md) · [OpenCode](./use-opencode-with-agentgate.md)
+Guides: [Codex Desktop plugins](./use-codex-desktop-with-third-party-api-and-plugins.md) · [Codex + DeepSeek](./use-codex-with-deepseek.md) · [Codex + Xiaomi MiMo](./use-codex-with-mimo.md) · [Claude Code + DeepSeek](./use-claude-code-with-deepseek.md) · [Claude Code + GitHub Copilot](./use-claude-code-with-github-copilot.md) · [Gemini CLI](./use-gemini-cli-with-muxlayer.md) · [OpenCode](./use-opencode-with-muxlayer.md)
 
 | Goal | What MuxLayer does |
 |---|---|

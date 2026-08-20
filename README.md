@@ -151,10 +151,10 @@ Provider presets fill common base URLs, protocols, model defaults, and capabilit
 - [Codex + Xiaomi MiMo](./docs/use-codex-with-mimo.md)
 - [Claude Code + DeepSeek](./docs/use-claude-code-with-deepseek.md)
 - [Claude Code + GitHub Copilot](./docs/use-claude-code-with-github-copilot.md)
-- [Gemini CLI](./docs/use-gemini-cli-with-agentgate.md)
-- [OpenCode](./docs/use-opencode-with-agentgate.md)
-- [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate.md)
-- [Local models (Ollama / LM Studio)](./docs/use-local-models-with-agentgate.md)
+- [Gemini CLI](./docs/use-gemini-cli-with-muxlayer.md)
+- [OpenCode](./docs/use-opencode-with-muxlayer.md)
+- [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-muxlayer.md)
+- [Local models (Ollama / LM Studio)](./docs/use-local-models-with-muxlayer.md)
 - [Full reference](./docs/full-reference.md)
 
 ## Screenshots
