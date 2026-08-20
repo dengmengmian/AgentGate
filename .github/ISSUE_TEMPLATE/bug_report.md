@@ -27,7 +27,7 @@ If applicable, add screenshots to help explain your problem.
 **Environment / 环境信息**
 
 - OS: [e.g. macOS 15.0, Windows 11, Ubuntu 24.04]
-- AgentGate version: [e.g. 0.1.0]
+- MuxLayer version: [e.g. 2.0.0]
 - Client tool: [e.g. Codex, Claude Code, OpenCode]
 - Provider: [e.g. DeepSeek, OpenAI, OpenRouter]
 

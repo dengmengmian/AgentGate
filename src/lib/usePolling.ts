@@ -4,7 +4,7 @@ import { useEffect } from "react";
 /// 反映后台变化（如 runtime_status 因请求失败被标记 cooldown）。
 ///
 /// 默认 10s 周期——这些页面变化频率远低于 dashboard（5s 太快没必要）。
-/// 配合 window focus 监听：用户从 IDE 切回 AgentGate 时立刻刷新一次，
+/// 配合 window focus 监听：用户从 IDE 切回 MuxLayer 时立刻刷新一次，
 /// 避免依赖周期看到陈旧数据。
 ///
 /// App 常驻托盘，窗口隐藏/最小化后没人看界面——document.hidden 时跳过周期

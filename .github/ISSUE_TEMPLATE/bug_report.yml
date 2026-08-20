@@ -9,7 +9,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: AgentGate Version
+      label: MuxLayer Version
       placeholder: "e.g. 0.4.0"
     validations:
       required: true

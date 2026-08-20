@@ -1,11 +1,11 @@
-# 用本地模型（Ollama / LM Studio）接入 AgentGate
+# 用本地模型（Ollama / LM Studio）接入 MuxLayer
 
-AgentGate 可以把 Codex / Claude Code 等客户端路由到**本机**模型，用法与云供应商相同。
+MuxLayer 可以把 Codex / Claude Code 等客户端路由到**本机**模型，用法与云供应商相同。
 
 ## 最短路径
 
 1. 启动 Ollama（`ollama serve`）或 LM Studio 本地服务。
-2. AgentGate → **供应商**。
+2. MuxLayer → **供应商**。
 3. 在 **本地模型** 点 **扫描**。
 4. 对在线端点点 **添加**（离线也可先添加，稍后启动服务）。
 5. **启动网关**，客户端应用配置后即可对话。

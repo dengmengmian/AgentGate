@@ -1,5 +1,5 @@
 /**
- * Shortest terminal commands to verify a client is wired through AgentGate.
+ * Shortest terminal commands to verify a client is wired through MuxLayer.
  * Used by Quick Setup success state and Dashboard "ready for first request".
  */
 export type FirstRequestCommand = {

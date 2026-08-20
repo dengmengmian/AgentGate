@@ -42,6 +42,7 @@ describe("Sidebar", () => {
     expect(screen.getByRole("link", { name: "Overview" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Providers" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Clients" })).toBeInTheDocument();
+    expect(screen.getAllByText("MuxLayer").length).toBeGreaterThan(0);
     expect(await screen.findByText("v1.4.4")).toBeInTheDocument();
   });
 

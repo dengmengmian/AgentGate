@@ -14,7 +14,7 @@ interface Props {
 
 /// 客户端配置历史按钮 + 抽屉。每次 apply/disable/toggle 写入前，后端会先
 /// snapshot 一次盘上配置；点击「回滚」就把那个时点的文件原文写回去。
-/// 仅本地操作，不影响 AgentGate 内部 state（active provider 等）。
+/// 仅本地操作，不影响 MuxLayer 内部 state（active provider 等）。
 export function ClientHistoryButton({
   clientId,
   clientName,

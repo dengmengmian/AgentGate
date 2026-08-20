@@ -1,6 +1,6 @@
 # Homebrew Cask 发布
 
-`agentgate.rb` 是 AgentGate 的 Homebrew cask 定义，通过自有 tap 分发（不需要进 homebrew-core）。
+`agentgate.rb` 是 MuxLayer 的 Homebrew cask 定义。cask token 暂时保留 `agentgate`，通过自有 tap 分发（不需要进 homebrew-core）。
 
 ## 首次建 tap（一次性）
 

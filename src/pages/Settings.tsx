@@ -533,7 +533,7 @@ export function ConfigBackupSection() {
   const handleFilePicked = async (file: File) => {
     try {
       const text = await file.text();
-      // 触发确认弹窗前先校验是 AgentGate 格式，避免误导入随机 JSON。
+      // 触发确认弹窗前先校验是 MuxLayer 格式，避免误导入随机 JSON。
       JSON.parse(text);
       setPendingImportJson(text);
     } catch {

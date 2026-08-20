@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="logo.svg" width="128" height="128" alt="AgentGate Logo">
+  <img src="logo.svg" width="128" height="128" alt="MuxLayer Logo">
 </p>
 
-<h1 align="center">AgentGate</h1>
+<h1 align="center">MuxLayer</h1>
 
 English: [Main Reference](./full-reference.md)
 
@@ -12,29 +12,29 @@ English: [Main Reference](./full-reference.md)
 </p>
 
 <p align="center">
-  <a href="https://github.com/dengmengmian/agentgate-ai/releases"><img src="https://img.shields.io/github/v/release/dengmengmian/agentgate-ai?style=flat-square&color=blue" alt="Release"></a>
-  <a href="https://github.com/dengmengmian/agentgate-ai/stargazers"><img src="https://img.shields.io/github/stars/dengmengmian/agentgate-ai?style=flat-square&cacheSeconds=3600" alt="Stars"></a>
-  <a href="https://github.com/dengmengmian/agentgate-ai/releases"><img src="https://img.shields.io/github/downloads/dengmengmian/agentgate-ai/total?style=flat-square&color=green&cacheSeconds=3600" alt="Downloads"></a>
+  <a href="https://github.com/dengmengmian/muxlayer/releases"><img src="https://img.shields.io/github/v/release/dengmengmian/muxlayer?style=flat-square&color=blue" alt="Release"></a>
+  <a href="https://github.com/dengmengmian/muxlayer/stargazers"><img src="https://img.shields.io/github/stars/dengmengmian/muxlayer?style=flat-square&cacheSeconds=3600" alt="Stars"></a>
+  <a href="https://github.com/dengmengmian/muxlayer/releases"><img src="https://img.shields.io/github/downloads/dengmengmian/muxlayer/total?style=flat-square&color=green&cacheSeconds=3600" alt="Downloads"></a>
   <a href="../LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
 </p>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="https://github.com/dengmengmian/agentgate-ai/releases">下载</a> · <a href="#5-分钟快速上手">5 分钟快速上手</a> · <a href="./use-codex-with-deepseek-zh.md">Codex + DeepSeek</a> · <a href="./use-claude-code-with-deepseek-zh.md">Claude Code + DeepSeek</a> · <a href="./use-gemini-cli-with-agentgate-zh.md">Gemini CLI</a>
+  <a href="../README.md">English</a> · <a href="https://github.com/dengmengmian/muxlayer/releases">下载</a> · <a href="#5-分钟快速上手">5 分钟快速上手</a> · <a href="./use-codex-with-deepseek-zh.md">Codex + DeepSeek</a> · <a href="./use-claude-code-with-deepseek-zh.md">Claude Code + DeepSeek</a> · <a href="./use-gemini-cli-with-agentgate-zh.md">Gemini CLI</a>
 </p>
 
 <p align="center">
-  <img src="demo-header-v2.gif" width="800" alt="AgentGate 把 AI Agent 模型请求接到本地网关：转换、直连、路由、追踪">
+  <img src="demo-header-v2.gif" width="800" alt="MuxLayer 把 AI Agent 模型请求接到本地网关：转换、直连、路由、追踪">
 </p>
 
 ## 按系统下载
 
 | 你的机器 | 下载 |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [AgentGate_1.6.3_aarch64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_aarch64.dmg) |
-| 🍎 macOS — Intel | [AgentGate_1.6.3_x64.dmg](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64.dmg) |
-| 🪟 Windows 10 / 11 | [AgentGate_1.6.3_x64-setup.exe](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [AgentGate_1.6.3_amd64.deb](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.deb) |
-| 🐧 Linux — 其他发行版 | [AgentGate_1.6.3_amd64.AppImage](https://github.com/dengmengmian/agentgate-ai/releases/download/v1.6.3/AgentGate_1.6.3_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_aarch64.dmg) |
+| 🍎 macOS — Intel | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64.dmg) |
+| 🪟 Windows 10 / 11 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_amd64.deb) |
+| 🐧 Linux — 其他发行版 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_amd64.AppImage) |
 
 macOS 也可以用 Homebrew 安装：
 
@@ -42,31 +42,31 @@ macOS 也可以用 Homebrew 安装：
 brew install --cask dengmengmian/tap/agentgate
 ```
 
-> 无界面 CLI（`agentgate-serve`）的 tarball 包和所有历史版本：[Releases](https://github.com/dengmengmian/agentgate-ai/releases)
+> 无界面 CLI（`agentgate-serve`）的 tarball 包和所有历史版本：[Releases](https://github.com/dengmengmian/muxlayer/releases)
 
 **Windows 安装提示：** Edge/Chrome 可能提示「通常不会下载」，SmartScreen 可能提示「Windows 已保护你的电脑」。这是预期行为：安装包未做 Authenticode 代码签名。没有「免费且被 Windows 默认信任」的代码签名证书（Let’s Encrypt 只签网站 HTTPS，不能签 `.exe`），开源项目常先发未签名包——不是病毒结论。请只从官方 Releases 下载；浏览器选 **保留**，运行时点 **更多信息** → **仍要运行**。
 
-## 为什么用 AgentGate
+## 为什么用 MuxLayer
 
 | 不破坏官方体验 | 模型路由归你 | 每一条请求都看得到 |
 |:---|:---|:---|
-| AI agent 客户端继续按它习惯的方式工作，一键还原到官方配置 | 让官方客户端请求先进 AgentGate，再决定转换协议或 pass-through 到你选的上游 | 路由决策、转换后的 payload、上游错误、token、成本、延迟、故障转移 尝试一条都不漏 |
+| AI agent 客户端继续按它习惯的方式工作，一键还原到官方配置 | 让官方客户端请求先进 MuxLayer，再决定转换协议或 pass-through 到你选的上游 | 路由决策、转换后的 payload、上游错误、token、成本、延迟、故障转移 尝试一条都不漏 |
 
 ## 5 分钟快速上手
 
-1. 在上面那张表里下载 AgentGate，装好。
+1. 在上面那张表里下载 MuxLayer，装好。
 2. 进入 **快速配置** 或 **供应商**，粘贴你的 Provider API Key。
 3. 在 **概览** 或 **网关** 点 **启动网关**。默认客户端端点是 `127.0.0.1:9090`。
 4. 在 **客户端** 页，对 Codex / Claude Code / OpenCode / Gemini CLI / AtomCode 点 **应用配置**。
 5. 在客户端里发一条测试消息。任何时候想恢复原客户端配置，点 **切换到官方** 就行。
 
-AgentGate 会从 Provider 预设里自动填好常见的 base URL、协议、默认模型和能力矩阵（每个模型能干什么的清单：文本、图像、工具调用、推理等）。大多数人一开始都不需要碰 Model Mapping 或高级 endpoint 字段。
+MuxLayer 会从 Provider 预设里自动填好常见的 base URL、协议、默认模型和能力矩阵（每个模型能干什么的清单：文本、图像、工具调用、推理等）。大多数人一开始都不需要碰 Model Mapping 或高级 endpoint 字段。
 
 ---
 
-AgentGate 是一个 **给 AI 应用和客户端模型请求用的本地网关**。它把原本要直接发给官方 endpoint 的模型请求先接进你的桌面，再决定是做协议转换，还是原生直连到 26 个 Provider 里的某一个——包括小米 MiMo、DeepSeek、OpenAI、Anthropic、GitHub Copilot、Kimi、GLM、DashScope、SiliconFlow、Volcengine 等等。
+MuxLayer 是一个 **给 AI 应用和客户端模型请求用的本地网关**。它把原本要直接发给官方 endpoint 的模型请求先接进你的桌面，再决定是做协议转换，还是原生直连到 26 个 Provider 里的某一个——包括小米 MiMo、DeepSeek、OpenAI、Anthropic、GitHub Copilot、Kimi、GLM、DashScope、SiliconFlow、Volcengine 等等。
 
-> **一个本地入口，统一管理你的 AI 模型请求。** Codex、Claude Code、Gemini CLI、OpenCode、AtomCode，以及兼容 OpenAI / Anthropic / Gemini 协议的应用继续按它们熟悉的方式跑，AgentGate 在本地处理上游选择、协议差异、故障转移、成本和可追溯性。
+> **一个本地入口，统一管理你的 AI 模型请求。** Codex、Claude Code、Gemini CLI、OpenCode、AtomCode，以及兼容 OpenAI / Anthropic / Gemini 协议的应用继续按它们熟悉的方式跑，MuxLayer 在本地处理上游选择、协议差异、故障转移、成本和可追溯性。
 
 ![成本看板](screenshots/dashboard.png)
 
@@ -79,13 +79,13 @@ AgentGate 是一个 **给 AI 应用和客户端模型请求用的本地网关**�
 - 多 Provider + 多 API Key 应该能自动 故障转移，并且有请求日志、token 统计、成本追踪。
 - 切模型不该意味着手改 `~/.codex/config.toml` 或 `~/.claude/settings.json`。
 
-AgentGate 的事就一句话：**让官方客户端的入口在本地可控**——客户端一键应用 / 还原、需要时做协议转换、能 pass-through 就 pass-through、Route Profile、故障转移、请求日志、成本追踪、诊断。
+MuxLayer 的事就一句话：**让官方客户端的入口在本地可控**——客户端一键应用 / 还原、需要时做协议转换、能 pass-through 就 pass-through、Route Profile、故障转移、请求日志、成本追踪、诊断。
 
 ## 横向对比
 
-业界有不少 LLM 代理工具。AgentGate 的位置是 **桌面上的本地 AI 模型入口**——它专注于保持客户端原本的行为，同时把模型入口搬进一个你本地可控的 GUI，而不是去运营一个共享 API 服务。
+业界有不少 LLM 代理工具。MuxLayer 的位置是 **桌面上的本地 AI 模型入口**——它专注于保持客户端原本的行为，同时把模型入口搬进一个你本地可控的 GUI，而不是去运营一个共享 API 服务。
 
-| 工具 | 它最擅长的事 | AgentGate 的差异 |
+| 工具 | 它最擅长的事 | MuxLayer 的差异 |
 |---|---|---|
 | **普通代理** | 换一个 base URL | 保留客户端专属行为，需要时转换协议，支持原生 pass-through，并能追踪每次请求的完整路径 |
 | **claude-code-router** | 把 Claude Code（CLI）路由到其他模型 | 还覆盖 Codex 的 Responses API、Gemini CLI、OpenCode——并有 GUI 和成本看板 |
@@ -98,13 +98,13 @@ AgentGate 的事就一句话：**让官方客户端的入口在本地可控**—
 
 教程：[Codex Desktop 插件](./use-codex-desktop-with-third-party-api-and-plugins-zh.md) · [Codex + DeepSeek](./use-codex-with-deepseek-zh.md) · [Codex + 小米 MiMo](./use-codex-with-mimo-zh.md) · [Claude Code + DeepSeek](./use-claude-code-with-deepseek-zh.md) · [Claude Code + GitHub Copilot](./use-claude-code-with-github-copilot-zh.md) · [Gemini CLI](./use-gemini-cli-with-agentgate-zh.md) · [OpenCode](./use-opencode-with-agentgate-zh.md)
 
-| 目标 | AgentGate 做的事 |
+| 目标 | MuxLayer 做的事 |
 |---|---|
 | Codex 用 DeepSeek | 把 Codex 的 OpenAI Responses API 请求转成 DeepSeek 兼容的 Chat Completions 或 Anthropic 兼容 endpoint。 |
-| Codex 用小米 MiMo | 把 Codex 的 Responses 入口变成本地的 AgentGate 入口，再路由到 MiMo 模型，带 Model Mapping、推理能力和能力检查。 |
+| Codex 用小米 MiMo | 把 Codex 的 Responses 入口变成本地的 MuxLayer 入口，再路由到 MiMo 模型，带 Model Mapping、推理能力和能力检查。 |
 | 用 GitHub Copilot 订阅跑 Claude Code | 自动用你的 GitHub token 换 Copilot 凭据，并把工具续聊 / 历史压缩打上 agent 流量标签，不消耗 premium request 配额。看 [专门那一节](#可选用-github-copilot-订阅跑-claude-code--codex)。 |
 | 在小上下文模型上跑长会话 | 历史超过模型上下文窗口时，网关会自动对话的中间段做总结（系统消息和最近几轮原样保留）——一个 128K 窗口的模型也能撑过 300K+ token 的会话。 |
-| Codex Desktop 插件 + 第三方 API | 让 Codex Desktop 保持在它的官方 OpenAI 认证 Provider 路径上，插件和账号能力不受影响，模型请求照样经过 AgentGate。 |
+| Codex Desktop 插件 + 第三方 API | 让 Codex Desktop 保持在它的官方 OpenAI 认证 Provider 路径上，插件和账号能力不受影响，模型请求照样经过 MuxLayer。 |
 | Claude Code 用 DeepSeek / MiMo | 走 Anthropic 兼容 pass-through，加上针对 DeepSeek 和 MiMo endpoint 的 Model Mapping。 |
 | Codex 在多个 Provider 之间切换 | 一个本地 endpoint，让 Codex 在 DeepSeek、MiMo、OpenAI、Kimi、GLM、DashScope 等 Provider 之间切换，不需要手改配置文件。 |
 
@@ -112,16 +112,16 @@ AgentGate 的事就一句话：**让官方客户端的入口在本地可控**—
 
 ## 可选：用 GitHub Copilot 订阅跑 Claude Code / Codex
 
-如果你有 Copilot 订阅（Pro / Business），Claude Code 可以跑在它包含的 Claude 模型上——**不需要单独的 Anthropic API 计费**。AgentGate 干三件事：
+如果你有 Copilot 订阅（Pro / Business），Claude Code 可以跑在它包含的 Claude 模型上——**不需要单独的 Anthropic API 计费**。MuxLayer 干三件事：
 
 1. **凭据交换**：你提供一个 GitHub OAuth token（`gho_...`）；网关自动换出并续期 Copilot API 凭据（按哈希缓存，绝不存明文）。
-2. **Premium request 优化**：大多数 agent 工作流请求其实是工具结果续聊和历史压缩——AgentGate 给这些请求打上 `x-initiator: agent` 标签，所以 **只有你真正发出去的消息才消耗 premium request**。一条指令加 10 轮工具往返，只算 1 次。
+2. **Premium request 优化**：大多数 agent 工作流请求其实是工具结果续聊和历史压缩——MuxLayer 给这些请求打上 `x-initiator: agent` 标签，所以 **只有你真正发出去的消息才消耗 premium request**。一条指令加 10 轮工具往返，只算 1 次。
 3. **模型名归一化**：Claude Code 里的 `claude-sonnet-4-6` 会被改写成 Copilot endpoint 接受的 `claude-sonnet-4.6`——不用配映射。
 
 **步骤：**
 
 1. 拿一个 GitHub token：如果你已经登录 VS Code Copilot，从 `~/.config/github-copilot/apps.json` 读 `oauth_token`。
-2. AgentGate → **供应商** → 添加，类型选 **GitHub Copilot**，把 `gho_` token 当 API Key 粘贴（base URL 和模型会自动填）。
+2. MuxLayer → **供应商** → 添加，类型选 **GitHub Copilot**，把 `gho_` token 当 API Key 粘贴（base URL 和模型会自动填）。
 3. 在 **客户端** 页应用 Claude Code 配置，开始聊。**日志** 页会显示每条请求的 `x-initiator` 分类。
 
 > ⚠️ **风险告知**：在官方客户端之外使用 Copilot 订阅，在 GitHub 服务条款里属于灰色地带。类似的社区工具存在很久了也没看到大规模封禁，但 **账号风险不能完全排除——自己评估**，重要的公司账号别上。这个能力完全是 opt-in，你不添加 copilot 类型的 Provider，就跟你没关系。
@@ -134,7 +134,7 @@ AgentGate 的事就一句话：**让官方客户端的入口在本地可控**—
 | **原生 Pass-through** | 客户端协议和某个上游原生 endpoint 一致 | 请求的 `model` 原样保留，除非命中 Model Mapping；虚拟模型 `agentgate` 会解析成路由选中的那个模型 | OpenCode / curl → Chat Completions |
 | **Pass-through + Model Mapping** | 协议一致，但客户端模型名和上游不一样 | Model Mapping 改写 `model` | Claude Code 的 `claude-*` → DeepSeek / MiMo 模型 |
 
-经验法则：**协议匹不匹决定走 pass-through 还是转换；Model Mapping 只负责改名。** 对一键客户端集成来说，`agentgate` 是个虚拟模型名，意思是"这一条请求让 AgentGate 自己挑 Provider 的模型"。
+经验法则：**协议匹不匹决定走 pass-through 还是转换；Model Mapping 只负责改名。** 对一键客户端集成来说，`agentgate` 是个虚拟模型名，意思是"这一条请求让 MuxLayer 自己挑 Provider 的模型"。
 
 ## 功能
 
@@ -191,7 +191,7 @@ AgentGate 的事就一句话：**让官方客户端的入口在本地可控**—
   - **聚合**：OpenRouter
   - **自定义**：任何 OpenAI 兼容的 endpoint（vLLM / Ollama / LiteLLM / 本地代理）
 - MiMo 一等公民支持：5 个 chat 模型（`mimo-v2.5-pro` / `mimo-v2-pro` / `mimo-v2.5` / `mimo-v2-omni` / `mimo-v2-flash`）、多轮 `reasoning_content` 往返、`sk-*` / `tp-*` Key 自动路由到 Open API 或 Token Plan host、按区域的 Token Plan URL（`cn` / `sgp` / `ams`）、付费插件不可用时自动降级 `web_search`
-- Claude Code 经 MiMo / DeepSeek 的 pass-through 默认用普通 Provider 模型 ID；AgentGate 不再自动配置 `[1m]` 后缀的模型。
+- Claude Code 经 MiMo / DeepSeek 的 pass-through 默认用普通 Provider 模型 ID；MuxLayer 不再自动配置 `[1m]` 后缀的模型。
 - Route Profile 支持多 Provider 优先级链，按协议自动匹配
 - 手动切换或自动 故障转移
 - Provider 冷却和运行状态追踪
@@ -202,12 +202,12 @@ AgentGate 的事就一句话：**让官方客户端的入口在本地可控**—
 - 连接稳定性：HTTP 客户端调优过 `pool_idle_timeout` 和 `tcp_keepalive`，应用层对瞬时连接 / 超时错误有重试（避免一段时间不用之后陈旧的 keep-alive 失败）
 
 **客户端配置**
-- Codex：一键配置 + 在官方和 AgentGate 之间切换（会话保留）
+- Codex：一键配置 + 在官方和 MuxLayer 之间切换（会话保留）
 - Codex Desktop 兼容：把模型请求路由到第三方 API，同时保留官方 OpenAI Provider 路径、登录账号状态、插件和账号能力
-- Claude Code：一键配置 + 在官方和 AgentGate 之间切换
+- Claude Code：一键配置 + 在官方和 MuxLayer 之间切换
 - OpenCode：一键配置
-- Claude Desktop（macOS / Windows）：把它的第三方推理网关指向 AgentGate；一键应用，带历史回滚
-- 全局指令文件：在 AgentGate 内编辑 `~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md`，按用途分组的 6 个内建模板（general / coding / review / debug / security / docs）；覆盖或追加，自动快照，一键回滚，JSON 备份 / 恢复
+- Claude Desktop（macOS / Windows）：把它的第三方推理网关指向 MuxLayer；一键应用，带历史回滚
+- 全局指令文件：在 MuxLayer 内编辑 `~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md`，按用途分组的 6 个内建模板（general / coding / review / debug / security / docs）；覆盖或追加，自动快照，一键回滚，JSON 备份 / 恢复
 - MCP 服务器：一个面板搞定 Codex 和 Claude Code 的 MCP 服务器配置的读、加、改、删、同步；env 值在列表里不显示；JSON 导入 / 导出默认不带 Key
 - 本地 **技能**：列出、启用 / 禁用、删除 `~/.claude/skills` 和 `~/.codex/skills` 下的技能；从本地 `.zip` 安装（防 zip-slip，不联网下载），JSON 备份 / 恢复
 - 本地网关 access token（`ag_local_*`）认证
@@ -297,19 +297,19 @@ AgentGate 的事就一句话：**让官方客户端的入口在本地可控**—
 如果被 macOS Gatekeeper 拦了，三种方法任选其一：
 
 **方法 1：系统设置（推荐）**
-1. 双击 AgentGate，在提示框上点 **取消**
+1. 双击 MuxLayer，在提示框上点 **取消**
 2. 打开 **系统设置 → 隐私与安全性**
-3. 往下滚，找到 `"AgentGate" 已被阻止` → 点 **仍要打开**
-4. 再打开 AgentGate，点 **打开**
+3. 往下滚，找到 `"MuxLayer" 已被阻止` → 点 **仍要打开**
+4. 再打开 MuxLayer，点 **打开**
 
 **方法 2：右键打开**
-1. 在访达里找到 AgentGate.app
+1. 在访达里找到 MuxLayer.app
 2. 按住 **Control** 点击（或右键）→ 选 **打开**
 3. 在提示框上点 **打开**
 
 **方法 3：终端**
 ```bash
-xattr -d com.apple.quarantine /Applications/AgentGate.app
+xattr -d com.apple.quarantine /Applications/MuxLayer.app
 ```
 
 > 只需要做一次。
@@ -324,9 +324,9 @@ xattr -d com.apple.quarantine /Applications/AgentGate.app
 1. **浏览器（Edge/Chrome）：**「通常不会下载」→ 点 ⋯ → **保留** / **仍要保留**。
 2. **SmartScreen：**「Windows 已保护你的电脑」→ **更多信息** → **仍要运行**。
 
-**为什么未签名？** 商用 Windows 代码签名证书需要付费；不存在像 Let’s Encrypt 那样免费且被系统默认信任的代码签名（Let’s Encrypt 只覆盖网站 HTTPS，不能签安装包）。AgentGate 目前选择未签名发布，并在文档中说明如何通过上述提示。
+**为什么未签名？** 商用 Windows 代码签名证书需要付费；不存在像 Let’s Encrypt 那样免费且被系统默认信任的代码签名（Let’s Encrypt 只覆盖网站 HTTPS，不能签安装包）。MuxLayer 目前选择未签名发布，并在文档中说明如何通过上述提示。
 
-请只从 [官方 GitHub Releases](https://github.com/dengmengmian/agentgate-ai/releases) 下载。这是签名/信誉拦截，不是已确认的病毒结论。同一台机器通常只需确认一次。
+请只从 [官方 GitHub Releases](https://github.com/dengmengmian/muxlayer/releases) 下载。这是签名/信誉拦截，不是已确认的病毒结论。同一台机器通常只需确认一次。
 
 </details>
 
@@ -359,7 +359,7 @@ pnpm tauri build
 
 ## 无界面 / 服务端模式
 
-无 GUI 运行 AgentGate——服务器、CI、Docker、团队部署都能用。
+无 GUI 运行 MuxLayer——服务器、CI、Docker、团队部署都能用。
 
 ```bash
 # 添加 Provider
@@ -386,7 +386,7 @@ docker build -t agentgate . && docker run -p 9090:9090 \
   -e AGENTGATE_PROVIDER=deepseek -e AGENTGATE_API_KEY=sk-xxx agentgate
 ```
 
-**环境变量：**`AGENTGATE_HOST`、`AGENTGATE_PORT`、`AGENTGATE_DB_PATH`、`AGENTGATE_PROVIDER`、`AGENTGATE_API_KEY`。
+**环境变量：**优先使用 `MUXLAYER_DB_PATH`、`MUXLAYER_TOKEN`。`AGENTGATE_DB_PATH`、`AGENTGATE_TOKEN` 仍是兼容别名；迁移周期内其余已有 `AGENTGATE_*` 服务变量继续有效。新的无界面安装使用 `~/.muxlayer`；如果已有 `~/.agentgate` 数据库或 token，会自动接管。
 
 ## 使用指南
 
@@ -397,12 +397,12 @@ docker build -t agentgate . && docker run -p 9090:9090 \
 
 ### 1. 添加 Provider
 
-打开 AgentGate → **供应商** → **添加 Provider**
+打开 MuxLayer → **供应商** → **添加 Provider**
 
 **快通道（推荐）—— 粘贴 API Key：**
 
 1. 把 Provider 的 API Key 粘进最上面的输入框
-2. AgentGate 识别已知的 Key 前缀（`sk-ant-` / `deepseek-` / `gsk_` / ……）。前缀模糊的话，手动选一下 Provider 类型
+2. MuxLayer 识别已知的 Key 前缀（`sk-ant-` / `deepseek-` / `gsk_` / ……）。前缀模糊的话，手动选一下 Provider 类型
 3. 点 **创建**——名字、base URL、协议、默认 / 推理模型、能力都自动填好。结束。
 
 **手动模式 —— 3 段，只有第一段必填：**
@@ -413,7 +413,7 @@ docker build -t agentgate . && docker run -p 9090:9090 \
 | **模型 & 能力** | 默认模型 · 推理模型 · `拉取并探测` 按钮 · 能力矩阵开关 | 新建 Provider 时这一段 **会在后台自动跑**——不点任何按钮就能拿到最新的非 mini 模型当默认 + 最新推理模型 + 按模型能力矩阵 |
 | **高级**（折叠，"一般不用碰"） | 协议和它们的 endpoint（Chat / Responses / Anthropic）· 额外 Header · 超时 · 自动 cache control · Model Mapping | 勾哪个协议就显示哪个 URL——一眼能看出"这个上游原生支持哪几个 endpoint" |
 
-**Model Mapping** 摆在 **高级** 最下面是有原因的：一般不需要。AgentGate 在你创建 Provider、拉模型、测试 Provider、应用 Codex / Claude Code 配置时，会自动填上推荐的 MiMo / DeepSeek 映射，已有的映射会保留。原生 pass-through 默认不改 `model`，除非命中映射或客户端发的是虚拟模型 `agentgate`；协议转换会优先用映射，再退回到 `default_model` 做兼容，覆盖 Codex、Claude Code、Gemini CLI 这些客户端。
+**Model Mapping** 摆在 **高级** 最下面是有原因的：一般不需要。MuxLayer 在你创建 Provider、拉模型、测试 Provider、应用 Codex / Claude Code 配置时，会自动填上推荐的 MiMo / DeepSeek 映射，已有的映射会保留。原生 pass-through 默认不改 `model`，除非命中映射或客户端发的是虚拟模型 `agentgate`；协议转换会优先用映射，再退回到 `default_model` 做兼容，覆盖 Codex、Claude Code、Gemini CLI 这些客户端。
 
 **Provider 配置示例：**
 
@@ -533,10 +533,10 @@ docker build -t agentgate . && docker run -p 9090:9090 \
 
 **客户端** → **Codex** → **应用配置**
 
-AgentGate 会自动：
+MuxLayer 会自动：
 
 - 保存原来的 `~/.codex/config.toml` 和 `auth.json`
-- 写入 AgentGate 的 Provider 配置和本地 token
+- 写入 MuxLayer 的 Provider 配置和本地 token
 
 任何时候点 **切换到官方** 都能恢复原配置——会话不会丢。
 
@@ -544,7 +544,7 @@ AgentGate 会自动：
 
 **客户端** → **Claude Code** → **应用配置**
 
-AgentGate 会写 `~/.claude/settings.json`，把 `ANTHROPIC_BASE_URL` 指向本地网关，`ANTHROPIC_API_KEY` 设成 AgentGate 的本地 token。
+MuxLayer 会写 `~/.claude/settings.json`，把 `ANTHROPIC_BASE_URL` 指向本地网关，`ANTHROPIC_API_KEY` 设成 MuxLayer 的本地 token。
 
 点 **切换到官方** 恢复原 settings.json。
 
@@ -552,19 +552,19 @@ AgentGate 会写 `~/.claude/settings.json`，把 `ANTHROPIC_BASE_URL` 指向本�
 
 **客户端** → **OpenCode** → **应用配置**
 
-AgentGate 写 `~/.config/opencode/opencode.json`，配一个指向本地网关的 OpenAI 兼容 Provider。模型用 `openai/agentgate` 这个虚拟名，这样以后在 AgentGate 里换 Provider，不需要再改 OpenCode。
+MuxLayer 写 `~/.config/opencode/opencode.json`，配一个指向本地网关的 OpenAI 兼容 Provider。模型用 `openai/agentgate` 这个虚拟名，这样以后在 MuxLayer 里换 Provider，不需要再改 OpenCode。
 
 ### 6. 配置 Gemini CLI
 
 **客户端** → **Gemini CLI** → **应用配置**
 
-AgentGate 把 Gemini CLI 的配置写成指向本地网关的 `/v1beta/...` 路由（Gemini 兼容）。一键切回官方。
+MuxLayer 把 Gemini CLI 的配置写成指向本地网关的 `/v1beta/...` 路由（Gemini 兼容）。一键切回官方。
 
 ### 7. 配置 AtomCode
 
 **客户端** → **AtomCode** → **应用配置**
 
-AtomCode 集成写它的配置文件，把 AgentGate 当成上游——切换模式跟其他客户端一样。模型用 `agentgate` 这个虚拟名，让网关在请求时再解析成 DeepSeek / MiMo / 其他 Provider 的模型。
+AtomCode 集成写它的配置文件，把 MuxLayer 当成上游——切换模式跟其他客户端一样。模型用 `agentgate` 这个虚拟名，让网关在请求时再解析成 DeepSeek / MiMo / 其他 Provider 的模型。
 
 ### 8. 直接调 API
 
@@ -572,10 +572,10 @@ AtomCode 集成写它的配置文件，把 AgentGate 当成上游——切换模
 
 **怎么拿 token：**
 
-- **从 UI 复制**：AgentGate → **设置** → **网关认证** → 点 token 旁边的复制按钮
+- **从 UI 复制**：MuxLayer → **设置** → **网关认证** → 点 token 旁边的复制按钮
 - **终端读**：
   ```bash
-  TOKEN=$(cat ~/.agentgate/token)
+  TOKEN=$(cat ~/.muxlayer/token 2>/dev/null || cat ~/.agentgate/token)
   ```
 - **重新生成**：**设置** → **重新生成 Token**（旧 token 立刻失效）
 
@@ -628,7 +628,7 @@ curl http://127.0.0.1:9090/health
 curl http://127.0.0.1:9090/health
 ```
 
-- 连不上：回 AgentGate **概览 / 网关 / 客户端**，点 **启动网关**。
+- 连不上：回 MuxLayer **概览 / 网关 / 客户端**，点 **启动网关**。
 - health 通的话：用 **客户端** 页的连接测试做收敛：配置 → 网关 → Provider。
 - `http://localhost:1420` 只是开发用的 UI；Codex / Claude Code / OpenCode / Gemini CLI / AtomCode 调的是 `http://127.0.0.1:9090`。
 
@@ -643,7 +643,7 @@ curl http://127.0.0.1:9090/health
 
 ### 10. 能力感知路由（多模态 & 推理）
 
-AgentGate **按模型** 追踪 8 个维度的能力，并用它做路由——请求里有图 / 音频 / 工具时，网关挑一个真正支持的模型。
+MuxLayer **按模型** 追踪 8 个维度的能力，并用它做路由——请求里有图 / 音频 / 工具时，网关挑一个真正支持的模型。
 
 **按模型的能力矩阵：**
 
@@ -682,7 +682,7 @@ Codex 发了一条带图请求
 
 - **运行自检** —— 检查网关、Provider、配置、数据库状态
 - **导出诊断包** —— 生成脱敏后的诊断报告，用于排查
-- 请求日志的 `trace_json` 里会带 `degradation_events`，当 AgentGate 剥掉某些不支持的能力时，比如图片、原生 web search、MCP 连接、工具输出图片
+- 请求日志的 `trace_json` 里会带 `degradation_events`，当 MuxLayer 剥掉某些不支持的能力时，比如图片、原生 web search、MCP 连接、工具输出图片
 
 </details>
 
@@ -731,11 +731,11 @@ Codex 发了一条带图请求
 
 ### 数据流
 
-AgentGate 把协议处理和模型命名分开。常见请求有三种模式：
+MuxLayer 把协议处理和模型命名分开。常见请求有三种模式：
 
 > **怎么判断？** 先看客户端协议跟某个 Provider 的原生 endpoint 是不是匹配。匹配的话，请求不做协议转换直接转发。模型名是另一码事：哪怕协议匹配，命中 Model Mapping 也能改写 `model`。
 
-| 客户端 | 发送 | 下游 Provider | AgentGate 模式 | 触发条件 |
+| 客户端 | 发送 | 下游 Provider | MuxLayer 模式 | 触发条件 |
 |---|---|---|---|---|
 | Codex | Responses API | Chat Completions | 协议转换 | 默认（没特殊 URL） |
 | Codex | Responses API | Claude Messages API | 协议转换 | `provider_type` 是 `anthropic` |
@@ -747,7 +747,7 @@ AgentGate 把协议处理和模型命名分开。常见请求有三种模式：
 
 ### 协议转换
 
-客户端协议跟下游 Provider 不一样时，AgentGate 会转换格式。这是最复杂的那条路径，包含 vision 感知路由和 Provider 专属处理。
+客户端协议跟下游 Provider 不一样时，MuxLayer 会转换格式。这是最复杂的那条路径，包含 vision 感知路由和 Provider 专属处理。
 
 ```
 ┌──────────────────┐    ┌──────────────────┐
@@ -757,7 +757,7 @@ AgentGate 把协议处理和模型命名分开。常见请求有三种模式：
          │                       │
          ▼                       ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    AgentGate (127.0.0.1:9090)                           │
+│                    MuxLayer (127.0.0.1:9090)                           │
 │                                                                         │
 │  ① 鉴权：校验本地 token（ag_local_*）                                   │
 │                         ▼                                               │
@@ -796,7 +796,7 @@ AgentGate 把协议处理和模型命名分开。常见请求有三种模式：
 
 ### 原生 Pass-through
 
-客户端协议跟下游 Provider 一致时，AgentGate 不转换请求格式，只替换 URL 和凭据。模型处理只有一条规则：Model Mapping 优先，否则保留请求里的模型。如果请求里的模型是 `agentgate` 或 `openai/agentgate`，AgentGate 解析成这次路由选中的模型。客户端没传 `model`，就用 Provider 默认值。
+客户端协议跟下游 Provider 一致时，MuxLayer 不转换请求格式，只替换 URL 和凭据。模型处理只有一条规则：Model Mapping 优先，否则保留请求里的模型。如果请求里的模型是 `agentgate` 或 `openai/agentgate`，MuxLayer 解析成这次路由选中的模型。客户端没传 `model`，就用 Provider 默认值。
 
 ```
 ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
@@ -806,7 +806,7 @@ AgentGate 把协议处理和模型命名分开。常见请求有三种模式：
          │                     │                      │
          ▼                     ▼                      ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    AgentGate (127.0.0.1:9090)                           │
+│                    MuxLayer (127.0.0.1:9090)                           │
 │                                                                         │
 │  ① 鉴权：校验本地 token（ag_local_*）                                   │
 │                         ▼                                               │
@@ -892,7 +892,7 @@ Claude Code 发 Messages API 请求
 ## 项目结构
 
 ```
-AgentGate/
+MuxLayer/
 ├── provider-catalog/             # Provider/模型的源信息，用于生成默认值
 ├── src/                          # 前端（React）
 │   ├── app/App.tsx               # App 入口
@@ -929,14 +929,14 @@ AgentGate/
 
 ## 常见问题
 
-**我的 API Key 安全吗？AgentGate 会回传数据吗？**
-Key 只存在你机器上的本地 SQLite 文件里，绝不发给客户端，也不发给任何 AgentGate 服务器——AgentGate 根本没有后端。你的 Key 只会发给你自己配的上游 Provider。桌面 app 绑在 `127.0.0.1`；只有无界面模式带 `--host 0.0.0.0` 才会暴露，并自带 Host / Origin 校验。
+**我的 API Key 安全吗？MuxLayer 会回传数据吗？**
+Key 只存在你机器上的本地 SQLite 文件里，绝不发给客户端，也不发给任何 MuxLayer 服务器——MuxLayer 根本没有后端。你的 Key 只会发给你自己配的上游 Provider。桌面 app 绑在 `127.0.0.1`；只有无界面模式带 `--host 0.0.0.0` 才会暴露，并自带 Host / Origin 校验。
 
 **用 Copilot 订阅跑 Claude Code 会不会被封号？**
 在 GitHub 服务条款里是灰色地带：类似的社区工具存在很久了也没看到大规模封禁，但风险不能完全排除——看 [风险告知](#可选用-github-copilot-订阅跑-claude-code--codex)。你不添加 copilot 类型的 Provider，就跟你没关系。
 
 **会不会搞坏我的 Codex / ChatGPT 登录或 Codex Desktop 插件？**
-不会。AgentGate 让 Codex 留在官方的 OpenAI 认证 Provider 路径上，你的登录账号、插件、Browser / Computer-Use / Mobile 和配额查询都正常，模型请求路由到第三方。**切换到官方** 任何时候都能还原原配置——会话不会丢。
+不会。MuxLayer 让 Codex 留在官方的 OpenAI 认证 Provider 路径上，你的登录账号、插件、Browser / Computer-Use / Mobile 和配额查询都正常，模型请求路由到第三方。**切换到官方** 任何时候都能还原原配置——会话不会丢。
 
 **能在离线 / 服务器上无 GUI 运行吗？**
 能。无界面模式（`agentgate-serve`）和 Docker 都能跑——看 [无界面 / 服务端模式](#无界面--服务端模式)。
@@ -992,17 +992,17 @@ pnpm provider:catalog:generate
 
 ## 社区 & 支持
 
-- 🐛 **发现 bug 或想要新功能？** 开 [Issue](https://github.com/dengmengmian/agentgate-ai/issues)——报网关问题时附上脱敏的诊断包（**诊断** → 导出）。
-- 💡 **问题和想法**：[Discussions](https://github.com/dengmengmian/agentgate-ai/discussions) 用来聊配置帮助、Provider 请求、工作流点子、成功故事。
+- 🐛 **发现 bug 或想要新功能？** 开 [Issue](https://github.com/dengmengmian/muxlayer/issues)——报网关问题时附上脱敏的诊断包（**诊断** → 导出）。
+- 💡 **问题和想法**：[Discussions](https://github.com/dengmengmian/muxlayer/discussions) 用来聊配置帮助、Provider 请求、工作流点子、成功故事。
 - 🧩 **想贡献代码？** 从 [CONTRIBUTING.md](../CONTRIBUTING.md)、[PR 模板](../.github/pull_request_template.md) 和打 `good first issue` 标签的 issue 开始。
-- ⭐ **如果 AgentGate 帮你省了钱或时间，给个 star 能帮别人发现它** ——也能帮我们排接下来要做什么。
+- ⭐ **如果 MuxLayer 帮你省了钱或时间，给个 star 能帮别人发现它** ——也能帮我们排接下来要做什么。
 
 三个支柱——智能路由、自愈、成本看板——已经上了。下一步做什么，由 Issue 和 Discussion 推动，所以告诉我们你需要什么。
 
 ## Star 历史
 
-<a href="https://star-history.com/#dengmengmian/agentgate-ai&Date">
-  <img src="https://api.star-history.com/svg?repos=dengmengmian/agentgate-ai&type=Date" alt="Star History Chart" width="600">
+<a href="https://star-history.com/#dengmengmian/muxlayer&Date">
+  <img src="https://api.star-history.com/svg?repos=dengmengmian/muxlayer&type=Date" alt="Star History Chart" width="600">
 </a>
 
 ## 许可证

@@ -15,7 +15,7 @@ use super::GatewayState;
 pub async fn health() -> Json<Value> {
     Json(json!({
         "status": "ok",
-        "app": "AgentGate",
+        "app": "MuxLayer",
         "gateway": "running",
         "version": env!("CARGO_PKG_VERSION")
     }))

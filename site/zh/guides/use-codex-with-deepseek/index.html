@@ -3,32 +3,32 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>用 AgentGate 让 Codex 使用 DeepSeek | AgentGate</title>
-    <meta name="description" content="手把手教程：在 AgentGate 添加 DeepSeek，把 Codex 的 Responses API 请求在本地路由到 DeepSeek，含模型映射、故障转移、请求日志、成本统计和故障排查。" />
-    <meta name="keywords" content="Codex DeepSeek, Codex 使用 DeepSeek, Codex 本地网关, OpenAI Responses API 代理, AgentGate" />
+    <title>用 MuxLayer 让 Codex 使用 DeepSeek | MuxLayer</title>
+    <meta name="description" content="手把手教程：在 MuxLayer 添加 DeepSeek，把 Codex 的 Responses API 请求在本地路由到 DeepSeek，含模型映射、故障转移、请求日志、成本统计和故障排查。" />
+    <meta name="keywords" content="Codex DeepSeek, Codex 使用 DeepSeek, Codex 本地网关, OpenAI Responses API 代理, MuxLayer" />
     <meta name="author" content="dengmengmian" />
-    <link rel="canonical" href="https://dengmengmian.github.io/agentgate-ai/zh/guides/use-codex-with-deepseek/" />
-    <link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/agentgate-ai/guides/use-codex-with-deepseek/" />
-    <link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/agentgate-ai/zh/guides/use-codex-with-deepseek/" />
-    <link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/agentgate-ai/guides/use-codex-with-deepseek/" />
+    <link rel="canonical" href="https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-deepseek/" />
+    <link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-codex-with-deepseek/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-deepseek/" />
+    <link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/muxlayer/guides/use-codex-with-deepseek/" />
     <meta property="og:type" content="article" />
-    <meta property="og:site_name" content="AgentGate" />
-    <meta property="og:url" content="https://dengmengmian.github.io/agentgate-ai/zh/guides/use-codex-with-deepseek/" />
-    <meta property="og:title" content="用 AgentGate 让 Codex 使用 DeepSeek" />
-    <meta property="og:description" content="手把手教程：在 AgentGate 添加 DeepSeek，把 Codex 的 Responses API 请求在本地路由到 DeepSeek，含模型映射、故障转移、请求日志、成本统计和故障排查。" />
-    <meta property="og:image" content="https://dengmengmian.github.io/agentgate-ai/assets/demo-header.gif" />
+    <meta property="og:site_name" content="MuxLayer" />
+    <meta property="og:url" content="https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-deepseek/" />
+    <meta property="og:title" content="用 MuxLayer 让 Codex 使用 DeepSeek" />
+    <meta property="og:description" content="手把手教程：在 MuxLayer 添加 DeepSeek，把 Codex 的 Responses API 请求在本地路由到 DeepSeek，含模型映射、故障转移、请求日志、成本统计和故障排查。" />
+    <meta property="og:image" content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="用 AgentGate 让 Codex 使用 DeepSeek" />
-    <meta name="twitter:description" content="手把手教程：在 AgentGate 添加 DeepSeek，把 Codex 的 Responses API 请求在本地路由到 DeepSeek，含模型映射、故障转移、请求日志、成本统计和故障排查。" />
-    <meta name="twitter:image" content="https://dengmengmian.github.io/agentgate-ai/assets/demo-header.gif" />
+    <meta name="twitter:title" content="用 MuxLayer 让 Codex 使用 DeepSeek" />
+    <meta name="twitter:description" content="手把手教程：在 MuxLayer 添加 DeepSeek，把 Codex 的 Responses API 请求在本地路由到 DeepSeek，含模型映射、故障转移、请求日志、成本统计和故障排查。" />
+    <meta name="twitter:image" content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif" />
     <link rel="icon" type="image/svg+xml" href="../../../assets/logo.svg?v=2" />
     <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/favicon-32.png" />
     <link rel="apple-touch-icon" href="../../../assets/apple-touch-icon.png" />
     <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "用 AgentGate 让 Codex 使用 DeepSeek",
-  "description": "手把手教程：在 AgentGate 添加 DeepSeek，把 Codex 的 Responses API 请求在本地路由到 DeepSeek，含模型映射、故障转移、请求日志、成本统计和故障排查。",
+  "headline": "用 MuxLayer 让 Codex 使用 DeepSeek",
+  "description": "手把手教程：在 MuxLayer 添加 DeepSeek，把 Codex 的 Responses API 请求在本地路由到 DeepSeek，含模型映射、故障转移、请求日志、成本统计和故障排查。",
   "datePublished": "2026-06-13",
   "dateModified": "2026-06-13",
   "author": {
@@ -38,11 +38,11 @@
   },
   "publisher": {
     "@type": "Organization",
-    "name": "AgentGate",
-    "url": "https://dengmengmian.github.io/agentgate-ai",
-    "logo": "https://dengmengmian.github.io/agentgate-ai/assets/logo.svg"
+    "name": "MuxLayer",
+    "url": "https://dengmengmian.github.io/muxlayer",
+    "logo": "https://dengmengmian.github.io/muxlayer/assets/logo.svg"
   },
-  "mainEntityOfPage": "https://dengmengmian.github.io/agentgate-ai/zh/guides/use-codex-with-deepseek/"
+  "mainEntityOfPage": "https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-deepseek/"
 }</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -55,11 +55,11 @@
       <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4 text-sm">
         <a href="../../" class="flex items-center gap-2 text-ink">
           <span class="text-amber">▲</span>
-          <span class="font-medium">agentgate</span>
+          <span class="font-medium">muxlayer</span>
         </a>
         <nav class="flex items-center gap-5 text-ink-soft">
-          <a href="https://github.com/dengmengmian/agentgate-ai/releases/latest" class="hover:text-ink">下载 <span class="text-faint">↗</span></a>
-          <a href="https://github.com/dengmengmian/agentgate-ai" class="hover:text-ink">github <span class="text-faint">↗</span></a>
+          <a href="https://github.com/dengmengmian/muxlayer/releases/latest" class="hover:text-ink">下载 <span class="text-faint">↗</span></a>
+          <a href="https://github.com/dengmengmian/muxlayer" class="hover:text-ink">github <span class="text-faint">↗</span></a>
           <span class="text-faint">·</span>
           <a href="../../../guides/use-codex-with-deepseek/" class="hover:text-ink">English</a>
         </nav>
@@ -70,16 +70,16 @@
       <section class="relative overflow-hidden border-b border-border-soft">
         <div class="absolute inset-0 grid-bg opacity-50"></div>
         <div class="relative mx-auto max-w-4xl px-6 pt-20 pb-16">
-          <div class="prompt text-sm text-ink-soft">agentgate guides/use-codex-with-deepseek</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer guides/use-codex-with-deepseek</div>
           <p class="mt-6 text-xs uppercase tracking-wider text-amber">Codex + DeepSeek</p>
-          <h1 class="zh h-display mt-5 text-ink">用 AgentGate 让 Codex 使用 DeepSeek</h1>
-          <p class="zh mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">AgentGate 把 Codex 原本发往官方 Responses API 的入口，变成你本地可控的模型入口。Codex 继续发 Responses API 请求，AgentGate 在本地决定转换协议或直连 DeepSeek，附带模型映射、故障转移、请求日志和成本统计。</p>
+          <h1 class="zh h-display mt-5 text-ink">用 MuxLayer 让 Codex 使用 DeepSeek</h1>
+          <p class="zh mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">MuxLayer 把 Codex 原本发往官方 Responses API 的入口，变成你本地可控的模型入口。Codex 继续发 Responses API 请求，MuxLayer 在本地决定转换协议或直连 DeepSeek，附带模型映射、故障转移、请求日志和成本统计。</p>
           <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-            <a href="https://github.com/dengmengmian/agentgate-ai/releases/latest" class="inline-flex items-center gap-2 rounded border border-amber bg-amber/10 px-4 py-2 font-medium text-amber transition-colors hover:bg-amber hover:text-bg">
+            <a href="https://github.com/dengmengmian/muxlayer/releases/latest" class="inline-flex items-center gap-2 rounded border border-amber bg-amber/10 px-4 py-2 font-medium text-amber transition-colors hover:bg-amber hover:text-bg">
               <span>▸</span>
-              <span>下载 AgentGate</span>
+              <span>下载 MuxLayer</span>
             </a>
-            <a href="https://github.com/dengmengmian/agentgate-ai" class="hover-prompt text-ink-soft hover:text-ink">dengmengmian/agentgate-ai <span class="text-faint">↗</span></a>
+            <a href="https://github.com/dengmengmian/muxlayer" class="hover-prompt text-ink-soft hover:text-ink">dengmengmian/muxlayer <span class="text-faint">↗</span></a>
           </div>
         </div>
       </section>
@@ -92,25 +92,25 @@
 <ul>
 <li>让 Codex 调用 DeepSeek 模型，同时保留一键回退到官方配置的能力。</li>
 <li>让 Codex 的 OpenAI Responses API 请求被转换成 DeepSeek 兼容的 Chat Completions，或 Anthropic 兼容 endpoint。</li>
-<li>在官方 Codex 配置和 AgentGate 配置之间一键切换。</li>
+<li>在官方 Codex 配置和 MuxLayer 配置之间一键切换。</li>
 <li>用一个本地网关，以后随时把 Codex 从 DeepSeek 切到 MiMo、OpenAI、Kimi、GLM、DashScope 或其他 Provider。</li>
 </ul>
 <h2>快速配置</h2>
 <ol>
-<li>从 <a href="https://github.com/dengmengmian/agentgate-ai/releases">Releases</a> 下载 AgentGate 并打开应用。</li>
+<li>从 <a href="https://github.com/dengmengmian/muxlayer/releases">Releases</a> 下载 MuxLayer 并打开应用。</li>
 <li>进入 <strong>快速配置</strong> 或 <strong>供应商</strong>。</li>
 <li>添加 DeepSeek Provider，粘贴你的 DeepSeek API Key。</li>
 <li>在 <strong>概览</strong> 或 <strong>网关</strong> 启动网关。默认客户端端点是 <code>http://127.0.0.1:9090</code>。</li>
 <li>打开 <strong>客户端</strong>，在 Codex 卡片上点 <strong>应用配置</strong>。</li>
 <li>在 Codex 里发一条测试消息。</li>
 </ol>
-<p>AgentGate 保留了原 Codex 配置的可恢复状态，你可以随时从 Codex 卡片切回官方。</p>
-<h2>AgentGate 配置了什么</h2>
+<p>MuxLayer 保留了原 Codex 配置的可恢复状态，你可以随时从 Codex 卡片切回官方。</p>
+<h2>MuxLayer 配置了什么</h2>
 <table>
 <thead>
 <tr>
 <th>Codex 侧</th>
-<th>AgentGate 侧</th>
+<th>MuxLayer 侧</th>
 <th>DeepSeek 侧</th>
 </tr>
 </thead>
@@ -131,11 +131,37 @@
 </tr>
 </tbody></table>
 <h2>工作原理</h2>
-<p>AgentGate 的作用，是把 Codex 原本发往官方的 Responses API 入口变成本地模型入口，再由本地决定转换或直连到 DeepSeek。</p>
+<p>MuxLayer 的作用，是把 Codex 原本发往官方的 Responses API 入口变成本地模型入口，再由本地决定转换或直连到 DeepSeek。</p>
 <p>常见路径是：</p>
-<pre><code class="language-text">Codex -&gt; http://127.0.0.1:9090/v1/responses -&gt; AgentGate -&gt; DeepSeek
+<pre><code class="language-text">Codex -&gt; http://127.0.0.1:9090/v1/responses -&gt; MuxLayer -&gt; DeepSeek
 </code></pre>
-<p>你不需要长期手改 Codex 配置文件，也不需要在 DeepSeek、MiMo、OpenAI 等 Provider 之间来回改模型名。AgentGate 会通过 Provider、Route Profile、Model Mapping 和 <code>agentgate</code> 虚拟模型处理这些差异。</p>
+<p>你不需要长期手改 Codex 配置文件，也不需要在 DeepSeek、MiMo、OpenAI 等 Provider 之间来回改模型名。MuxLayer 会通过 Provider、Route Profile、Model Mapping 和 <code>agentgate</code> 虚拟模型处理这些差异。</p>
+<h2>为什么默认不直连 DeepSeek 的 Responses API</h2>
+<p><code>deepseek-v4-flash</code> 已经正式支持 Responses API，理论上 Codex 可以不经转换直连。但实测下来，直连的实际效果反而明显更差，所以 MuxLayer 不为 DeepSeek 预置 Responses 端点，默认仍然把 Codex 的 Responses 请求转换成 Chat Completions。</p>
+<p>原因有四条，都可复现：</p>
+<p><strong>1. 工具会整批丢失，模型转而&quot;编造&quot;工具调用。</strong>
+Codex gpt-5.6+ 把工具定义放在请求 <code>input</code> 数组的 <code>additional_tools</code> 项里，而不是顶层 <code>tools</code>。DeepSeek 只读顶层 <code>tools</code>，直连时它一个工具都看不到。模型知道自己应该调用工具，却拿不到可用的工具定义，于是在正文里输出裸的 DSML 标记当作调用：</p>
+<pre><code class="language-text">&lt;|DSML|tool_calls&gt;
+&lt;|DSML|invoke name=&quot;exec_command&quot;&gt;
+&lt;|DSML|parameter name=&quot;cmd&quot; string=&quot;true&quot;&gt;cat README.md&lt;/|DSML|parameter&gt;
+</code></pre>
+<p>Codex 解析不了这种正文内容，表现就是模型&quot;开始胡说八道&quot;。</p>
+<p><strong>2. Codex 的 <code>exec</code> 工具会被上游直接拒绝。</strong>
+DeepSeek 的 Responses API 只接受一个自定义工具 <code>apply_patch</code>，其余一律返回 400：</p>
+<pre><code class="language-text">Unsupported custom tool: &#39;exec&#39;. Only &#39;apply_patch&#39; is supported.
+</code></pre>
+<p>Codex 必发 <code>exec</code>，因此即使工具没丢，直连也会被拒。</p>
+<p><strong>3. 跨轮思维链断掉，而且不报错。</strong>
+Codex 每轮都会带 <code>include: [&quot;reasoning.encrypted_content&quot;]</code>，用于把上一轮的推理链带回下一轮。DeepSeek 明确不支持 <code>include</code> 与 <code>encrypted_content</code>，且是<strong>静默忽略</strong>——不报错，只是每轮推理都从零开始。转换路径里 MuxLayer 会做 DeepSeek V4 thinking 历史回填来补偿，直连没有这层补偿。</p>
+<p><strong>4. 直连绕过全部 DeepSeek 专属处理。</strong>
+图片剥离并注入可解释提示、schema 清洗、消息重排、V4 thinking 历史 reasoning 回填，这些都发生在转换路径上。直连意味着全部放弃。</p>
+<h3>如果你仍然想直连</h3>
+<p>在 Provider 里手动填 Responses 端点即可，网关会尝试直连。为避免上述问题把请求打废，网关内置两道判定，命中任意一条就自动回落到协议转换：</p>
+<ul>
+<li>目标模型不在上游 Responses API 的支持列表内（DeepSeek 目前仅 <code>deepseek-v4-flash</code>）。</li>
+<li>请求里带了上游不接受的自定义工具（DeepSeek 仅接受 <code>apply_patch</code>）。</li>
+</ul>
+<p>也就是说，Codex 即使配了直连端点，实际仍会走转换路径。这是有意为之，不做进一步处理。</p>
 <h2>排查</h2>
 <table>
 <thead>
@@ -154,7 +180,7 @@
 </tr>
 <tr>
 <td>网关无法连接</td>
-<td>确认 AgentGate 网关在 <code>127.0.0.1:9090</code> 上运行；<code>1420</code> 只是开发用的 UI 端口。</td>
+<td>确认 MuxLayer 网关在 <code>127.0.0.1:9090</code> 上运行；<code>1420</code> 只是开发用的 UI 端口。</td>
 </tr>
 <tr>
 <td>想恢复官方 Codex</td>
@@ -163,10 +189,10 @@
 </tbody></table>
 <h2>相关教程</h2>
 <ul>
-<li><a href="https://dengmengmian.github.io/agentgate-ai/zh/guides/use-codex-desktop-with-third-party-api-and-plugins/">让 Codex Desktop 使用第三方 API 并保留插件能力</a></li>
-<li><a href="https://dengmengmian.github.io/agentgate-ai/zh/guides/use-codex-with-mimo/">让 Codex 使用小米 MiMo</a></li>
-<li><a href="https://github.com/dengmengmian/agentgate-ai">English README</a></li>
-<li><a href="https://github.com/dengmengmian/agentgate-ai/blob/main/README_ZH.md">中文 README</a></li>
+<li><a href="https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-desktop-with-third-party-api-and-plugins/">让 Codex Desktop 使用第三方 API 并保留插件能力</a></li>
+<li><a href="https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-mimo/">让 Codex 使用小米 MiMo</a></li>
+<li><a href="https://github.com/dengmengmian/muxlayer">English README</a></li>
+<li><a href="https://github.com/dengmengmian/muxlayer/blob/main/README_ZH.md">中文 README</a></li>
 </ul>
 
           </article>
@@ -175,7 +201,7 @@
 
       <section class="bg-bg-soft/40">
         <div class="mx-auto max-w-4xl px-6 py-16">
-          <div class="prompt text-sm text-ink-soft">agentgate --related</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer --related</div>
           <h2 class="zh mt-4 text-xl font-medium">继续看。</h2>
           <div class="mt-8 space-y-3 text-sm">
             <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../../guides/use-claude-code-with-deepseek/">Claude Code + DeepSeek <span class="text-faint">— 让 Claude Code 使用 DeepSeek</span></a>
@@ -195,7 +221,7 @@
           <span class="text-muted">MIT</span>
         </div>
         <nav class="flex items-center gap-5 text-ink-soft">
-          <a class="hover:text-ink" href="https://github.com/dengmengmian/agentgate-ai">dengmengmian/agentgate-ai</a>
+          <a class="hover:text-ink" href="https://github.com/dengmengmian/muxlayer">dengmengmian/muxlayer</a>
         </nav>
       </div>
     </footer>

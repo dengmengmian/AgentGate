@@ -10,17 +10,17 @@
 //   - i18n via document.documentElement.lang (en | zh).
 
 (function () {
-  const REPO = "dengmengmian/agentgate-ai";
-  const CACHE_KEY = "agentgate-release-cache-v1";
+  const REPO = "dengmengmian/muxlayer";
+  const CACHE_KEY = "muxlayer-release-cache-v1";
   const CACHE_TTL_MS = 60 * 60 * 1000;
 
   // Asset filename → platform. Build matcher list once.
   // Filenames look like:
-  //   AgentGate_1.4.1_aarch64.dmg
-  //   AgentGate_1.4.1_x64.dmg
-  //   AgentGate_1.4.1_x64-setup.exe
-  //   AgentGate_1.4.1_amd64.deb
-  //   AgentGate_1.4.1_amd64.AppImage
+  //   MuxLayer_2.0.0_aarch64.dmg
+  //   MuxLayer_2.0.0_x64.dmg
+  //   MuxLayer_2.0.0_x64-setup.exe
+  //   MuxLayer_2.0.0_amd64.deb
+  //   MuxLayer_2.0.0_amd64.AppImage
   const PLATFORMS = [
     { id: "mac-arm", match: /aarch64\.dmg$/i },
     { id: "mac-x86", match: /_x64\.dmg$/i },
@@ -212,7 +212,7 @@
       render(release, platformId);
     } catch (e) {
       // Leave HTML default rows in place. Log for debugging only.
-      console.warn("[agentgate] failed to load releases:", e);
+      console.warn("[muxlayer] failed to load releases:", e);
     }
   }
 

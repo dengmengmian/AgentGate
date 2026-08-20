@@ -283,8 +283,8 @@ jobs:
           fi
           VERSION="${GITHUB_REF_NAME#v}"
           TAG="${GITHUB_REF_NAME}"
-          ARM_NAME="AgentGate_${VERSION}_aarch64.dmg"
-          X64_NAME="AgentGate_${VERSION}_x64.dmg"
+          ARM_NAME="MuxLayer_${VERSION}_aarch64.dmg"
+          X64_NAME="MuxLayer_${VERSION}_x64.dmg"
 
           # Multi-arch tauri-action uploads race; poll until both DMGs are listed
           # on the release (or fail with a clear asset dump after ~10 minutes).
@@ -333,5 +333,5 @@ jobs:
           cd tap
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "agentgate ${VERSION}"
+          git commit -am "muxlayer ${VERSION}"
           git push

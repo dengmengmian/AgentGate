@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AgentGate — 统一管理你的 AI 模型请求</title>
+    <title>MuxLayer — Coding Agent 的本地模型控制层</title>
     <meta
       name="description"
-      content="AgentGate 是 AI 应用和客户端的本地模型网关，可路由 26 个 Provider、本地追踪请求，并在 macOS 和 Windows 上防止长时间 AI 任务被系统自动休眠打断。"
+      content="MuxLayer 是 Coding Agent 的本地模型控制层，在本地完成模型请求的路由、协议转换、故障转移和追踪。"
     />
     <meta
       name="keywords"
-      content="AgentGate, agentgate-ai, dengmengmian/agentgate-ai, AI 本地网关, AI 模型请求, Codex DeepSeek, Claude Code DeepSeek, Claude Code Copilot, 本地 LLM 代理, Codex MiMo, Gemini CLI, OpenAI Responses API, Anthropic Messages API"
+      content="MuxLayer, agentgate, dengmengmian/muxlayer, Coding Agent 本地模型控制层, AI 本地网关, AI 模型请求, Codex DeepSeek, Claude Code DeepSeek, Claude Code Copilot, 本地 LLM 代理, Codex MiMo, Gemini CLI, OpenAI Responses API, Anthropic Messages API"
     />
     <meta name="author" content="dengmengmian" />
     <meta
@@ -22,44 +22,44 @@
     <!-- Canonical + hreflang -->
     <link
       rel="canonical"
-      href="https://dengmengmian.github.io/agentgate-ai/zh/"
+      href="https://dengmengmian.github.io/muxlayer/zh/"
     />
     <link
       rel="alternate"
       hreflang="en"
-      href="https://dengmengmian.github.io/agentgate-ai/"
+      href="https://dengmengmian.github.io/muxlayer/"
     />
     <link
       rel="alternate"
       hreflang="zh-CN"
-      href="https://dengmengmian.github.io/agentgate-ai/zh/"
+      href="https://dengmengmian.github.io/muxlayer/zh/"
     />
     <link
       rel="alternate"
       hreflang="x-default"
-      href="https://dengmengmian.github.io/agentgate-ai/"
+      href="https://dengmengmian.github.io/muxlayer/"
     />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="AgentGate" />
+    <meta property="og:site_name" content="MuxLayer" />
     <meta property="og:locale" content="zh_CN" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta
       property="og:url"
-      content="https://dengmengmian.github.io/agentgate-ai/zh/"
+      content="https://dengmengmian.github.io/muxlayer/zh/"
     />
     <meta
       property="og:title"
-      content="AgentGate — 统一管理你的 AI 模型请求"
+      content="MuxLayer — Coding Agent 的本地模型控制层"
     />
     <meta
       property="og:description"
-      content="给 AI 应用和客户端用的本地模型网关。26 个 Provider、本地请求追踪，以及 macOS 和 Windows 防休眠。"
+      content="Coding Agent 的本地模型控制层：在本地完成模型请求的路由、协议转换、故障转移和追踪。"
     />
     <meta
       property="og:image"
-      content="https://dengmengmian.github.io/agentgate-ai/assets/demo-header.gif"
+      content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif"
     />
     <meta property="og:image:width" content="800" />
     <meta property="og:image:height" content="450" />
@@ -68,15 +68,15 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="AgentGate — 统一管理你的 AI 模型请求"
+      content="MuxLayer — Coding Agent 的本地模型控制层"
     />
     <meta
       name="twitter:description"
-      content="给 AI 应用和客户端用的本地模型网关。26 个 Provider、本地请求追踪，以及 macOS 和 Windows 防休眠。"
+      content="Coding Agent 的本地模型控制层：在本地完成模型请求的路由、协议转换、故障转移和追踪。"
     />
     <meta
       name="twitter:image"
-      content="https://dengmengmian.github.io/agentgate-ai/assets/demo-header.gif"
+      content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif"
     />
 
     <link rel="icon" type="image/svg+xml" href="../assets/logo.svg?v=2" />
@@ -88,8 +88,8 @@
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "AgentGate",
-        "description": "给 AI 应用和客户端用的本地模型网关 —— 支持 Codex、Claude Code、Gemini CLI、OpenCode、AtomCode，以及兼容 OpenAI、Anthropic、Gemini 协议的应用。协议转换、多 Provider 路由、本地请求追踪，以及 macOS 和 Windows 防休眠。",
+        "name": "MuxLayer",
+        "description": "MuxLayer 是 Coding Agent 的本地模型控制层，在本地完成模型请求的路由、协议转换、故障转移和追踪。",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Windows, Linux",
         "offers": {
@@ -97,11 +97,11 @@
           "price": "0",
           "priceCurrency": "USD"
         },
-        "url": "https://dengmengmian.github.io/agentgate-ai/zh/",
-        "sameAs": "https://github.com/dengmengmian/agentgate-ai",
-        "downloadUrl": "https://github.com/dengmengmian/agentgate-ai/releases",
-        "softwareVersion": "1.6.3",
-        "license": "https://github.com/dengmengmian/agentgate-ai/blob/main/LICENSE",
+        "url": "https://dengmengmian.github.io/muxlayer/zh/",
+        "sameAs": "https://github.com/dengmengmian/muxlayer",
+        "downloadUrl": "https://github.com/dengmengmian/muxlayer/releases",
+        "softwareVersion": "2.0.0",
+        "license": "https://github.com/dengmengmian/muxlayer/blob/main/LICENSE",
         "author": {
           "@type": "Person",
           "name": "dengmengmian",
@@ -128,22 +128,22 @@
       >
         <a href="./" class="flex items-center gap-2 text-ink">
           <span class="text-amber">▲</span>
-          <span class="font-medium">agentgate</span>
-          <span data-version class="text-faint">v1.6.3</span>
+          <span class="font-medium">muxlayer</span>
+          <span data-version class="text-faint">v2.0.0</span>
         </a>
         <nav class="flex items-center gap-5 text-ink-soft">
           <a
-            href="https://github.com/dengmengmian/agentgate-ai/blob/main/docs/full-reference-zh.md"
+            href="https://github.com/dengmengmian/muxlayer/blob/main/docs/full-reference-zh.md"
             class="hover:text-ink"
             >文档</a
           >
           <a
-            href="https://github.com/dengmengmian/agentgate-ai/releases"
+            href="https://github.com/dengmengmian/muxlayer/releases"
             class="hover:text-ink"
             >下载 <span class="text-faint">↗</span></a
           >
           <a
-            href="https://github.com/dengmengmian/agentgate-ai"
+            href="https://github.com/dengmengmian/muxlayer"
             class="hover:text-ink"
             >github <span class="text-faint">↗</span></a
           >
@@ -162,32 +162,34 @@
       <div class="relative mx-auto max-w-4xl px-6 pt-20 pb-24">
         <!-- status line -->
         <div class="flex items-center gap-2 text-sm text-ink-soft">
-          <span class="prompt">agentgate --status</span>
+          <span class="prompt">muxlayer --status</span>
         </div>
         <div class="mt-2 flex items-center gap-2 text-sm">
           <span class="pulse-dot text-amber">●</span>
           <span class="text-ink-soft">运行中</span>
           <span class="text-cyan">127.0.0.1:9090</span>
           <span class="text-faint">·</span>
-          <span data-version class="text-ink-soft">v1.6.3</span>
+          <span data-version class="text-ink-soft">v2.0.0</span>
           <span class="text-faint">·</span>
           <span class="text-ink-soft zh">26 个 provider</span>
         </div>
 
         <!-- hero title -->
         <h1 class="h-display zh mt-16 text-ink">
-          一个本地入口，统一管理<br />
-          <span class="text-ink-soft">你的 AI 模型请求</span><span
+          Coding Agent 的本地<br />
+          <span class="text-ink-soft">模型控制层</span><span
             class="cursor"
           ></span>。
         </h1>
 
         <p class="comment-zh zh mt-6 max-w-2xl">
-          // One local gateway for your AI model requests.
+          // The local model control layer for coding agents.
         </p>
 
+        <p class="mt-4 text-sm text-muted">Formerly AgentGate</p>
+
         <p class="zh mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">
-          AgentGate 是面向 AI 应用和客户端的本地 AI 网关，支持 Codex、Claude Code、Gemini CLI、OpenCode、AtomCode，也可接入兼容 OpenAI、Anthropic、Gemini 协议的应用。它把每一次请求路由到你选择的模型，在供应商故障时自动切换，本地完整追踪每一次请求，并打通不同协议与任意 OpenAI 兼容供应商之间的差异。在 macOS 和 Windows 上，它还能防止长时间 AI 任务被系统自动休眠打断。
+          MuxLayer 是面向 AI 应用和客户端的本地 AI 网关，支持 Codex、Claude Code、Gemini CLI、OpenCode、AtomCode，也可接入兼容 OpenAI、Anthropic、Gemini 协议的应用。它把每一次请求路由到你选择的模型，在供应商故障时自动切换，本地完整追踪每一次请求，并打通不同协议与任意 OpenAI 兼容供应商之间的差异。在 macOS 和 Windows 上，它还能防止长时间 AI 任务被系统自动休眠打断。
         </p>
 
         <!-- clients → providers diagram -->
@@ -240,7 +242,7 @@
             >它做什么</a
           >
           <a
-            href="https://github.com/dengmengmian/agentgate-ai"
+            href="https://github.com/dengmengmian/muxlayer"
             class="hover-prompt text-ink-soft hover:text-ink"
             >github <span class="text-faint">↗</span></a
           >
@@ -254,12 +256,12 @@
             <span class="h-2.5 w-2.5 rounded-full bg-[#ff5f56]"></span>
             <span class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></span>
             <span class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></span>
-            <span class="ml-3 text-xs text-muted">agentgate · demo</span>
+            <span class="ml-3 text-xs text-muted">muxlayer · demo</span>
           </div>
           <div class="p-4">
             <img
               src="../assets/demo-header.gif"
-              alt="agentgate 演示"
+              alt="MuxLayer 演示"
               class="w-full rounded"
             />
           </div>
@@ -274,7 +276,7 @@
     >
       <div class="mx-auto max-w-4xl px-6 py-24">
         <div class="reveal">
-          <div class="prompt text-sm text-ink-soft">man agentgate</div>
+          <div class="prompt text-sm text-ink-soft">man muxlayer</div>
           <h2 class="h-section zh mt-4">它到底做了什么。</h2>
         </div>
 
@@ -300,10 +302,10 @@
               <span class="zh">模型路由归你管</span>
             </div>
             <p class="zh mt-4 text-base text-ink">
-              AI 应用的模型请求进 AgentGate,本地决定转换协议、直连上游、选择 Provider 和模型。26 家 provider,多 key 轮询,故障自动切换 —— 全程跑在你自己的机器上。
+              AI 应用的模型请求进 MuxLayer,本地决定转换协议、直连上游、选择 Provider 和模型。26 家 provider,多 key 轮询,故障自动切换 —— 全程跑在你自己的机器上。
             </p>
             <p class="comment-zh mt-3">
-              // Official API enters AgentGate. You decide — locally.
+              // Official API enters MuxLayer. You decide — locally.
             </p>
           </article>
 
@@ -338,22 +340,21 @@
           <article class="reveal frame rounded p-6 md:p-8">
             <div class="text-xs uppercase tracking-wider text-amber">
               <span class="text-faint">#</span>
-              <span class="zh">出站代理 · v1.6.3</span>
+              <span class="zh">老用户自动接管 · v2.0.0</span>
             </div>
             <p class="zh mt-4 text-base text-ink">
-              设置里可让访问上游的请求走本机
-              <code class="text-cyan">http://</code> /
-              <code class="text-cyan">https://</code>
-              代理（Clash / V2Ray）。回环地址仍直连。关闭开关则继续尊重环境变量
-              <code class="text-ink-soft">HTTP(S)_PROXY</code>。地址为空时不会走这里的代理。
+              现有桌面安装继续使用原更新身份和应用数据目录。新的无界面安装使用
+              <code class="text-cyan">~/.muxlayer</code>；如果已有
+              <code class="text-ink-soft">~/.agentgate</code> 数据库或 token，
+              新版本会自动接管。
             </p>
             <p class="zh mt-4 text-base text-ink">
-              路由条件（输入长度、是否有图、是否有工具、系统关键词、模型名）现在
-              Chat Completions、Anthropic Messages、Gemini 也会评估，不再只对
-              Codex Responses 生效。Gemini 同样走日预算闸。
+              <code class="text-cyan">MUXLAYER_DB_PATH</code> 和
+              <code class="text-cyan">MUXLAYER_TOKEN</code> 优先使用；旧的
+              <code class="text-ink-soft">AGENTGATE_*</code> 别名继续有效，升级可随时回滚。
             </p>
             <p class="comment-zh mt-3">
-              // Outbound HTTP proxy in Settings. Routing conditions on every protocol.
+              // 新版本自动接管老数据，旧目录和环境变量仍可回滚使用。
             </p>
           </article>
         </div>
@@ -361,7 +362,7 @@
         <!-- positioning blurb -->
         <div class="reveal mt-16 border-l-2 border-amber/40 pl-4 text-sm">
           <p class="zh text-ink-soft">
-            AgentGate 不是托管 API 分发平台,而是 AI 模型请求的本地桌面入口。
+            MuxLayer 不是托管 API 分发平台,而是 AI 模型请求的本地桌面入口。
             要 provider 自由,又不愿客户端原有能力被破坏。
           </p>
           <p class="comment-zh mt-2">
@@ -375,14 +376,14 @@
     <section id="download" class="border-t border-border-soft">
       <div class="mx-auto max-w-4xl px-6 py-24">
         <div class="reveal">
-          <div class="prompt text-sm text-ink-soft">agentgate --download</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer --download</div>
           <h2 class="h-section zh mt-4">为你的系统下载。</h2>
           <p class="comment-zh zh mt-2">
             // 免费、开源,跑在你自己的机器上。
           </p>
           <p class="mt-3 text-xs text-muted">
             <span class="text-faint zh"># 最新版本 </span>
-            <span data-version class="text-cyan">v1.6.3</span>
+            <span data-version class="text-cyan">v2.0.0</span>
             <span class="text-faint">·</span>
             <span data-released class="text-ink-soft zh">最近</span>
           </p>
@@ -400,7 +401,7 @@
                 <td class="px-5 py-4 text-right">
                   <a
                     class="text-cyan hover:text-amber"
-                    href="https://github.com/dengmengmian/agentgate-ai/releases/latest"
+                    href="https://github.com/dengmengmian/muxlayer/releases/latest"
                     >aarch64.dmg <span class="text-faint">↗</span></a
                   >
                 </td>
@@ -414,7 +415,7 @@
                 <td class="px-5 py-4 text-right">
                   <a
                     class="text-cyan hover:text-amber"
-                    href="https://github.com/dengmengmian/agentgate-ai/releases/latest"
+                    href="https://github.com/dengmengmian/muxlayer/releases/latest"
                     >x64.dmg <span class="text-faint">↗</span></a
                   >
                 </td>
@@ -428,7 +429,7 @@
                 <td class="px-5 py-4 text-right">
                   <a
                     class="text-cyan hover:text-amber"
-                    href="https://github.com/dengmengmian/agentgate-ai/releases/latest"
+                    href="https://github.com/dengmengmian/muxlayer/releases/latest"
                     >x64-setup.exe <span class="text-faint">↗</span></a
                   >
                 </td>
@@ -442,7 +443,7 @@
                 <td class="px-5 py-4 text-right">
                   <a
                     class="text-cyan hover:text-amber"
-                    href="https://github.com/dengmengmian/agentgate-ai/releases/latest"
+                    href="https://github.com/dengmengmian/muxlayer/releases/latest"
                     >amd64.deb <span class="text-faint">↗</span></a
                   >
                 </td>
@@ -456,7 +457,7 @@
                 <td class="px-5 py-4 text-right">
                   <a
                     class="text-cyan hover:text-amber"
-                    href="https://github.com/dengmengmian/agentgate-ai/releases/latest"
+                    href="https://github.com/dengmengmian/muxlayer/releases/latest"
                     >amd64.AppImage <span class="text-faint">↗</span></a
                   >
                 </td>
@@ -476,7 +477,7 @@
           <span class="zh">与历史版本：</span>
           <a
             class="text-cyan hover:text-amber"
-            href="https://github.com/dengmengmian/agentgate-ai/releases"
+            href="https://github.com/dengmengmian/muxlayer/releases"
             >releases ↗</a
           >
         </p>
@@ -487,7 +488,7 @@
     <section class="border-t border-border-soft bg-bg-soft/40">
       <div class="mx-auto max-w-4xl px-6 py-24">
         <div class="reveal">
-          <div class="prompt text-sm text-ink-soft">agentgate --help</div>
+          <div class="prompt text-sm text-ink-soft">muxlayer --help</div>
           <h2 class="h-section zh mt-4">开始使用。</h2>
         </div>
 
@@ -575,14 +576,14 @@
             class="hover-prompt block py-1 text-ink-soft hover:text-ink"
             href="./guides/agentgate-vs-litellm/"
           >
-            AgentGate vs LiteLLM
+            MuxLayer vs LiteLLM
             <span class="text-faint zh">— 本地桌面网关还是 API 代理</span>
           </a>
           <a
             class="hover-prompt block py-1 text-ink-soft hover:text-ink"
             href="./guides/agentgate-vs-openrouter/"
           >
-            AgentGate vs OpenRouter
+            MuxLayer vs OpenRouter
             <span class="text-faint zh">— 本地网关还是托管路由</span>
           </a>
           <a
@@ -594,28 +595,28 @@
           </a>
           <a
             class="hover-prompt block py-1 text-ink-soft hover:text-ink"
-            href="https://github.com/dengmengmian/agentgate-ai/blob/main/README_ZH.md#5-%E5%88%86%E9%92%9F%E8%B7%91%E9%80%9A"
+            href="https://github.com/dengmengmian/muxlayer/blob/main/README_ZH.md#5-%E5%88%86%E9%92%9F%E8%B7%91%E9%80%9A"
           >
             <span class="zh">5 分钟跑通</span>
             <span class="text-faint zh">— 下载 → 配 key → 启动 → apply</span>
           </a>
           <a
             class="hover-prompt block py-1 text-ink-soft hover:text-ink"
-            href="https://github.com/dengmengmian/agentgate-ai/blob/main/docs/full-reference-zh.md"
+            href="https://github.com/dengmengmian/muxlayer/blob/main/docs/full-reference-zh.md"
           >
             <span class="zh">完整参考</span>
             <span class="text-faint zh">— 完整文档</span>
           </a>
           <a
             class="hover-prompt block py-1 text-ink-soft hover:text-ink"
-            href="https://github.com/dengmengmian/agentgate-ai/blob/main/docs/use-claude-code-with-github-copilot-zh.md"
+            href="https://github.com/dengmengmian/muxlayer/blob/main/docs/use-claude-code-with-github-copilot-zh.md"
           >
             Claude Code on GitHub Copilot
             <span class="text-faint zh">— token 交换 + x-initiator agent 标记</span>
           </a>
           <a
             class="hover-prompt block py-1 text-ink-soft hover:text-ink"
-            href="https://github.com/dengmengmian/agentgate-ai/blob/main/docs/use-gemini-cli-with-agentgate-zh.md"
+            href="https://github.com/dengmengmian/muxlayer/blob/main/docs/use-gemini-cli-with-agentgate-zh.md"
           >
             Gemini CLI
             <span class="text-faint zh">— gemini 路由转换 + generateContent endpoint</span>
@@ -637,22 +638,22 @@
           <span class="text-faint">·</span>
           <span class="text-muted">MIT</span>
           <span class="text-faint">·</span>
-          <span data-version class="text-muted">v1.6.3</span>
+          <span data-version class="text-muted">v2.0.0</span>
         </div>
         <nav class="flex items-center gap-5 text-ink-soft">
           <a
             class="hover:text-ink"
-            href="https://github.com/dengmengmian/agentgate-ai"
-            >dengmengmian/agentgate-ai</a
+            href="https://github.com/dengmengmian/muxlayer"
+            >dengmengmian/muxlayer</a
           >
           <a
             class="hover:text-ink"
-            href="https://github.com/dengmengmian/agentgate-ai/discussions"
+            href="https://github.com/dengmengmian/muxlayer/discussions"
             >discussions</a
           >
           <a
             class="hover:text-ink"
-            href="https://github.com/dengmengmian/agentgate-ai/issues"
+            href="https://github.com/dengmengmian/muxlayer/issues"
             >issues</a
           >
         </nav>

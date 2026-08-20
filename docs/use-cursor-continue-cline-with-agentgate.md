@@ -1,10 +1,10 @@
-# Use Cursor / Continue / Cline with AgentGate
+# Use Cursor / Continue / Cline with MuxLayer
 
-AgentGate exposes a local OpenAI-compatible entry point. Editor plugins that only need `base_url` + API key can route through AgentGate without deep integration.
+MuxLayer exposes a local OpenAI-compatible entry point. Editor plugins that only need `base_url` + API key can route through MuxLayer without deep integration.
 
 ## Prerequisites
 
-1. Install and open AgentGate.
+1. Install and open MuxLayer.
 2. Add at least one provider and start the gateway (default `http://127.0.0.1:9090`).
 3. Copy the local access token from **Settings → Security** (or Gateway connection card for the Base URL).
 
@@ -19,13 +19,13 @@ AgentGate exposes a local OpenAI-compatible entry point. Editor plugins that onl
 
 Auth: `Authorization: Bearer <ag_local_… token>` (same value as API key in most UIs).
 
-Model: use a virtual name such as `agentgate` if your client allows custom models, or map to the provider model AgentGate routes to.
+Model: use a virtual name such as `agentgate` if your client allows custom models, or map to the provider model MuxLayer routes to.
 
 ## Cursor
 
 1. Open Cursor Settings → Models / OpenAI-compatible provider.
 2. Base URL: `http://127.0.0.1:9090/v1`
-3. API Key: paste the AgentGate local token.
+3. API Key: paste the MuxLayer local token.
 4. Pick or add a model id that your route profile understands.
 
 ## Continue (VS Code)
@@ -37,7 +37,7 @@ Model: use a virtual name such as `agentgate` if your client allows custom model
 {
   "models": [
     {
-      "title": "AgentGate",
+      "title": "MuxLayer",
       "provider": "openai",
       "model": "agentgate",
       "apiBase": "http://127.0.0.1:9090/v1",
@@ -47,20 +47,20 @@ Model: use a virtual name such as `agentgate` if your client allows custom model
 }
 ```
 
-3. Reload Continue and select **AgentGate**.
+3. Reload Continue and select **MuxLayer**.
 
 ## Cline / Roo Code
 
 1. Open the extension settings for OpenAI-compatible providers.
 2. Base URL: `http://127.0.0.1:9090/v1`
-3. API Key: AgentGate local token.
+3. API Key: MuxLayer local token.
 4. Model: `agentgate` or a concrete upstream id.
 
 ## Limits
 
-- AgentGate guarantees the **OpenAI Chat Completions** (and where applicable Responses / Anthropic) shapes it implements. Plugin-specific protocols are not rewritten.
+- MuxLayer guarantees the **OpenAI Chat Completions** (and where applicable Responses / Anthropic) shapes it implements. Plugin-specific protocols are not rewritten.
 - Keep the gateway running while the editor is in use.
-- Logs and cost appear in AgentGate → **Logs** / **Overview**.
+- Logs and cost appear in MuxLayer → **Logs** / **Overview**.
 
 ## Chinese
 

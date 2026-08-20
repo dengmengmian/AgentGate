@@ -127,7 +127,7 @@ export function Sidebar() {
           />
           {!collapsed && (
             <span className="text-sm font-semibold tracking-tight text-text-primary truncate">
-              AgentGate
+              MuxLayer
             </span>
           )}
         </div>
@@ -237,7 +237,7 @@ export function Sidebar() {
         <div className="border-t border-border px-5 py-3.5">
           <div className="flex items-center justify-between gap-3">
             <span className="text-[11px] font-medium text-text-secondary">
-              AgentGate
+              MuxLayer
             </span>
             {version && (
               <span className="rounded bg-hover px-1.5 py-0.5 font-mono text-[10px] text-text-muted">

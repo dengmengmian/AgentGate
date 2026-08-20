@@ -1,8 +1,8 @@
-# 用 AgentGate 让 Codex 使用 DeepSeek
+# 用 MuxLayer 让 Codex 使用 DeepSeek
 
-English: [Use Codex with DeepSeek through AgentGate](./use-codex-with-deepseek.md)
+English: [Use Codex with DeepSeek through MuxLayer](./use-codex-with-deepseek.md)
 
-AgentGate 把 Codex 原本发往官方 Responses API 的入口，变成你本地可控的模型入口。Codex 继续发 Responses API 请求，AgentGate 在本地决定转换协议或直连 DeepSeek，附带模型映射、故障转移、请求日志和成本统计。
+MuxLayer 把 Codex 原本发往官方 Responses API 的入口，变成你本地可控的模型入口。Codex 继续发 Responses API 请求，MuxLayer 在本地决定转换协议或直连 DeepSeek，附带模型映射、故障转移、请求日志和成本统计。
 
 ## 什么时候用这个
 
@@ -10,23 +10,23 @@ AgentGate 把 Codex 原本发往官方 Responses API 的入口，变成你本地
 
 - 让 Codex 调用 DeepSeek 模型，同时保留一键回退到官方配置的能力。
 - 让 Codex 的 OpenAI Responses API 请求被转换成 DeepSeek 兼容的 Chat Completions，或 Anthropic 兼容 endpoint。
-- 在官方 Codex 配置和 AgentGate 配置之间一键切换。
+- 在官方 Codex 配置和 MuxLayer 配置之间一键切换。
 - 用一个本地网关，以后随时把 Codex 从 DeepSeek 切到 MiMo、OpenAI、Kimi、GLM、DashScope 或其他 Provider。
 
 ## 快速配置
 
-1. 从 [Releases](../../releases) 下载 AgentGate 并打开应用。
+1. 从 [Releases](../../releases) 下载 MuxLayer 并打开应用。
 2. 进入 **快速配置** 或 **供应商**。
 3. 添加 DeepSeek Provider，粘贴你的 DeepSeek API Key。
 4. 在 **概览** 或 **网关** 启动网关。默认客户端端点是 `http://127.0.0.1:9090`。
 5. 打开 **客户端**，在 Codex 卡片上点 **应用配置**。
 6. 在 Codex 里发一条测试消息。
 
-AgentGate 保留了原 Codex 配置的可恢复状态，你可以随时从 Codex 卡片切回官方。
+MuxLayer 保留了原 Codex 配置的可恢复状态，你可以随时从 Codex 卡片切回官方。
 
-## AgentGate 配置了什么
+## MuxLayer 配置了什么
 
-| Codex 侧 | AgentGate 侧 | DeepSeek 侧 |
+| Codex 侧 | MuxLayer 侧 | DeepSeek 侧 |
 |---|---|---|
 | OpenAI Responses API | `/v1/responses` 本地网关路由 | DeepSeek Chat Completions 或 Anthropic 兼容 endpoint |
 | Codex 模型名 | Model Mapping 或 `agentgate` 虚拟模型 | DeepSeek 模型 ID，如 `deepseek-v4-flash` 或 `deepseek-v4-pro` |
@@ -34,19 +34,19 @@ AgentGate 保留了原 Codex 配置的可恢复状态，你可以随时从 Codex
 
 ## 工作原理
 
-AgentGate 的作用，是把 Codex 原本发往官方的 Responses API 入口变成本地模型入口，再由本地决定转换或直连到 DeepSeek。
+MuxLayer 的作用，是把 Codex 原本发往官方的 Responses API 入口变成本地模型入口，再由本地决定转换或直连到 DeepSeek。
 
 常见路径是：
 
 ```text
-Codex -> http://127.0.0.1:9090/v1/responses -> AgentGate -> DeepSeek
+Codex -> http://127.0.0.1:9090/v1/responses -> MuxLayer -> DeepSeek
 ```
 
-你不需要长期手改 Codex 配置文件，也不需要在 DeepSeek、MiMo、OpenAI 等 Provider 之间来回改模型名。AgentGate 会通过 Provider、Route Profile、Model Mapping 和 `agentgate` 虚拟模型处理这些差异。
+你不需要长期手改 Codex 配置文件，也不需要在 DeepSeek、MiMo、OpenAI 等 Provider 之间来回改模型名。MuxLayer 会通过 Provider、Route Profile、Model Mapping 和 `agentgate` 虚拟模型处理这些差异。
 
 ## 为什么默认不直连 DeepSeek 的 Responses API
 
-`deepseek-v4-flash` 已经正式支持 Responses API，理论上 Codex 可以不经转换直连。但实测下来，直连的实际效果反而明显更差，所以 AgentGate 不为 DeepSeek 预置 Responses 端点，默认仍然把 Codex 的 Responses 请求转换成 Chat Completions。
+`deepseek-v4-flash` 已经正式支持 Responses API，理论上 Codex 可以不经转换直连。但实测下来，直连的实际效果反而明显更差，所以 MuxLayer 不为 DeepSeek 预置 Responses 端点，默认仍然把 Codex 的 Responses 请求转换成 Chat Completions。
 
 原因有四条，都可复现：
 
@@ -71,7 +71,7 @@ Unsupported custom tool: 'exec'. Only 'apply_patch' is supported.
 Codex 必发 `exec`，因此即使工具没丢，直连也会被拒。
 
 **3. 跨轮思维链断掉，而且不报错。**
-Codex 每轮都会带 `include: ["reasoning.encrypted_content"]`，用于把上一轮的推理链带回下一轮。DeepSeek 明确不支持 `include` 与 `encrypted_content`，且是**静默忽略**——不报错，只是每轮推理都从零开始。转换路径里 AgentGate 会做 DeepSeek V4 thinking 历史回填来补偿，直连没有这层补偿。
+Codex 每轮都会带 `include: ["reasoning.encrypted_content"]`，用于把上一轮的推理链带回下一轮。DeepSeek 明确不支持 `include` 与 `encrypted_content`，且是**静默忽略**——不报错，只是每轮推理都从零开始。转换路径里 MuxLayer 会做 DeepSeek V4 thinking 历史回填来补偿，直连没有这层补偿。
 
 **4. 直连绕过全部 DeepSeek 专属处理。**
 图片剥离并注入可解释提示、schema 清洗、消息重排、V4 thinking 历史 reasoning 回填，这些都发生在转换路径上。直连意味着全部放弃。
@@ -91,7 +91,7 @@ Codex 每轮都会带 `include: ["reasoning.encrypted_content"]`，用于把上�
 |---|---|
 | Codex 还在调用官方 endpoint | 回到 **客户端**，重新应用一次 Codex 配置。 |
 | DeepSeek 返回模型错误 | 检查 DeepSeek Provider 的默认模型和 Model Mapping。 |
-| 网关无法连接 | 确认 AgentGate 网关在 `127.0.0.1:9090` 上运行；`1420` 只是开发用的 UI 端口。 |
+| 网关无法连接 | 确认 MuxLayer 网关在 `127.0.0.1:9090` 上运行；`1420` 只是开发用的 UI 端口。 |
 | 想恢复官方 Codex | 在 **客户端** 页用 Codex 卡片上的切回官方动作。 |
 
 ## 相关教程

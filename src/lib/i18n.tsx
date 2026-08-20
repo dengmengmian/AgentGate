@@ -53,16 +53,16 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // ── Dashboard ──
   "dashboard.first_request_seen": {
-    en: "✓ First request received — AgentGate is working!",
-    zh: "✓ 收到首个请求 —— AgentGate 跑通了！",
+    en: "✓ First request received — MuxLayer is working!",
+    zh: "✓ 收到首个请求 —— MuxLayer 跑通了！",
   },
   "dashboard.empty_title": {
     en: "Get started in 60 seconds",
-    zh: "60 秒上手 AgentGate",
+    zh: "60 秒上手 MuxLayer",
   },
   "dashboard.empty_desc": {
-    en: "Paste any AI provider API key — AgentGate auto-detects the provider, configures your AI coding agents (Codex, Claude Code, Gemini CLI…), and you're ready to go.",
-    zh: "粘贴任意 AI 供应商的 API key——AgentGate 自动识别厂商、配置 Codex / Claude Code / Gemini CLI 等编码 agent，开箱即用。",
+    en: "Paste any AI provider API key — MuxLayer auto-detects the provider, configures your AI coding agents (Codex, Claude Code, Gemini CLI…), and you're ready to go.",
+    zh: "粘贴任意 AI 供应商的 API key——MuxLayer 自动识别厂商、配置 Codex / Claude Code / Gemini CLI 等编码 agent，开箱即用。",
   },
   "dashboard.empty_cta": { en: "Start with Quick Setup", zh: "用快速配置开始" },
   "dashboard.gateway_empty_title": {
@@ -70,8 +70,8 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "供应商已就绪，启动本地网关",
   },
   "dashboard.gateway_empty_desc": {
-    en: "Your provider is configured, but the local AgentGate service is stopped. Start it before running a client.",
-    zh: "供应商已经配置好，但 AgentGate 本地服务还没启动。先启动服务，再运行客户端。",
+    en: "Your provider is configured, but the local MuxLayer service is stopped. Start it before running a client.",
+    zh: "供应商已经配置好，但 MuxLayer 本地服务还没启动。先启动服务，再运行客户端。",
   },
   "dashboard.gateway_empty_cta": { en: "Start gateway", zh: "启动网关" },
   "dashboard.no_requests_ready_title": {
@@ -95,8 +95,8 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "接入一个编码客户端",
   },
   "dashboard.no_requests_config_desc": {
-    en: "Gateway is running, but no client config has been applied yet. Pick a client and apply its config so requests flow through AgentGate.",
-    zh: "网关已运行，但还没有应用客户端配置。选择一个客户端并应用配置，让请求经过 AgentGate。",
+    en: "Gateway is running, but no client config has been applied yet. Pick a client and apply its config so requests flow through MuxLayer.",
+    zh: "网关已运行，但还没有应用客户端配置。选择一个客户端并应用配置，让请求经过 MuxLayer。",
   },
   "dashboard.no_requests_config_cta": {
     en: "Configure clients",
@@ -633,8 +633,8 @@ const translations: Record<string, Record<Locale, string>> = {
   // ── Tools ──
   "tools.console": { en: "Client Console", zh: "客户端控制台" },
   "tools.console_hint": {
-    en: "Connect local AI clients to AgentGate and verify the gateway path.",
-    zh: "把本地 AI 客户端接入 AgentGate，并验证网关链路。",
+    en: "Connect local AI clients to MuxLayer and verify the gateway path.",
+    zh: "把本地 AI 客户端接入 MuxLayer，并验证网关链路。",
   },
   "tools.connection_path": { en: "Connection Path", zh: "连接链路" },
   "tools.connection_path_hint": {
@@ -655,31 +655,31 @@ const translations: Record<string, Record<Locale, string>> = {
   "tools.open": { en: "Open", zh: "打开" },
   "tools.env_snippet": { en: "Env Snippet", zh: "环境变量片段" },
   "tools.agentgate_configured": {
-    en: "AgentGate configured",
-    zh: "AgentGate 已配置",
+    en: "MuxLayer configured",
+    zh: "MuxLayer 已配置",
   },
   "tools.not_configured": { en: "Not configured", zh: "未配置" },
   "tools.no_config": { en: "No config", zh: "无配置" },
   "tools.config_found": { en: "Config found", zh: "配置已找到" },
   "tools.auth_status": { en: "Auth Status", zh: "认证状态" },
-  "tools.token_set": { en: "AgentGate token set", zh: "AgentGate 令牌已设置" },
+  "tools.token_set": { en: "MuxLayer token set", zh: "MuxLayer 令牌已设置" },
   "tools.current_provider": { en: "Current Provider", zh: "当前供应商" },
   "tools.codex_auth_desc": {
-    en: "Apply writes config.toml and swaps OPENAI_API_KEY in auth.json to the AgentGate token. Your original key is saved and restored when toggling back to official.",
-    zh: "应用配置将写入 config.toml，并将 auth.json 中的 OPENAI_API_KEY 替换为 AgentGate 令牌。原始密钥会被保存，切换回官方时自动恢复。",
+    en: "Apply writes config.toml and swaps OPENAI_API_KEY in auth.json to the MuxLayer token. Your original key is saved and restored when toggling back to official.",
+    zh: "应用配置将写入 config.toml，并将 auth.json 中的 OPENAI_API_KEY 替换为 MuxLayer 令牌。原始密钥会被保存，切换回官方时自动恢复。",
   },
   "tools.openai_key_polluted": {
     en: "OPENAI_API_KEY overwritten",
     zh: "OPENAI_API_KEY 已被覆盖",
   },
   "tools.openai_key_polluted_desc": {
-    en: "Your OPENAI_API_KEY in auth.json contains an AgentGate token, but no saved original key was found. Please re-add your real OpenAI API key to ~/.codex/auth.json, then click Apply Config.",
-    zh: "auth.json 中的 OPENAI_API_KEY 是 AgentGate 令牌，但未找到保存的原始密钥。请先将真实 OpenAI API Key 填入 ~/.codex/auth.json，然后点击「应用配置」。",
+    en: "Your OPENAI_API_KEY in auth.json contains an MuxLayer token, but no saved original key was found. Please re-add your real OpenAI API key to ~/.codex/auth.json, then click Apply Config.",
+    zh: "auth.json 中的 OPENAI_API_KEY 是 MuxLayer 令牌，但未找到保存的原始密钥。请先将真实 OpenAI API Key 填入 ~/.codex/auth.json，然后点击「应用配置」。",
   },
   "tools.switch_to_official": { en: "Switch to Official", zh: "切换到官方" },
   "tools.switch_to_agentgate": {
-    en: "Switch to AgentGate",
-    zh: "切换到 AgentGate",
+    en: "Switch to MuxLayer",
+    zh: "切换到 MuxLayer",
   },
   "tools.switched_to": { en: "Switched to", zh: "已切换到" },
   "tools.official": { en: "Official", zh: "官方" },
@@ -689,36 +689,36 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "开源终端 AI 编程助手",
   },
   "tools.opencode_auth_desc": {
-    en: "Apply writes AgentGate provider config into opencode.json.",
-    zh: "应用配置将 AgentGate 供应商写入 opencode.json。",
+    en: "Apply writes MuxLayer provider config into opencode.json.",
+    zh: "应用配置将 MuxLayer 供应商写入 opencode.json。",
   },
   "tools.apply_opencode_title": {
-    en: "Apply AgentGate Config to OpenCode",
-    zh: "应用 AgentGate 配置到 OpenCode",
+    en: "Apply MuxLayer Config to OpenCode",
+    zh: "应用 MuxLayer 配置到 OpenCode",
   },
   "tools.apply_opencode_msg": {
-    en: "This will update ~/.config/opencode/opencode.json to use AgentGate as the provider.",
-    zh: "将更新 ~/.config/opencode/opencode.json 使用 AgentGate 作为供应商。",
+    en: "This will update ~/.config/opencode/opencode.json to use MuxLayer as the provider.",
+    zh: "将更新 ~/.config/opencode/opencode.json 使用 MuxLayer 作为供应商。",
   },
   "tools.claude_auth_desc": {
-    en: "Apply writes AgentGate env vars into settings.json. Your original settings are saved and restored when toggling back to official.",
-    zh: "应用配置将 AgentGate 环境变量写入 settings.json。原始配置会被保存，切换回官方时自动恢复。",
+    en: "Apply writes MuxLayer env vars into settings.json. Your original settings are saved and restored when toggling back to official.",
+    zh: "应用配置将 MuxLayer 环境变量写入 settings.json。原始配置会被保存，切换回官方时自动恢复。",
   },
   "tools.apply_codex_title": {
-    en: "Apply AgentGate Config to Codex",
-    zh: "应用 AgentGate 配置到 Codex",
+    en: "Apply MuxLayer Config to Codex",
+    zh: "应用 MuxLayer 配置到 Codex",
   },
   "tools.apply_codex_msg": {
-    en: "This will update ~/.codex/config.toml to use AgentGate with command auth. Current config will be backed up.",
-    zh: "将更新 ~/.codex/config.toml 使用 AgentGate。当前配置将自动备份。",
+    en: "This will update ~/.codex/config.toml to use MuxLayer with command auth. Current config will be backed up.",
+    zh: "将更新 ~/.codex/config.toml 使用 MuxLayer。当前配置将自动备份。",
   },
   "tools.apply_claude_title": {
-    en: "Apply AgentGate Config to Claude Code",
-    zh: "应用 AgentGate 配置到 Claude Code",
+    en: "Apply MuxLayer Config to Claude Code",
+    zh: "应用 MuxLayer 配置到 Claude Code",
   },
   "tools.apply_claude_msg": {
-    en: "This will update ~/.claude/settings.json to use AgentGate. The local access token will be written to settings.json. Current config will be backed up.",
-    zh: "将更新 ~/.claude/settings.json 使用 AgentGate。本地访问令牌将写入 settings.json。当前配置将自动备份。",
+    en: "This will update ~/.claude/settings.json to use MuxLayer. The local access token will be written to settings.json. Current config will be backed up.",
+    zh: "将更新 ~/.claude/settings.json 使用 MuxLayer。本地访问令牌将写入 settings.json。当前配置将自动备份。",
   },
   "tools.gemini_cli": { en: "Gemini CLI", zh: "Gemini CLI" },
   "tools.gemini_cli_desc": {
@@ -730,16 +730,16 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "Gemini CLI 使用 Google 原生 API 格式，暂不支持协议转换",
   },
   "tools.gemini_cli_notice_body": {
-    en: "Config only switches API Key and Base URL. Works for direct Gemini API or proxies that support Gemini format (e.g. LiteLLM). AgentGate protocol conversion (Chat Completions) does not apply to Gemini CLI.",
-    zh: "配置写入仅切换 API Key 和 Base URL。适用于直连 Gemini API 或通过支持 Gemini 格式的代理（如 LiteLLM）转发。AgentGate 协议转换（Chat Completions）暂不适用于 Gemini CLI。",
+    en: "Config only switches API Key and Base URL. Works for direct Gemini API or proxies that support Gemini format (e.g. LiteLLM). MuxLayer protocol conversion (Chat Completions) does not apply to Gemini CLI.",
+    zh: "配置写入仅切换 API Key 和 Base URL。适用于直连 Gemini API 或通过支持 Gemini 格式的代理（如 LiteLLM）转发。MuxLayer 协议转换（Chat Completions）暂不适用于 Gemini CLI。",
   },
   "tools.apply_gemini_title": {
-    en: "Apply AgentGate Config to Gemini CLI",
-    zh: "应用 AgentGate 配置到 Gemini CLI",
+    en: "Apply MuxLayer Config to Gemini CLI",
+    zh: "应用 MuxLayer 配置到 Gemini CLI",
   },
   "tools.apply_gemini_msg": {
-    en: "This will write AgentGate settings to ~/.gemini/settings.json and .env. Your current settings will be saved for restore.",
-    zh: "将写入 AgentGate 配置到 ~/.gemini/settings.json 和 .env。当前配置将自动备份。",
+    en: "This will write MuxLayer settings to ~/.gemini/settings.json and .env. Your current settings will be saved for restore.",
+    zh: "将写入 MuxLayer 配置到 ~/.gemini/settings.json 和 .env。当前配置将自动备份。",
   },
   "tools.atomcode": { en: "AtomCode", zh: "AtomCode" },
   "tools.atomcode_desc": {
@@ -747,12 +747,12 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "开源终端 AI 编程 Agent。",
   },
   "tools.apply_atomcode_title": {
-    en: "Apply AgentGate Config to AtomCode",
-    zh: "应用 AgentGate 配置到 AtomCode",
+    en: "Apply MuxLayer Config to AtomCode",
+    zh: "应用 MuxLayer 配置到 AtomCode",
   },
   "tools.apply_atomcode_msg": {
-    en: "This will write AgentGate settings to ~/.atomcode/config.toml. Your current config will be saved for restore.",
-    zh: "将写入 AgentGate 配置到 ~/.atomcode/config.toml。当前配置将自动备份。",
+    en: "This will write MuxLayer settings to ~/.atomcode/config.toml. Your current config will be saved for restore.",
+    zh: "将写入 MuxLayer 配置到 ~/.atomcode/config.toml。当前配置将自动备份。",
   },
   "tools.test_connection": { en: "Test Connection", zh: "测试连接" },
   "tools.step_config": { en: "Config", zh: "配置" },
@@ -1126,8 +1126,8 @@ const translations: Record<string, Record<Locale, string>> = {
   "routes.not_enabled": { en: "Off", zh: "未启用" },
   "routes.fallback_section": { en: "Fallback Path", zh: "失败转移链路" },
   "routes.fallback_section_hint": {
-    en: "When the primary provider fails, AgentGate continues with the next candidate.",
-    zh: "主供应商失败时，AgentGate 会继续尝试下一个候选。",
+    en: "When the primary provider fails, MuxLayer continues with the next candidate.",
+    zh: "主供应商失败时，MuxLayer 会继续尝试下一个候选。",
   },
   "routes.primary_provider": { en: "Primary", zh: "主" },
   "routes.fallback_provider": { en: "Fallback", zh: "备用" },
@@ -1309,8 +1309,8 @@ const translations: Record<string, Record<Locale, string>> = {
   },
   "settings.launch_at_login": { en: "Launch at login", zh: "开机自启动" },
   "settings.launch_at_login_desc": {
-    en: "Open AgentGate automatically when you log in to the system",
-    zh: "登录系统时自动打开 AgentGate",
+    en: "Open MuxLayer automatically when you log in to the system",
+    zh: "登录系统时自动打开 MuxLayer",
   },
   "settings.wake": { en: "Keep Awake", zh: "保持唤醒" },
   "settings.wake.enabled": { en: "Enable keep-awake", zh: "启用防休眠" },
@@ -1362,8 +1362,8 @@ const translations: Record<string, Record<Locale, string>> = {
   },
   "settings.wake.status.disabled": { en: "Disabled", zh: "防休眠已关闭" },
   "settings.wake.status.continuous": {
-    en: "Keeping awake while AgentGate is running",
-    zh: "AgentGate 运行期间持续保持唤醒",
+    en: "Keeping awake while MuxLayer is running",
+    zh: "MuxLayer 运行期间持续保持唤醒",
   },
   "settings.wake.status.request": {
     en: "AI generation requests in progress",
@@ -1673,8 +1673,8 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // ── Onboarding ──
   "onboarding.welcome": {
-    en: "Welcome to AgentGate",
-    zh: "欢迎使用 AgentGate",
+    en: "Welcome to MuxLayer",
+    zh: "欢迎使用 MuxLayer",
   },
   "onboarding.welcome_desc": {
     en: "Paste your API key to get started",
@@ -1719,7 +1719,7 @@ const translations: Record<string, Record<Locale, string>> = {
   },
   "onboarding.first_request_desc": {
     en: "Copy a command, run it in your terminal, then return to Overview or Logs to confirm traffic.",
-    zh: "复制命令到终端运行，再回到概览或日志确认请求是否经过 AgentGate。",
+    zh: "复制命令到终端运行，再回到概览或日志确认请求是否经过 MuxLayer。",
   },
   "onboarding.first_request_after": {
     en: "After the first reply appears, open Logs to inspect the route, tokens, and cost.",
@@ -1952,8 +1952,8 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "还没有会话",
   },
   "logs.session_empty_desc": {
-    en: "After you chat in Codex / Claude Code through AgentGate, sessions show up here. You can also sync client local history.",
-    zh: "用 Codex / Claude Code 经 AgentGate 对话后，会话会出现在这里。也可以从本地同步客户端历史。",
+    en: "After you chat in Codex / Claude Code through MuxLayer, sessions show up here. You can also sync client local history.",
+    zh: "用 Codex / Claude Code 经 MuxLayer 对话后，会话会出现在这里。也可以从本地同步客户端历史。",
   },
   "logs.session_empty_cta": {
     en: "Sync client history",
@@ -1988,8 +1988,8 @@ const translations: Record<string, Record<Locale, string>> = {
   },
   "logs.client_log_entry": { en: "client log entry", zh: "客户端日志条目" },
   "logs.client_log_banner": {
-    en: ": parsed from local session files, containing only usage fields like model, tokens, and cost. Full request/response bodies, SSE, and tool calls are not saved to local logs, so the related sections below are empty. For a full trace, route the client through the AgentGate gateway.",
-    zh: "：从本地会话文件解析而来，只含模型、token、费用等用量字段。请求体 / 响应体 / SSE / 工具调用等完整内容不会保存到本地日志，因此下方相关区块为空。如需完整链路，请让对应客户端走 AgentGate 网关。",
+    en: ": parsed from local session files, containing only usage fields like model, tokens, and cost. Full request/response bodies, SSE, and tool calls are not saved to local logs, so the related sections below are empty. For a full trace, route the client through the MuxLayer gateway.",
+    zh: "：从本地会话文件解析而来，只含模型、token、费用等用量字段。请求体 / 响应体 / SSE / 工具调用等完整内容不会保存到本地日志，因此下方相关区块为空。如需完整链路，请让对应客户端走 MuxLayer 网关。",
   },
   "logs.belongs_to_session": { en: "Session", zh: "所属会话" },
   "logs.view_session_convo": {
@@ -2439,28 +2439,28 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // ── Tools / Clients: Codex proxy mode + Claude Desktop ──
   "tools.codex_proxy_mode_title": {
-    en: "Proxy mode enabled: chat routes through AgentGate · IDE plugins still work",
-    zh: "代理模式已启用：对话走 AgentGate · IDE 插件继续可用",
+    en: "Proxy mode enabled: chat routes through MuxLayer · IDE plugins still work",
+    zh: "代理模式已启用：对话走 MuxLayer · IDE 插件继续可用",
   },
   "tools.codex_proxy_mode_desc": {
-    en: 'The current config uses the "hijack OpenAI provider + requires_openai_auth" approach: chat requests are routed to AgentGate (→ third-party models) while keeping the official ChatGPT login — Browser / Computer-Use / Mobile / quota lookup all stay available. To switch Codex back to direct official ChatGPT, click "Switch to Official".',
-    zh: "当前配置使用「劫持 OpenAI provider + requires_openai_auth」方案：对话请求路由到 AgentGate（→ 第三方模型），同时保留 ChatGPT 官方登录态 — Browser / Computer-Use / Mobile / 配额查询 全部可用。要切回 Codex 直连 ChatGPT 官方，点击「切换到官方」。",
+    en: 'The current config uses the "hijack OpenAI provider + requires_openai_auth" approach: chat requests are routed to MuxLayer (→ third-party models) while keeping the official ChatGPT login — Browser / Computer-Use / Mobile / quota lookup all stay available. To switch Codex back to direct official ChatGPT, click "Switch to Official".',
+    zh: "当前配置使用「劫持 OpenAI provider + requires_openai_auth」方案：对话请求路由到 MuxLayer（→ 第三方模型），同时保留 ChatGPT 官方登录态 — Browser / Computer-Use / Mobile / 配额查询 全部可用。要切回 Codex 直连 ChatGPT 官方，点击「切换到官方」。",
   },
   "tools.codex_native_mode_title": {
     en: "Native mode: Codex connects directly to official ChatGPT",
     zh: "原生模式：Codex 直连 ChatGPT 官方",
   },
   "tools.codex_native_mode_desc": {
-    en: 'Currently not going through AgentGate. To route to third-party models like MiMo / DeepSeek / Kimi, click "Apply Config" to switch to proxy mode — IDE plugins / Codex Mobile still work after switching.',
-    zh: "当前不经过 AgentGate。如需路由到 MiMo / DeepSeek / Kimi 等第三方模型，点击「应用配置」切换到代理模式 —— 切换后 IDE 插件 / Codex Mobile 仍可正常使用。",
+    en: 'Currently not going through MuxLayer. To route to third-party models like MiMo / DeepSeek / Kimi, click "Apply Config" to switch to proxy mode — IDE plugins / Codex Mobile still work after switching.',
+    zh: "当前不经过 MuxLayer。如需路由到 MiMo / DeepSeek / Kimi 等第三方模型，点击「应用配置」切换到代理模式 —— 切换后 IDE 插件 / Codex Mobile 仍可正常使用。",
   },
   "tools.claude_desktop_desc": {
     en: "Connect Claude Desktop (experimental · macOS)",
     zh: "接入 Claude Desktop（实验·macOS）",
   },
   "tools.claude_desktop_detail_desc": {
-    en: "Point the third-party inference gateway to AgentGate (macOS only, requires enabling the third-party gateway once first)",
-    zh: "把第三方推理网关指向 AgentGate（仅 macOS，需先启用过一次第三方网关）",
+    en: "Point the third-party inference gateway to MuxLayer (macOS only, requires enabling the third-party gateway once first)",
+    zh: "把第三方推理网关指向 MuxLayer（仅 macOS，需先启用过一次第三方网关）",
   },
   "tools.claude_desktop_unsupported": {
     en: "Not supported on the current platform (macOS only).",

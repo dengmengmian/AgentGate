@@ -1,19 +1,19 @@
-# Contributing to AgentGate
+# Contributing to MuxLayer
 
-Thanks for your interest in contributing! AgentGate is a local AI gateway built with Rust + Tauri + React.
+Thanks for your interest in contributing! MuxLayer is a local AI gateway built with Rust + Tauri + React.
 
 ## How to Contribute
 
 ### Reporting Bugs
 
-- Use the [Bug Report](https://github.com/dengmengmian/agentgate-ai/issues/new?template=bug_report.yml) template
-- Include your OS, AgentGate version, provider, and client
+- Use the [Bug Report](https://github.com/dengmengmian/muxlayer/issues/new?template=bug_report.yml) template
+- Include your OS, MuxLayer version, provider, and client
 - Attach a redacted diagnostic bundle from **Diagnostics -> Export** when the issue involves gateway behavior
 - Redact API keys, account tokens, private endpoints, and local secrets from any logs you share
 
 ### Suggesting Features
 
-- Use the [Feature Request](https://github.com/dengmengmian/agentgate-ai/issues/new?template=feature_request.yml) template
+- Use the [Feature Request](https://github.com/dengmengmian/muxlayer/issues/new?template=feature_request.yml) template
 - Describe the problem you're solving, not just the solution
 - For provider or client requests, include the official API documentation link and the minimum workflow you want to support
 

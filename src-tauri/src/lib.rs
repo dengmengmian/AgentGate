@@ -11,6 +11,7 @@ mod app;
 // tools / diagnostics 大部分入口是 Tauri 命令(desktop)。cli(headless)构建
 // 不编译命令层,这两个模块会报大片 dead_code——只在 cli 构建静默,desktop
 // 构建的告警保持有效,避免掩盖真死代码。
+pub mod compat;
 #[cfg_attr(not(feature = "desktop"), allow(dead_code))]
 mod diagnostics;
 pub mod errors;

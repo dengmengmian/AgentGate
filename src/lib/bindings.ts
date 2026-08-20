@@ -432,7 +432,7 @@ async applyCodexConfig() : Promise<Result<CodexApplyConfigResult, AppError>> {
 }
 },
 /**
- * Restore Codex to its pre-AgentGate state — the saved config.toml is
+ * Restore Codex to its pre-MuxLayer state — the saved config.toml is
  * copied back so the user gets the official `[plugins.*]` / `[mcp_servers.*]`
  * blocks alive again. Used by the UI's "Switch to native mode" button.
  */
@@ -464,7 +464,7 @@ async detectClaudeDesktop() : Promise<ClaudeDesktopStatus> {
     return await TAURI_INVOKE("detect_claude_desktop");
 },
 /**
- * 生成指向 AgentGate 网关的 3p profile JSON（pretty），仅供和用户机器上实际的
+ * 生成指向 MuxLayer 网关的 3p profile JSON（pretty），仅供和用户机器上实际的
  * Claude Desktop 3p 配置对比、确认 schema，不写任何文件。
  */
 async previewClaudeDesktopProfile() : Promise<Result<string, AppError>> {
@@ -476,7 +476,7 @@ async previewClaudeDesktopProfile() : Promise<Result<string, AppError>> {
 }
 },
 /**
- * 接入 Claude Desktop：写 3p profile + 切 appliedId 到 AgentGate。apply 前先经
+ * 接入 Claude Desktop：写 3p profile + 切 appliedId 到 MuxLayer。apply 前先经
  * apply_history 快照 profile/_meta，用户可在客户端历史里一键回滚。
  */
 async applyClaudeDesktopConfig() : Promise<Result<ClaudeDesktopApplyResult, AppError>> {
@@ -1442,7 +1442,7 @@ supported: boolean; normal_config_path: string; threep_config_path: string; prof
  */
 installed: boolean; 
 /**
- * 是否已存在 AgentGate profile
+ * 是否已存在 MuxLayer profile
  */
 has_agentgate_profile: boolean; 
 /**
@@ -1460,7 +1460,7 @@ export type CodexConfigStatus = { config_path: string; auth_json_path: string; e
  */
 is_agentgate_active: boolean; 
 /**
- * True if OPENAI_API_KEY in auth.json was overwritten with ag_local_ by old AgentGate.
+ * True if OPENAI_API_KEY in auth.json was overwritten with ag_local_ by old MuxLayer.
  */
 openai_key_polluted: boolean; 
 /**
@@ -1571,7 +1571,7 @@ auto_compact_usage_percent: number;
  */
 wake_enabled: boolean; 
 /**
- * false=AgentGate 生命周期持续保持，true=仅按生成请求控制。
+ * false=MuxLayer 生命周期持续保持，true=仅按生成请求控制。
  */
 wake_request_control: boolean; 
 /**
