@@ -260,7 +260,7 @@ const pagePairs = [
     },
   },
   {
-    slug: "agentgate-vs-litellm",
+    slug: "muxlayer-vs-litellm",
     en: {
       title: "MuxLayer vs LiteLLM: local desktop gateway or API proxy",
       description:
@@ -321,7 +321,7 @@ const pagePairs = [
     },
   },
   {
-    slug: "agentgate-vs-openrouter",
+    slug: "muxlayer-vs-openrouter",
     en: {
       title: "MuxLayer vs OpenRouter: local gateway or hosted model router",
       description:
@@ -382,7 +382,7 @@ const pagePairs = [
     },
   },
   {
-    slug: "agentgate-vs-direct-provider-config",
+    slug: "muxlayer-vs-direct-provider-config",
     en: {
       title: "MuxLayer vs direct provider config for AI apps",
       description:
@@ -443,6 +443,14 @@ const pagePairs = [
     },
   },
 ];
+
+const legacyGuideSlugs = {
+  "agentgate-vs-litellm": "muxlayer-vs-litellm",
+  "agentgate-vs-openrouter": "muxlayer-vs-openrouter",
+  "agentgate-vs-direct-provider-config": "muxlayer-vs-direct-provider-config",
+  "use-gemini-cli-with-agentgate": "use-gemini-cli-with-muxlayer",
+  "use-opencode-with-agentgate": "use-opencode-with-muxlayer",
+};
 
 // 完整教程页:正文来自 docs/<slug>.md 与 docs/<slug>-zh.md,标题和首段摘要从 md 提取。
 // lastmod 手工同步 docs 文件的最后实质修改日期。
@@ -532,7 +540,7 @@ const docPages = [
     },
   },
   {
-    slug: "use-gemini-cli-with-agentgate",
+    slug: "use-gemini-cli-with-muxlayer",
     published: "2026-06-13",
     lastmod: "2026-06-13",
     en: {
@@ -553,7 +561,7 @@ const docPages = [
     },
   },
   {
-    slug: "use-opencode-with-agentgate",
+    slug: "use-opencode-with-muxlayer",
     published: "2026-06-13",
     lastmod: "2026-06-13",
     en: {
@@ -828,7 +836,7 @@ function answerText(copy, lang) {
 }
 
 function useBoundaries(slug, lang) {
-  const isComparison = slug.startsWith("agentgate-vs-");
+  const isComparison = slug.startsWith("muxlayer-vs-");
   if (lang === "zh") {
     return {
       use: isComparison
@@ -1146,6 +1154,24 @@ ${urls
 `;
 }
 
+function renderLegacyRedirect(lang, oldSlug, newSlug) {
+  const destination = pageUrl(lang, newSlug);
+  return `<!doctype html>
+<html lang="${lang === "zh" ? "zh-CN" : "en"}">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0; url=${destination}" />
+    <link rel="canonical" href="${destination}" />
+    <title>MuxLayer guide moved</title>
+    <script>window.location.replace(${JSON.stringify(destination)});</script>
+  </head>
+  <body>
+    <p>This AgentGate guide moved to <a href="${destination}">${destination}</a>.</p>
+  </body>
+</html>
+`;
+}
+
 async function main() {
   for (const pair of pagePairs) {
     const enDir = path.join(siteDir, "guides", pair.slug);
@@ -1169,6 +1195,16 @@ async function main() {
       path.join(zhDir, "index.html"),
       renderDocPage(page, "zh", await loadDoc(page, "zh")),
     );
+  }
+
+  for (const [oldSlug, newSlug] of Object.entries(legacyGuideSlugs)) {
+    for (const lang of ["en", "zh"]) {
+      const legacyDir = lang === "zh"
+        ? path.join(siteDir, "zh", "guides", oldSlug)
+        : path.join(siteDir, "guides", oldSlug);
+      await mkdir(legacyDir, { recursive: true });
+      await writeFile(path.join(legacyDir, "index.html"), renderLegacyRedirect(lang, oldSlug, newSlug));
+    }
   }
 
   await writeFile(path.join(siteDir, "sitemap.xml"), renderSitemap());

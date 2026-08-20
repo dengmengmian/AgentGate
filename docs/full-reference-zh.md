@@ -19,7 +19,7 @@ English: [Main Reference](./full-reference.md)
 </p>
 
 <p align="center">
-  <a href="../README.md">English</a> · <a href="https://github.com/dengmengmian/muxlayer/releases">下载</a> · <a href="#5-分钟快速上手">5 分钟快速上手</a> · <a href="./use-codex-with-deepseek-zh.md">Codex + DeepSeek</a> · <a href="./use-claude-code-with-deepseek-zh.md">Claude Code + DeepSeek</a> · <a href="./use-gemini-cli-with-agentgate-zh.md">Gemini CLI</a>
+  <a href="../README.md">English</a> · <a href="https://github.com/dengmengmian/muxlayer/releases">下载</a> · <a href="#5-分钟快速上手">5 分钟快速上手</a> · <a href="./use-codex-with-deepseek-zh.md">Codex + DeepSeek</a> · <a href="./use-claude-code-with-deepseek-zh.md">Claude Code + DeepSeek</a> · <a href="./use-gemini-cli-with-muxlayer-zh.md">Gemini CLI</a>
 </p>
 
 <p align="center">
@@ -96,7 +96,7 @@ MuxLayer 的事就一句话：**让官方客户端的入口在本地可控**—�
 
 ## 常见用途
 
-教程：[Codex Desktop 插件](./use-codex-desktop-with-third-party-api-and-plugins-zh.md) · [Codex + DeepSeek](./use-codex-with-deepseek-zh.md) · [Codex + 小米 MiMo](./use-codex-with-mimo-zh.md) · [Claude Code + DeepSeek](./use-claude-code-with-deepseek-zh.md) · [Claude Code + GitHub Copilot](./use-claude-code-with-github-copilot-zh.md) · [Gemini CLI](./use-gemini-cli-with-agentgate-zh.md) · [OpenCode](./use-opencode-with-agentgate-zh.md)
+教程：[Codex Desktop 插件](./use-codex-desktop-with-third-party-api-and-plugins-zh.md) · [Codex + DeepSeek](./use-codex-with-deepseek-zh.md) · [Codex + 小米 MiMo](./use-codex-with-mimo-zh.md) · [Claude Code + DeepSeek](./use-claude-code-with-deepseek-zh.md) · [Claude Code + GitHub Copilot](./use-claude-code-with-github-copilot-zh.md) · [Gemini CLI](./use-gemini-cli-with-muxlayer-zh.md) · [OpenCode](./use-opencode-with-muxlayer-zh.md)
 
 | 目标 | MuxLayer 做的事 |
 |---|---|

@@ -15,8 +15,8 @@ Sitemap: https://dengmengmian.github.io/muxlayer/sitemap.xml
 - [Use Claude Code with DeepSeek](https://dengmengmian.github.io/muxlayer/guides/use-claude-code-with-deepseek/): Full guide: route Claude Code requests to DeepSeek through MuxLayer, with setup steps and troubleshooting.
 - [Use Codex with Xiaomi MiMo](https://dengmengmian.github.io/muxlayer/guides/use-codex-with-mimo/): Full guide: route Codex to Xiaomi MiMo with reasoning round-trip, web search handling, and key-type detection.
 - [Use Claude Code with GitHub Copilot](https://dengmengmian.github.io/muxlayer/guides/use-claude-code-with-github-copilot/): Full guide: route Claude Code to Claude models in a GitHub Copilot subscription.
-- [Use Gemini CLI with MuxLayer](https://dengmengmian.github.io/muxlayer/guides/use-gemini-cli-with-agentgate/): Full guide: give Gemini CLI a local model entry with multi-provider routing.
-- [Use OpenCode with MuxLayer](https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-agentgate/): Full guide: point OpenCode at MuxLayer and switch providers freely.
+- [Use Gemini CLI with MuxLayer](https://dengmengmian.github.io/muxlayer/guides/use-gemini-cli-with-muxlayer/): Full guide: give Gemini CLI a local model entry with multi-provider routing.
+- [Use OpenCode with MuxLayer](https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-muxlayer/): Full guide: point OpenCode at MuxLayer and switch providers freely.
 - [Use ChatGPT+Codex with third-party models](https://dengmengmian.github.io/muxlayer/guides/use-chatgpt-codex-with-third-party-models/): 1.4.12 guide: after the ChatGPT+Codex merge, hoist additional_tools so DeepSeek / MiMo / others get real tool calling.
 - [Use Codex Desktop with third-party APIs and plugins](https://dengmengmian.github.io/muxlayer/guides/use-codex-desktop-with-third-party-api-and-plugins/): Full guide: keep Codex Desktop plugins working while routing model requests to third-party providers.
 - [Use Codex with OpenRouter](https://dengmengmian.github.io/muxlayer/guides/use-codex-with-openrouter/): Use MuxLayer as the local endpoint for Codex and OpenRouter.
@@ -26,9 +26,9 @@ Sitemap: https://dengmengmian.github.io/muxlayer/sitemap.xml
 
 ## Comparisons
 
-- [MuxLayer vs LiteLLM](https://dengmengmian.github.io/muxlayer/guides/agentgate-vs-litellm/): MuxLayer is better for local desktop AI app workflows and reversible client config; LiteLLM is better for server-side proxy infrastructure.
-- [MuxLayer vs OpenRouter](https://dengmengmian.github.io/muxlayer/guides/agentgate-vs-openrouter/): MuxLayer runs locally and can route to OpenRouter; OpenRouter is a hosted model routing provider.
-- [MuxLayer vs direct provider config](https://dengmengmian.github.io/muxlayer/guides/agentgate-vs-direct-provider-config/): Direct provider config is fine for one app and one provider; MuxLayer is better for switching, tracing, failover, and rollback.
+- [MuxLayer vs LiteLLM](https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-litellm/): MuxLayer is better for local desktop AI app workflows and reversible client config; LiteLLM is better for server-side proxy infrastructure.
+- [MuxLayer vs OpenRouter](https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-openrouter/): MuxLayer runs locally and can route to OpenRouter; OpenRouter is a hosted model routing provider.
+- [MuxLayer vs direct provider config](https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-direct-provider-config/): Direct provider config is fine for one app and one provider; MuxLayer is better for switching, tracing, failover, and rollback.
 
 ## Chinese Pages
 
@@ -36,17 +36,17 @@ Sitemap: https://dengmengmian.github.io/muxlayer/sitemap.xml
 - [用 MuxLayer 让 Claude Code 使用 DeepSeek](https://dengmengmian.github.io/muxlayer/zh/guides/use-claude-code-with-deepseek/)
 - [让 Codex 使用小米 MiMo](https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-mimo/)
 - [用 GitHub Copilot 订阅跑 Claude Code](https://dengmengmian.github.io/muxlayer/zh/guides/use-claude-code-with-github-copilot/)
-- [让 Gemini CLI 通过 MuxLayer 使用多供应商模型](https://dengmengmian.github.io/muxlayer/zh/guides/use-gemini-cli-with-agentgate/)
-- [让 OpenCode 通过 MuxLayer 切换多供应商模型](https://dengmengmian.github.io/muxlayer/zh/guides/use-opencode-with-agentgate/)
+- [让 Gemini CLI 通过 MuxLayer 使用多供应商模型](https://dengmengmian.github.io/muxlayer/zh/guides/use-gemini-cli-with-muxlayer/)
+- [让 OpenCode 通过 MuxLayer 切换多供应商模型](https://dengmengmian.github.io/muxlayer/zh/guides/use-opencode-with-muxlayer/)
 - [ChatGPT+Codex 合并版用第三方模型](https://dengmengmian.github.io/muxlayer/zh/guides/use-chatgpt-codex-with-third-party-models/)
 - [让 Codex Desktop 使用第三方 API 并保留插件能力](https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-desktop-with-third-party-api-and-plugins/)
 - [通过 MuxLayer 让 Codex 使用 OpenRouter](https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-openrouter/)
 - [通过 MuxLayer 让 Claude Code 使用 OpenRouter](https://dengmengmian.github.io/muxlayer/zh/guides/use-claude-code-with-openrouter/)
 - [本地追踪 Codex 模型请求](https://dengmengmian.github.io/muxlayer/zh/guides/trace-codex-requests/)
 - [本地 AI 网关](https://dengmengmian.github.io/muxlayer/zh/guides/local-ai-gateway/)
-- [MuxLayer vs LiteLLM](https://dengmengmian.github.io/muxlayer/zh/guides/agentgate-vs-litellm/)
-- [MuxLayer vs OpenRouter](https://dengmengmian.github.io/muxlayer/zh/guides/agentgate-vs-openrouter/)
-- [MuxLayer vs 直接 Provider 配置](https://dengmengmian.github.io/muxlayer/zh/guides/agentgate-vs-direct-provider-config/)
+- [MuxLayer vs LiteLLM](https://dengmengmian.github.io/muxlayer/zh/guides/muxlayer-vs-litellm/)
+- [MuxLayer vs OpenRouter](https://dengmengmian.github.io/muxlayer/zh/guides/muxlayer-vs-openrouter/)
+- [MuxLayer vs 直接 Provider 配置](https://dengmengmian.github.io/muxlayer/zh/guides/muxlayer-vs-direct-provider-config/)
 
 ## Facts
 

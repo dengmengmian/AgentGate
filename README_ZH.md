@@ -148,10 +148,10 @@ Provider 预设会填好常见 base URL、协议、默认模型和能力矩阵�
 - [Codex + 小米 MiMo](./docs/use-codex-with-mimo.md)
 - [Claude Code + DeepSeek](./docs/use-claude-code-with-deepseek.md)
 - [Claude Code + GitHub Copilot](./docs/use-claude-code-with-github-copilot.md)
-- [Gemini CLI](./docs/use-gemini-cli-with-agentgate.md)
-- [OpenCode](./docs/use-opencode-with-agentgate.md)
-- [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-agentgate-zh.md)
-- [本地模型（Ollama / LM Studio）](./docs/use-local-models-with-agentgate-zh.md)
+- [Gemini CLI](./docs/use-gemini-cli-with-muxlayer-zh.md)
+- [OpenCode](./docs/use-opencode-with-muxlayer-zh.md)
+- [Cursor / Continue / Cline](./docs/use-cursor-continue-cline-with-muxlayer-zh.md)
+- [本地模型（Ollama / LM Studio）](./docs/use-local-models-with-muxlayer-zh.md)
 - [完整参考](./docs/full-reference.md)
 
 ## 截图

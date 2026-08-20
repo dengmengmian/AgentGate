@@ -1,43 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <linearGradient id="bg" x1="72" y1="40" x2="440" y2="472" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1E40AF"/>
-      <stop offset="0.5" stop-color="#4338CA"/>
-      <stop offset="1" stop-color="#6D28D9"/>
+    <linearGradient id="bg" x1="56" y1="36" x2="456" y2="476" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F766E"/>
+      <stop offset="0.52" stop-color="#0E7490"/>
+      <stop offset="1" stop-color="#164E63"/>
     </linearGradient>
-    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(150 130) scale(330)">
-      <stop offset="0" stop-color="#60A5FA" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="#60A5FA" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="vignette" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(420 450) scale(300)">
-      <stop offset="0" stop-color="#1E1B4B" stop-opacity="0"/>
-      <stop offset="1" stop-color="#160E3D" stop-opacity="0.55"/>
-    </radialGradient>
-    <linearGradient id="g" x1="150" y1="140" x2="372" y2="380" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#DBE4FF"/>
+    <linearGradient id="layer" x1="112" y1="134" x2="390" y2="378" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFEFF"/>
+      <stop offset="1" stop-color="#A5F3FC"/>
     </linearGradient>
-    <radialGradient id="hub" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 256) scale(46)">
-      <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="0.62" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#C7D2FE" stop-opacity="0"/>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(180 124) scale(310)">
+      <stop stop-color="#67E8F9" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#67E8F9" stop-opacity="0"/>
     </radialGradient>
     <clipPath id="round"><rect x="12" y="12" width="488" height="488" rx="116"/></clipPath>
-    <filter id="sh" x="-25%" y="-25%" width="150%" height="150%">
-      <feDropShadow dx="0" dy="8" stdDeviation="13" flood-color="#0E0A2B" flood-opacity="0.5"/>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="13" flood-color="#082F49" flood-opacity=".48"/>
     </filter>
   </defs>
 
   <g clip-path="url(#round)">
     <rect x="12" y="12" width="488" height="488" fill="url(#bg)"/>
     <rect x="12" y="12" width="488" height="488" fill="url(#glow)"/>
-    <rect x="12" y="12" width="488" height="488" fill="url(#vignette)"/>
-    <ellipse cx="230" cy="70" rx="250" ry="84" fill="#FFFFFF" opacity="0.10"/>
+    <path d="M-20 404C114 338 205 458 536 318V524H-20V404Z" fill="#082F49" opacity=".28"/>
   </g>
 
-  <g filter="url(#sh)">
-    <path d="M256 128 a128 128 0 1 0 128 128 h-106" stroke="url(#g)" stroke-width="44" stroke-linecap="round" fill="none"/>
+  <g filter="url(#shadow)" fill="url(#layer)">
+    <rect x="146" y="126" width="220" height="58" rx="29"/>
+    <rect x="110" y="227" width="256" height="58" rx="29"/>
+    <rect x="74" y="328" width="292" height="58" rx="29"/>
   </g>
-  <circle cx="256" cy="256" r="44" fill="url(#hub)"/>
-  <circle cx="256" cy="256" r="29" fill="#FFFFFF"/>
+  <path d="M366 155L414 206M366 256L414 307M366 357L414 408" stroke="#CFFAFE" stroke-width="18" stroke-linecap="round" opacity=".9"/>
+  <circle cx="414" cy="256" r="30" fill="#FFFFFF"/>
+  <circle cx="414" cy="256" r="15" fill="#0E7490"/>
 </svg>
