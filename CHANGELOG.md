@@ -1,5 +1,20 @@
 # Changelog / 更新日志
 
+## [2.0.1] - 2026-08-21
+
+### Added / 新增
+
+- **DeepSeek image understanding / DeepSeek 图像理解** —— Added `deepseek-v4-flash-vision-exp` to the built-in catalog with image-input support across Chat Completions, Responses, and Anthropic-compatible routes. 内置目录新增 `deepseek-v4-flash-vision-exp`，支持通过 Chat Completions、Responses 和 Anthropic 兼容入口传入图片。
+
+### Fixed / 修复
+
+- **Per-model vision boundaries / 按模型区分视觉能力** —— `deepseek-v4-flash` and `deepseek-v4-pro` remain text-only: image requests are never passed through to them and conversion paths keep the explicit image-degradation notice. `deepseek-v4-flash` 与 `deepseek-v4-pro` 仍按纯文本模型处理：带图请求不会直通给它们，协议转换路径继续剥图并注入明确提示。
+- **Vision promotion survives model mapping / 视觉升级不再被模型映射覆盖** —— Image-aware routing now keeps the promoted vision model through native Chat, Responses, and Anthropic pass-through instead of mapping it back to a text-only model. 带图请求升级到视觉模型后，原生 Chat、Responses 与 Anthropic 直通不会再被 Model Mapping 覆盖回纯文本模型。
+
+### Documentation / 文档
+
+- Updated the English and Chinese DeepSeek guides, provider catalog, README tables, and full routing reference. 同步更新中英文 DeepSeek 指南、Provider 目录、README 表格与完整路由参考。
+
 ## [1.6.3] - 2026-08-13
 
 ### Added / 新增

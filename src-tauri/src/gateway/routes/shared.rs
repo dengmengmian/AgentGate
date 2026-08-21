@@ -384,6 +384,42 @@ pub(crate) fn native_model_override(
     explicit_model_mapping(provider, requested)
 }
 
+/// Resolve the model override for a request that may need a promoted vision
+/// model. Explicit mappings remain authoritative for text requests, but an
+/// image request must not map a vision-capable candidate back to a text-only
+/// model.
+pub(crate) fn native_model_override_for_images(
+    provider: &Provider,
+    requested_model: Option<&str>,
+    resolved_model: Option<&str>,
+    has_images: bool,
+) -> Option<String> {
+    let mapped = native_model_override(provider, requested_model, resolved_model);
+    if !has_images {
+        return mapped;
+    }
+
+    let Some(resolved) = resolved_model else {
+        return mapped;
+    };
+    let capabilities = provider.parse_capabilities();
+    let resolved_base = crate::transform::tool_calls::model_base(resolved);
+    let resolved_is_vision = capabilities.get(resolved_base).is_some_and(|caps| {
+        caps.iter()
+            .any(|cap| cap == crate::providers::capabilities::CAP_VISION)
+    });
+    if resolved_is_vision
+        && mapped
+            .as_deref()
+            .map(crate::transform::tool_calls::model_base)
+            != Some(resolved_base)
+    {
+        return Some(resolved.to_string());
+    }
+
+    mapped
+}
+
 fn is_agentgate_virtual_model(requested: &str) -> bool {
     let model = requested
         .rsplit_once('/')
@@ -1288,6 +1324,46 @@ mod tests {
         );
         assert_eq!(native_model_override(&provider, Some(""), None), None);
         assert_eq!(native_model_override(&provider, None, None), None);
+    }
+
+    #[test]
+    fn image_request_prefers_promoted_vision_model_over_text_mapping() {
+        let mut provider = provider_with_mapping();
+        provider.supported_models = Some(
+            r#"["deepseek-v4-pro","deepseek-v4-flash","deepseek-v4-flash-vision-exp"]"#.to_string(),
+        );
+        provider.model_capabilities = Some(
+            r#"{
+                "deepseek-v4-pro":["text","reasoning","tools"],
+                "deepseek-v4-flash":["text","tools"],
+                "deepseek-v4-flash-vision-exp":["text","vision"]
+            }"#
+            .to_string(),
+        );
+
+        assert_eq!(
+            native_model_override_for_images(
+                &provider,
+                Some("gpt-5.5"),
+                Some("deepseek-v4-flash-vision-exp"),
+                true,
+            ),
+            Some("deepseek-v4-flash-vision-exp".to_string())
+        );
+    }
+
+    #[test]
+    fn text_request_keeps_explicit_model_mapping() {
+        let provider = provider_with_mapping();
+        assert_eq!(
+            native_model_override_for_images(
+                &provider,
+                Some("gpt-5.5"),
+                Some("deepseek-v4-flash-vision-exp"),
+                false,
+            ),
+            Some("deepseek-v4-pro".to_string())
+        );
     }
 
     // ── chat_request_has_images / request_contains_images ──

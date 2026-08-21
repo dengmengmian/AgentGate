@@ -471,6 +471,12 @@ mod tests {
     }
 
     #[test]
+    fn deepseek_vision_model_has_vision_capability() {
+        let c = caps_for("deepseek", "deepseek-v4-flash-vision-exp");
+        assert_eq!(c, vec![CAP_TEXT, CAP_VISION]);
+    }
+
+    #[test]
     fn kimi_generic_chat_has_web_search_no_vision() {
         let c = caps_for("kimi", "moonshot-v1-32k");
         assert!(contains(&c, CAP_WEB_SEARCH));

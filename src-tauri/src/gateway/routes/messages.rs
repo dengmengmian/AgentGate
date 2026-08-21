@@ -11,8 +11,8 @@ use crate::providers::adapter::{self, ProviderConfig};
 
 use super::shared::{
     detect_client_from_ua, lock_db, log_request_error, log_request_error_full, log_request_success,
-    native_model_override, refine_struct_body, request_body_or_gateway_error, sanitize_body,
-    trace_with_degradation_events, validate_auth, GatewayError,
+    native_model_override_for_images, refine_struct_body, request_body_or_gateway_error,
+    sanitize_body, trace_with_degradation_events, validate_auth, GatewayError,
 };
 use super::GatewayState;
 
@@ -207,10 +207,11 @@ pub async fn handle_messages(
     if config.has_anthropic_url() {
         {
             let target = config.anthropic_messages_url();
-            let model_override = native_model_override(
+            let model_override = native_model_override_for_images(
                 &selection.provider,
                 requested_model.as_deref(),
                 Some(&selection.model),
+                request_has_images,
             );
             return crate::gateway::pass_through::handle_anthropic(
                 &state.http_client,

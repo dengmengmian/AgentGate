@@ -11,10 +11,12 @@ use crate::errors::AppError;
 use crate::models::provider::Provider;
 use crate::providers::adapter::{self, ProviderConfig};
 
+#[cfg(test)]
+use super::shared::native_model_override;
 use super::shared::{
     detect_client_from_ua, lock_db, log_request_error, log_request_error_full, log_request_success,
-    native_model_override, refine_value_body, request_body_or_gateway_error, sanitize_body,
-    truncate_str, validate_auth, GatewayError,
+    native_model_override_for_images, refine_value_body, request_body_or_gateway_error,
+    sanitize_body, truncate_str, validate_auth, GatewayError,
 };
 use super::GatewayState;
 
@@ -144,10 +146,11 @@ pub async fn handle_chat_completions(
         // 走 client_chat_to_anthropic_handle 转换请求体、调上游 Anthropic、再把响应/SSE
         // 翻译成 Chat 形态发回。
         if config.is_anthropic() && config.has_anthropic_url() {
-            let model_override = native_model_override(
+            let model_override = native_model_override_for_images(
                 &provider,
                 requested_model.as_deref(),
                 Some(&candidate.model),
+                request_has_images,
             );
             let model = model_override.unwrap_or_else(|| candidate.model.clone());
             let result = client_chat_to_anthropic_handle(
@@ -221,10 +224,11 @@ pub async fn handle_chat_completions(
             continue;
         }
 
-        let model_override = native_model_override(
+        let model_override = native_model_override_for_images(
             &provider,
             requested_model.as_deref(),
             Some(&candidate.model),
+            request_has_images,
         );
         let result = crate::gateway::pass_through::handle(
             &state.http_client,

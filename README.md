@@ -82,7 +82,7 @@ See the [full provider compatibility matrix](./docs/full-reference.md#supported-
 | Provider | Type | Native Protocols | Provider-Specific Handling |
 |---|---|---|---|
 | Xiaomi MiMo | `mimo` | Chat + Anthropic | Multi-turn `reasoning_content` round-trip, region-aware `tp-*` host auto-routing, temperature strip in thinking mode, tool_choice non-auto strip, omni web_search strip, web_search builtin gated by matrix, Web Search Plugin auto-degrade / retry |
-| DeepSeek | `deepseek` | Chat + Anthropic | Image stripping with explicit notice, DeepSeek V4 thinking history reasoning backfill, schema cleaning, message reordering |
+| DeepSeek | `deepseek` | Chat + Anthropic | Vision model preserves image inputs; text-only models strip images with an explicit notice; DeepSeek V4 thinking history reasoning backfill, schema cleaning, message reordering |
 | Anthropic (Claude) | `anthropic` | Anthropic | `tool_use`/`tool_result`, `input_schema`, thinking budget, native cache_control |
 | GitHub Copilot | `copilot` | Chat + Anthropic | GitHub token → Copilot bearer exchange, `x-initiator` billing classification, Claude model dash→dot normalization |
 | OpenAI | `openai` | Chat + Responses | None (Responses passthrough or Chat conversion) |
@@ -116,11 +116,11 @@ See the [full provider compatibility matrix](./docs/full-reference.md#supported-
 
 | Platform | Package |
 |---|---|
-| macOS Apple Silicon | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_aarch64.dmg) |
-| macOS Intel | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64.dmg) |
-| Windows 10 / 11 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64-setup.exe) |
-| Debian / Ubuntu | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_amd64.deb) |
-| Other Linux distros | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_amd64.AppImage) |
+| macOS Apple Silicon | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_aarch64.dmg) |
+| macOS Intel | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.deb) |
+| Other Linux distros | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.AppImage) |
 
 On macOS:
 

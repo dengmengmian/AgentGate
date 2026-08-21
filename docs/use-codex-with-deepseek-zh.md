@@ -29,7 +29,7 @@ MuxLayer 保留了原 Codex 配置的可恢复状态，你可以随时从 Codex 
 | Codex 侧 | MuxLayer 侧 | DeepSeek 侧 |
 |---|---|---|
 | OpenAI Responses API | `/v1/responses` 本地网关路由 | DeepSeek Chat Completions 或 Anthropic 兼容 endpoint |
-| Codex 模型名 | Model Mapping 或 `agentgate` 虚拟模型 | DeepSeek 模型 ID，如 `deepseek-v4-flash` 或 `deepseek-v4-pro` |
+| Codex 模型名 | Model Mapping 或 `agentgate` 虚拟模型 | DeepSeek 模型 ID，如 `deepseek-v4-flash`、`deepseek-v4-pro` 或 `deepseek-v4-flash-vision-exp` |
 | Codex 的工具和流式输出 | 协议转换和请求追踪 | DeepSeek 专属处理 |
 
 ## 工作原理
@@ -46,7 +46,7 @@ Codex -> http://127.0.0.1:9090/v1/responses -> MuxLayer -> DeepSeek
 
 ## 为什么默认不直连 DeepSeek 的 Responses API
 
-`deepseek-v4-flash` 已经正式支持 Responses API，理论上 Codex 可以不经转换直连。但实测下来，直连的实际效果反而明显更差，所以 MuxLayer 不为 DeepSeek 预置 Responses 端点，默认仍然把 Codex 的 Responses 请求转换成 Chat Completions。
+`deepseek-v4-flash` 已经正式支持 Responses API，`deepseek-v4-flash-vision-exp` 还支持通过 Responses 传入图片。但对普通 Coding 模型来说，直连的 Agent 实际效果仍然更差，因此 MuxLayer 默认继续走协议转换，只对明确支持的模型和工具组合开放原生直连。
 
 原因有四条，都可复现：
 
@@ -74,13 +74,13 @@ Codex 必发 `exec`，因此即使工具没丢，直连也会被拒。
 Codex 每轮都会带 `include: ["reasoning.encrypted_content"]`，用于把上一轮的推理链带回下一轮。DeepSeek 明确不支持 `include` 与 `encrypted_content`，且是**静默忽略**——不报错，只是每轮推理都从零开始。转换路径里 MuxLayer 会做 DeepSeek V4 thinking 历史回填来补偿，直连没有这层补偿。
 
 **4. 直连绕过全部 DeepSeek 专属处理。**
-图片剥离并注入可解释提示、schema 清洗、消息重排、V4 thinking 历史 reasoning 回填，这些都发生在转换路径上。直连意味着全部放弃。
+对纯文本 DeepSeek 模型，图片剥离并注入可解释提示、schema 清洗、消息重排、V4 thinking 历史 reasoning 回填都发生在转换路径上。`deepseek-v4-flash-vision-exp` 会保留图片输入；原生直连则会跳过转换层修复。
 
 ### 如果你仍然想直连
 
 在 Provider 里手动填 Responses 端点即可，网关会尝试直连。为避免上述问题把请求打废，网关内置两道判定，命中任意一条就自动回落到协议转换：
 
-- 目标模型不在上游 Responses API 的支持列表内（DeepSeek 目前仅 `deepseek-v4-flash`）。
+- 目标模型不在上游 Responses API 的支持列表内（DeepSeek 支持 `deepseek-v4-flash` 和 `deepseek-v4-flash-vision-exp`）。
 - 请求里带了上游不接受的自定义工具（DeepSeek 仅接受 `apply_patch`）。
 
 也就是说，Codex 即使配了直连端点，实际仍会走转换路径。这是有意为之，不做进一步处理。

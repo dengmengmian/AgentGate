@@ -23,6 +23,10 @@ fn is_deepseek_v4_family(model: &str) -> bool {
     )
 }
 
+fn is_deepseek_vision_model(model: &str) -> bool {
+    strip_qualifier(model) == "deepseek-v4-flash-vision-exp"
+}
+
 fn is_thinking_enabled(req: &ChatCompletionsRequest) -> bool {
     req.thinking
         .as_ref()
@@ -64,17 +68,20 @@ impl super::ProviderTransform for DeepSeekProvider {
         let model = strip_qualifier(&req.model).to_string();
         let model = model.as_str();
 
-        // DeepSeek V4 models are text-only. Keep routing responsible for
-        // promoting current image turns to a vision provider; this is the final
-        // compatibility guard for historic images or text-only fallbacks.
-        req.diagnostic_events
-            .extend(degradation::strip_image_parts_with_notice(
-            &mut req.messages,
-            "deepseek",
-            "DeepSeek",
-            model,
-            "To analyze images, switch to a vision-capable provider/model and re-send the request.",
-        ));
+        // DeepSeek's vision experiment accepts the standard Chat Completions
+        // image_url block. Keep the old degradation guard for every other
+        // DeepSeek model, including historic image turns replayed to a
+        // text-only model.
+        if !is_deepseek_vision_model(model) {
+            req.diagnostic_events
+                .extend(degradation::strip_image_parts_with_notice(
+                &mut req.messages,
+                "deepseek",
+                "DeepSeek",
+                model,
+                "To analyze images, switch to a vision-capable provider/model and re-send the request.",
+            ));
+        }
 
         // DeepSeek V4 exposes thinking as an explicit request contract. For
         // unknown DeepSeek-compatible ids we keep transparent proxy semantics:
@@ -432,6 +439,29 @@ mod tests {
         assert_eq!(arr.len(), 1);
         assert_eq!(arr[0]["type"], "text");
         assert!(arr[0]["text"].as_str().unwrap().contains("vision-capable"));
+    }
+
+    #[test]
+    fn deepseek_vision_model_preserves_image_url() {
+        let mut r = req();
+        r.model = "deepseek-v4-flash-vision-exp".into();
+        r.messages = vec![ChatMessage {
+            role: "user".into(),
+            content: Some(json!([
+                {"type": "text", "text": "look"},
+                {"type": "image_url", "image_url": {"url": "http://example.com/img.png", "detail": "high"}}
+            ])),
+            reasoning_content: None,
+            tool_calls: None,
+            tool_call_id: None,
+            name: None,
+        }];
+        DeepSeekProvider.finalize_request(&mut r, &None);
+        let arr = r.messages[0].content.as_ref().unwrap().as_array().unwrap();
+        assert_eq!(arr.len(), 2);
+        assert_eq!(arr[1]["type"], "image_url");
+        assert_eq!(arr[1]["image_url"]["detail"], "high");
+        assert!(r.diagnostic_events.is_empty());
     }
 
     #[test]

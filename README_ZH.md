@@ -82,7 +82,7 @@ MuxLayer 不是托管 API 分发平台，也不是普通代理，而是位于 Co
 | Provider | 类型 | 原生协议 | 专属处理 |
 |---|---|---|---|
 | 小米 MiMo | `mimo` | Chat + Anthropic | 多轮 `reasoning_content` 回环、`tp-*` host 按区域自动切换、思考态剥 temperature、tool_choice 非 auto 剥除、omni web_search 剥除、web_search builtin 按矩阵翻译、Web Search Plugin 自动降级 / 重试 |
-| DeepSeek | `deepseek` | Chat + Anthropic | 图片剥离并注入可解释提示、DeepSeek V4 thinking 历史 reasoning 回填、schema 清洗、消息重排 |
+| DeepSeek | `deepseek` | Chat + Anthropic | 视觉模型保留图片输入；纯文本模型剥离图片并注入可解释提示；DeepSeek V4 thinking 历史 reasoning 回填、schema 清洗、消息重排 |
 | Anthropic（Claude） | `anthropic` | Anthropic | `tool_use`/`tool_result`、`input_schema`、thinking budget、原生 cache_control |
 | GitHub Copilot | `copilot` | Chat + Anthropic | GitHub token → Copilot bearer 交换、`x-initiator` 计费分类、Claude 模型 dash→dot 归一化 |
 | OpenAI | `openai` | Chat + Responses | 无（Responses 透传或 Chat 转换） |
@@ -116,11 +116,11 @@ MuxLayer 不是托管 API 分发平台，也不是普通代理，而是位于 Co
 
 | 平台 | 安装包 |
 |---|---|
-| macOS Apple 芯片 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_aarch64.dmg) |
-| macOS Intel 芯片 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64.dmg) |
-| Windows 10 / 11 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64-setup.exe) |
-| Debian / Ubuntu | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_amd64.deb) |
-| 其他 Linux 发行版 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_amd64.AppImage) |
+| macOS Apple 芯片 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_aarch64.dmg) |
+| macOS Intel 芯片 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.deb) |
+| 其他 Linux 发行版 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.AppImage) |
 
 macOS 也可以用 Homebrew：
 

@@ -495,7 +495,7 @@ mod tests {
         assert_eq!(p.reasoning_model.as_deref(), Some("deepseek-v4-pro"));
         assert_eq!(
             p.supported_models.as_deref(),
-            Some(r#"["deepseek-v4-flash","deepseek-v4-pro"]"#)
+            Some(r#"["deepseek-v4-flash","deepseek-v4-pro","deepseek-v4-flash-vision-exp"]"#)
         );
         assert_eq!(
             p.anthropic_base_url.as_deref(),

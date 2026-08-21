@@ -18,9 +18,9 @@ use crate::transform::{responses_to_anthropic, responses_to_chat, responses_to_g
 
 use super::shared::{
     detect_client_from_ua, lock_db, log_request_error, log_request_error_full, log_request_success,
-    native_model_override, refine_struct_body, refine_value_body, request_body_or_gateway_error,
-    request_contains_images, sanitize_body, trace_with_degradation_events, truncate_str,
-    validate_auth, GatewayError,
+    native_model_override_for_images, refine_struct_body, refine_value_body,
+    request_body_or_gateway_error, request_contains_images, sanitize_body,
+    trace_with_degradation_events, truncate_str, validate_auth, GatewayError,
 };
 use super::GatewayState;
 
@@ -33,10 +33,11 @@ use gemini::*;
 
 /// Whether a request may be passed through to the provider's native Responses
 /// API. Providers listed in `RESPONSES_NATIVE_MODELS` only support a subset of
-/// their models there (DeepSeek: `deepseek-v4-flash` only), and none of them
-/// accept images natively — those requests fall back to the Responses→Chat
-/// conversion path, which strips images with an explicit notice. Providers
-/// absent from the table (OpenAI) keep the previous unrestricted behaviour.
+/// their models there. Image requests are allowed only when the selected model
+/// is also marked `vision` in the generated catalog; other image requests fall
+/// back to Responses→Chat conversion, which applies the provider's image
+/// degradation policy. Providers absent from the table (OpenAI) keep the
+/// previous unrestricted behaviour.
 ///
 /// 工具同理：DeepSeek 的 Responses API 只接受 `apply_patch` 这一个 custom 工具,
 /// 其它一律 400（实测 `{"type":"custom","name":"exec"}` → "Unsupported custom
@@ -55,8 +56,21 @@ fn native_responses_allowed(
     else {
         return true;
     };
-    if has_images || !models.contains(&model) {
+    if !models.contains(&model) {
         return false;
+    }
+    if has_images {
+        let model_base = crate::transform::tool_calls::model_base(model);
+        let supports_vision = catalog::MODEL_CAPABILITIES.iter().any(|(ty, id, caps)| {
+            *ty == provider_type
+                && *id == model_base
+                && caps
+                    .iter()
+                    .any(|cap| *cap == crate::providers::capabilities::CAP_VISION)
+        });
+        if !supports_vision {
+            return false;
+        }
     }
     let Some((_, allowed)) = catalog::RESPONSES_NATIVE_CUSTOM_TOOLS
         .iter()
@@ -229,7 +243,12 @@ pub async fn handle_responses(
 
         let model = candidate.model.clone();
 
-        let model_override = native_model_override(&provider, req.model.as_deref(), Some(&model));
+        let model_override = native_model_override_for_images(
+            &provider,
+            req.model.as_deref(),
+            Some(&model),
+            request_has_images,
+        );
         let native_model = native_pass_through_model(
             model_override.as_deref(),
             req.model.as_deref(),
@@ -554,6 +573,16 @@ mod tests {
         assert!(!native_responses_allowed(
             "deepseek",
             "deepseek-v4-flash",
+            true,
+            None
+        ));
+    }
+
+    #[test]
+    fn native_responses_allows_images_for_deepseek_vision_model() {
+        assert!(native_responses_allowed(
+            "deepseek",
+            "deepseek-v4-flash-vision-exp",
             true,
             None
         ));

@@ -30,11 +30,11 @@ English: [Main Reference](./full-reference.md)
 
 | 你的机器 | 下载 |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_aarch64.dmg) |
-| 🍎 macOS — Intel | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64.dmg) |
-| 🪟 Windows 10 / 11 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_amd64.deb) |
-| 🐧 Linux — 其他发行版 | [MuxLayer 2.0.0](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.0/MuxLayer_2.0.0_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_aarch64.dmg) |
+| 🍎 macOS — Intel | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64.dmg) |
+| 🪟 Windows 10 / 11 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.deb) |
+| 🐧 Linux — 其他发行版 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.AppImage) |
 
 macOS 也可以用 Homebrew 安装：
 
@@ -427,6 +427,7 @@ docker build -t agentgate . && docker run -p 9090:9090 \
 | Base URL | `https://api.deepseek.com` |
 | 默认模型 | `deepseek-v4-flash` |
 | 推理模型 | `deepseek-v4-pro` |
+| 视觉模型 | `deepseek-v4-flash-vision-exp` |
 | Model Mapping | `gpt-5.5` → `deepseek-v4-flash`，`o3` → `deepseek-v4-pro` |
 | Anthropic Endpoint | `https://api.deepseek.com/anthropic`（支持 Claude Code pass-through） |
 
@@ -694,7 +695,7 @@ Codex 发了一条带图请求
 | Provider | 类型 | 原生协议 | Provider 专属处理 |
 |---|---|---|---|
 | 小米 MiMo | `mimo` | Chat + Anthropic | 多轮 `reasoning_content` 往返、区域感知 `tp-*` host 自动路由、thinking 模式剥 temperature、tool_choice 非 auto 时剥、omni `web_search` 剥、`web_search` 内建按矩阵门控、Web Search 插件自动降级 / 重试 |
-| DeepSeek | `deepseek` | Chat + Anthropic | 剥图带显式通知、DeepSeek V4 thinking 历史 reasoning 回填、schema 清洗、消息重排 |
+| DeepSeek | `deepseek` | Chat + Anthropic | `deepseek-v4-flash-vision-exp` 保留图片输入；`deepseek-v4-flash` 和 `deepseek-v4-pro` 剥图并注入显式通知；DeepSeek V4 thinking 历史 reasoning 回填、schema 清洗、消息重排 |
 | Anthropic (Claude) | `anthropic` | Anthropic | `tool_use`/`tool_result`、`input_schema`、thinking budget、原生 cache_control |
 | GitHub Copilot | `copilot` | Chat + Anthropic | GitHub token → Copilot bearer 交换、`x-initiator` 计费分类、Claude 模型短横线→点 归一化 |
 | OpenAI | `openai` | Chat + Responses | 无（Responses pass-through 或 Chat 转换） |
@@ -775,7 +776,8 @@ MuxLayer 把协议处理和模型命名分开。常见请求有三种模式：
 │     不带图 → 按优先级正常选                                             │
 │                         ▼                                               │
 │  ⑤ Provider 专属转换                                                    │
-│     DeepSeek   → 剥图 + reasoning_content + schema 修复                 │
+│     DeepSeek   → 视觉模型保留图片；纯文本模型剥图                       │
+│                   + reasoning_content + schema 修复                     │
 │     KimiCoding → web_search 转换 + thinking 控制                        │
 │     Anthropic  → 转 Claude Messages（image→source.base64）              │
 │     其他       → 直接发                                                 │
@@ -844,7 +846,7 @@ Codex 发 input_image
   → ① 鉴权通过
   → ② 匹配 Codex Default Route Profile
   → ③ 协议转换：input_image → image_url（图片保留）
-  → ④ Vision 路由：检测到图片 → 跳过 DeepSeek（没 Vision）→ 选 KimiCoding（有 Vision）
+  → ④ Vision 路由：检测到图片 → 跳过 DeepSeek 纯文本模型；配置了 `deepseek-v4-flash-vision-exp` 就使用它，否则选 KimiCoding（有 Vision）
   → ⑤ KimiCoding 转换：不剥图，直接发
   → ⑥ KimiCoding 返回成功 → 标记健康
   → ⑦ 记日志

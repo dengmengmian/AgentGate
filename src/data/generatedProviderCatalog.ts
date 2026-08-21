@@ -157,7 +157,7 @@ export const GENERATED_PROVIDER_CATALOG = {
       baseUrl: "https://api.deepseek.com",
       anthropicBaseUrl: "https://api.deepseek.com/anthropic",
     },
-    responsesModels: ["deepseek-v4-flash"],
+    responsesModels: ["deepseek-v4-flash", "deepseek-v4-flash-vision-exp"],
     responsesCustomTools: ["apply_patch"],
     defaultModel: "deepseek-v4-flash",
     reasoningModel: "deepseek-v4-pro",
@@ -168,7 +168,11 @@ export const GENERATED_PROVIDER_CATALOG = {
       claudeSmallTarget: "default",
       repairLegacy1m: true,
     },
-    supportedModels: ["deepseek-v4-flash", "deepseek-v4-pro"],
+    supportedModels: [
+      "deepseek-v4-flash",
+      "deepseek-v4-pro",
+      "deepseek-v4-flash-vision-exp",
+    ],
     deprecatedModels: ["deepseek-chat", "deepseek-reasoner"],
     models: [
       {
@@ -189,12 +193,16 @@ export const GENERATED_PROVIDER_CATALOG = {
         },
         contextWindow: 128000,
       },
+      {
+        id: "deepseek-v4-flash-vision-exp",
+        capabilities: ["text", "vision"],
+      },
     ],
     docs: {
       handlingEn:
-        "Image stripping with explicit notice, DeepSeek V4 thinking history reasoning backfill, schema cleaning, message reordering",
+        "Vision model preserves image inputs; text-only models strip images with an explicit notice; DeepSeek V4 thinking history reasoning backfill, schema cleaning, message reordering",
       handlingZh:
-        "图片剥离并注入可解释提示、DeepSeek V4 thinking 历史 reasoning 回填、schema 清洗、消息重排",
+        "视觉模型保留图片输入；纯文本模型剥离图片并注入可解释提示；DeepSeek V4 thinking 历史 reasoning 回填、schema 清洗、消息重排",
     },
     sync: {
       envVar: "DEEPSEEK_API_KEY",
@@ -1397,4 +1405,5 @@ export const GENERATED_MIMO_ENDPOINTS = {
 export const GENERATED_DEEPSEEK_SUPPORTED_MODELS = [
   "deepseek-v4-flash",
   "deepseek-v4-pro",
+  "deepseek-v4-flash-vision-exp",
 ] as const;
