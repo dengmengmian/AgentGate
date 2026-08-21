@@ -2,8 +2,8 @@ cask "muxlayer" do
   arch arm: "aarch64", intel: "x64"
 
   version "2.0.1"
-  sha256 arm:   "3146f681cfe80ed6229b545c78e2fb7c212e21a24aebf67488bae10684bc5abf",
-         intel: "6f015060bc8ef60c49e782fb9e1250c915698bf2b5259f27dae481ed8c4bf3ea"
+  sha256 arm:   "c3029d168d40fd41901b15241cd350c17b22792be92745162f17beaa6f2d311c",
+         intel: "84c6a1e552aba36b5086bd6fa59cdc9ff1c76d3b2e088b477096b90d44317bdf"
 
   url "https://github.com/dengmengmian/muxlayer/releases/download/v#{version}/MuxLayer_#{version}_#{arch}.dmg",
       verified: "github.com/dengmengmian/muxlayer/"
