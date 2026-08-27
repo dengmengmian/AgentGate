@@ -70,7 +70,7 @@ pub fn generate_snippet(host: &str, port: i64) -> String {
         "provider": {
             "openai": {
                 "options": {
-                    "apiKey": format!("<ag_local_token>"),
+                    "apiKey": "<ag_local_token>",
                     "baseURL": format!("http://{host}:{port}/v1")
                 }
             }
