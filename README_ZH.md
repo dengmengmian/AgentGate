@@ -116,11 +116,11 @@ MuxLayer 不是托管 API 分发平台，也不是普通代理，而是位于 Co
 
 | 平台 | 安装包 |
 |---|---|
-| macOS Apple 芯片 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_aarch64.dmg) |
-| macOS Intel 芯片 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64.dmg) |
-| Windows 10 / 11 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64-setup.exe) |
-| Debian / Ubuntu | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.deb) |
-| 其他 Linux 发行版 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.AppImage) |
+| macOS Apple 芯片 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_aarch64.dmg) |
+| macOS Intel 芯片 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.deb) |
+| 其他 Linux 发行版 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.AppImage) |
 
 macOS 也可以用 Homebrew：
 

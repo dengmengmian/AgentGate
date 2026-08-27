@@ -70,10 +70,15 @@ fn find_unix(needles: &[&str]) -> Vec<RunningProcess> {
 /// 过滤。tasklist 缺失或失败时返回空列表（按「没检测到」处理，不阻塞 apply）。
 #[cfg(windows)]
 fn find_windows(needles: &[&str]) -> Vec<RunningProcess> {
+    use std::os::windows::process::CommandExt;
     use std::process::Command;
 
+    // CREATE_NO_WINDOW：GUI 进程下 spawn 控制台程序默认会弹黑窗，
+    // 且弹窗抢焦点会触发前端 focus 刷新→再次探测，形成无限弹窗循环。
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
     let Ok(output) = Command::new("tasklist")
         .args(["/FO", "CSV", "/NH"])
+        .creation_flags(CREATE_NO_WINDOW)
         .output()
     else {
         return Vec::new();

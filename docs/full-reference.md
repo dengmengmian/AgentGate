@@ -28,11 +28,11 @@
 
 | Your machine | Download |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_aarch64.dmg) |
-| 🍎 macOS — Intel | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64.dmg) |
-| 🪟 Windows 10 / 11 | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.deb) |
-| 🐧 Linux — other distros | [MuxLayer 2.0.1](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.1/MuxLayer_2.0.1_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_aarch64.dmg) |
+| 🍎 macOS — Intel | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64.dmg) |
+| 🪟 Windows 10 / 11 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.deb) |
+| 🐧 Linux — other distros | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.AppImage) |
 
 On macOS you can also install with Homebrew:
 

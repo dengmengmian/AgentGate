@@ -64,9 +64,7 @@ fn native_responses_allowed(
         let supports_vision = catalog::MODEL_CAPABILITIES.iter().any(|(ty, id, caps)| {
             *ty == provider_type
                 && *id == model_base
-                && caps
-                    .iter()
-                    .any(|cap| *cap == crate::providers::capabilities::CAP_VISION)
+                && caps.contains(&crate::providers::capabilities::CAP_VISION)
         });
         if !supports_vision {
             return false;

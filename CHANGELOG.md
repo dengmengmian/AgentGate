@@ -1,5 +1,12 @@
 # Changelog / 更新日志
 
+## [2.0.2] - 2026-08-27
+
+### Fixed / 修复
+
+- **Windows infinite console popup after Apply / Windows 应用配置后黑窗无限弹出** —— On Windows, client process detection spawned `tasklist` without `CREATE_NO_WINDOW`, so a black console window popped up on every check. The popup stole window focus, and returning focus triggered another refresh-and-detect cycle, looping forever after clicking Apply. Detection now runs with a hidden console. Windows 下客户端进程探测调用 `tasklist` 时未设置 `CREATE_NO_WINDOW`，每次探测都会弹出黑色控制台窗口；弹窗抢走焦点、焦点回到主窗口又触发一次刷新探测，点「应用配置」后就此无限循环。现在探测在隐藏控制台中执行。
+- **Restart Codex Desktop console flash on Windows / Windows 重启 Codex Desktop 闪黑窗** —— The `taskkill` call behind the restart button now also runs with a hidden console. 「重启 Codex Desktop」按钮背后的 `taskkill` 调用同样改为隐藏控制台执行。
+
 ## [2.0.1] - 2026-08-21
 
 ### Added / 新增

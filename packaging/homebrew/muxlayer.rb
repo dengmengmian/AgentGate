@@ -1,7 +1,7 @@
 cask "muxlayer" do
   arch arm: "aarch64", intel: "x64"
 
-  version "2.0.1"
+  version "2.0.2"
   sha256 arm:   "c3029d168d40fd41901b15241cd350c17b22792be92745162f17beaa6f2d311c",
          intel: "84c6a1e552aba36b5086bd6fa59cdc9ff1c76d3b2e088b477096b90d44317bdf"
 

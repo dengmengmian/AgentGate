@@ -109,7 +109,11 @@ fn restart_macos() -> CodexRestartResult {
 /// 让前端提示用户手动启动（不假装成功）。
 #[cfg(target_os = "windows")]
 fn restart_windows() -> CodexRestartResult {
+    use std::os::windows::process::CommandExt;
     use std::process::Command;
+
+    // CREATE_NO_WINDOW：避免 GUI 进程下 spawn taskkill 弹出黑色控制台窗。
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
     let mut was_running = false;
     let mut killed = 0u32;
@@ -119,6 +123,7 @@ fn restart_windows() -> CodexRestartResult {
     for name in DESKTOP_APP_NAMES {
         if let Ok(status) = Command::new("taskkill")
             .args(["/IM", &format!("{name}.exe"), "/F"])
+            .creation_flags(CREATE_NO_WINDOW)
             .status()
         {
             if taskkill_killed(status.code()) {
