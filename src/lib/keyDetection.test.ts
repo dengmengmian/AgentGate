@@ -25,6 +25,11 @@ describe("detectProviderType", () => {
     expect(detectProviderType("sk-or-v1-abcdef")).toBe("openrouter");
   });
 
+  // sk-orca- 也以 sk-or- 开头,必须先于 OpenRouter 判定,否则被误识别。
+  it("recognizes OrcaRouter by sk-orca- prefix", () => {
+    expect(detectProviderType("sk-orca-abcdef123456")).toBe("orcarouter");
+  });
+
   it("recognizes Groq by gsk_ prefix", () => {
     expect(detectProviderType("gsk_abc123")).toBe("groq");
   });

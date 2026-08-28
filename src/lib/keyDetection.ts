@@ -18,6 +18,7 @@ const LABELS: Record<string, string> = {
   deepseek: "DeepSeek",
   openai: "OpenAI",
   openrouter: "OpenRouter",
+  orcarouter: "OrcaRouter",
   groq: "Groq",
   xai: "xAI",
   perplexity: "Perplexity",
@@ -49,6 +50,8 @@ export function detectProviderType(key: string): string | null {
   if (k.startsWith("sk-ant-")) return "anthropic";
   // GitHub OAuth token(gho_/ghu_)→ Copilot 接入,网关自动换 Copilot 凭证
   if (k.startsWith("gho_") || k.startsWith("ghu_")) return "copilot";
+  // sk-orca- 也以 sk-or- 开头,必须排在 OpenRouter 之前。
+  if (k.startsWith("sk-orca-")) return "orcarouter";
   if (k.startsWith("sk-or-")) return "openrouter";
   // Kimi Code membership console keys (sk-kimi-…); must precede generic sk- fallback.
   if (k.startsWith("sk-kimi-")) return "kimi";

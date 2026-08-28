@@ -1,5 +1,15 @@
 # Changelog / 更新日志
 
+## [2.0.3] - 2026-08-28
+
+### Added / 新增
+
+- **OrcaRouter as a first-class provider / OrcaRouter 成为一级 Provider** —— OrcaRouter is an OpenAI-compatible aggregator fronting 190+ models behind one key. Base URL `https://api.orcarouter.ai/v1` is preset, `sk-orca-` keys are detected on paste, and the model list is fetched live instead of pinned in the catalog. The default model `orcarouter/auto` is the per-account router OrcaRouter creates on signup, which sizes the model to each request. No gateway, protocol, or adapter changes were needed. OrcaRouter 是 OpenAI 兼容的聚合网关，一个 key 覆盖 190+ 模型。Base URL `https://api.orcarouter.ai/v1` 已预置，粘贴 `sk-orca-` 开头的 key 会自动识别，模型列表实时拉取而不在目录里固化。默认模型 `orcarouter/auto` 是 OrcaRouter 在注册时为每个账号创建的路由，按请求难度挑选模型。网关、协议与适配层零改动。
+
+### Documentation / 文档
+
+- Added an OrcaRouter section to both READMEs and provider entries to the full reference, and synced the provider tables and preset count. 中英文 README 新增 OrcaRouter 小节，完整参考新增 Provider 条目，Provider 表格与预设数量同步更新。
+
 ## [2.0.2] - 2026-08-27
 
 ### Fixed / 修复

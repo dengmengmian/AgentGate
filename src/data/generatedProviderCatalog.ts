@@ -1210,6 +1210,30 @@ export const GENERATED_PROVIDER_CATALOG = {
       authHeader: "bearer",
     },
   },
+  orcarouter: {
+    schemaVersion: 1,
+    order: 235,
+    type: "orcarouter",
+    displayName: "OrcaRouter",
+    displayNameZh: "OrcaRouter",
+    aliases: ["orcarouter"],
+    protocols: ["openai_chat_completions"],
+    endpoints: {
+      baseUrl: "https://api.orcarouter.ai/v1",
+    },
+    defaultModel: "orcarouter/auto",
+    supportedModels: ["orcarouter/auto"],
+    models: [],
+    docs: {
+      handlingEn: "None",
+      handlingZh: "无",
+    },
+    sync: {
+      envVar: "ORCAROUTER_API_KEY",
+      modelsUrl: "https://api.orcarouter.ai/v1/models",
+      authHeader: "bearer",
+    },
+  },
   custom_openai_compatible: {
     schemaVersion: 1,
     order: 240,
@@ -1373,6 +1397,11 @@ export const GENERATED_PROVIDER_PRESETS = {
     baseUrl: "https://openrouter.ai/api",
     protocols: ["openai_chat_completions"],
     defaultModel: "deepseek/deepseek-v4-flash",
+  },
+  orcarouter: {
+    baseUrl: "https://api.orcarouter.ai/v1",
+    protocols: ["openai_chat_completions"],
+    defaultModel: "orcarouter/auto",
   },
   custom_openai_compatible: {
     baseUrl: "",

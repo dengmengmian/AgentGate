@@ -14,7 +14,7 @@
   ↓<br>
   <b>MuxLayer</b><br>
   ↓<br>
-  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · Ollama · 25+ model providers
+  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · OrcaRouter · Ollama · 25+ model providers
 </p>
 
 <p align="center">
@@ -71,7 +71,7 @@ Send a test request, then open **Logs** to see the selected provider, model, rou
 
 **Clients:** Codex · Claude Code · Gemini CLI · OpenCode · AtomCode · Cursor / Continue / Cline
 
-**Providers:** OpenAI · Anthropic · DeepSeek · Kimi · MiMo · Gemini · OpenRouter · Groq · Mistral · Ollama · LM Studio · and 25+ model providers.
+**Providers:** OpenAI · Anthropic · DeepSeek · Kimi · MiMo · Gemini · OpenRouter · OrcaRouter · Groq · Mistral · Ollama · LM Studio · and 25+ model providers.
 
 See the [full provider compatibility matrix](./docs/full-reference.md#supported-providers) and the [usage guides](./docs/full-reference.md#usage-guide).
 
@@ -107,20 +107,32 @@ See the [full provider compatibility matrix](./docs/full-reference.md#supported-
 | Perplexity | `perplexity` | Chat | Generic |
 | Cohere | `cohere` | Chat | Generic |
 | OpenRouter | `openrouter` | Chat | None |
+| OrcaRouter | `orcarouter` | Chat | None |
 | Custom | `custom_openai_compatible` | Chat | None (set Base URL yourself) |
 <!-- PROVIDER_CATALOG_TABLE:END -->
 
 </details>
 
+### OrcaRouter
+
+OrcaRouter is a first-class provider, not a custom endpoint you configure by hand.
+
+- Base URL `https://api.orcarouter.ai/v1` is filled in for you.
+- Keys starting with `sk-orca-` are detected on paste — Quick Add shows `Detected: OrcaRouter`.
+- The model list is fetched live from OrcaRouter, so MuxLayer never pins a stale copy.
+- `orcarouter/auto` is the default model: OrcaRouter picks the cheapest capable model per request.
+
+No account yet? [Get an OrcaRouter API key](https://www.orcarouter.ai/ref/ref_01f91b655d7975ab01ae) — referral link, MuxLayer receives a share of usage from signups through it.
+
 ## Install
 
 | Platform | Package |
 |---|---|
-| macOS Apple Silicon | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_aarch64.dmg) |
-| macOS Intel | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64.dmg) |
-| Windows 10 / 11 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64-setup.exe) |
-| Debian / Ubuntu | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.deb) |
-| Other Linux distros | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.AppImage) |
+| macOS Apple Silicon | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_aarch64.dmg) |
+| macOS Intel | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.deb) |
+| Other Linux distros | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.AppImage) |
 
 On macOS:
 

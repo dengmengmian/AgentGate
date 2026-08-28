@@ -82,6 +82,7 @@ export const PROVIDER_TYPES = [
   { value: "modelscope", label: "魔搭 (ModelScope)" },
   // Aggregators
   { value: "openrouter", label: "OpenRouter" },
+  { value: "orcarouter", label: "OrcaRouter" },
   // Custom
   { value: "custom_openai_compatible", label: "Custom OpenAI Compatible" },
 ] as const;

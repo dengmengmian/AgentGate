@@ -91,7 +91,7 @@ describe("MiMo provider endpoints", () => {
   });
 
   it("exposes all catalog providers as quick setup presets", () => {
-    expect(Object.keys(PROVIDER_PRESETS)).toHaveLength(27);
+    expect(Object.keys(PROVIDER_PRESETS)).toHaveLength(28);
     expect(PROVIDER_PRESETS.openai.responsesBaseUrl).toBe(
       "https://api.openai.com"
     );

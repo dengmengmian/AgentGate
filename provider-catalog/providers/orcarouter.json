@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "order": 235,
+  "type": "orcarouter",
+  "displayName": "OrcaRouter",
+  "displayNameZh": "OrcaRouter",
+  "aliases": ["orcarouter"],
+  "protocols": ["openai_chat_completions"],
+  "endpoints": {
+    "baseUrl": "https://api.orcarouter.ai/v1"
+  },
+  "defaultModel": "orcarouter/auto",
+  "supportedModels": ["orcarouter/auto"],
+  "models": [],
+  "docs": {
+    "handlingEn": "None",
+    "handlingZh": "无"
+  },
+  "sync": {
+    "envVar": "ORCAROUTER_API_KEY",
+    "modelsUrl": "https://api.orcarouter.ai/v1/models",
+    "authHeader": "bearer"
+  }
+}

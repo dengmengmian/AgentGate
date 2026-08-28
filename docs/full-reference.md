@@ -28,11 +28,11 @@
 
 | Your machine | Download |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_aarch64.dmg) |
-| 🍎 macOS — Intel | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64.dmg) |
-| 🪟 Windows 10 / 11 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.deb) |
-| 🐧 Linux — other distros | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_aarch64.dmg) |
+| 🍎 macOS — Intel | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64.dmg) |
+| 🪟 Windows 10 / 11 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.deb) |
+| 🐧 Linux — other distros | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.AppImage) |
 
 On macOS you can also install with Homebrew:
 
@@ -183,10 +183,10 @@ Rule of thumb: **protocol match decides pass-through vs conversion; Model Mappin
 - Providers that don't support images at the chosen model strip the image content at the provider-specific layer, avoiding upstream 400/404
 
 **Multi-Provider Management**
-- **26 built-in presets** (auto-fill base URL / protocols / Anthropic endpoint / default model):
+- **27 built-in presets** (auto-fill base URL / protocols / Anthropic endpoint / default model):
   - **Domestic**: Xiaomi MiMo, DeepSeek, Kimi/Moonshot, MiniMax, GLM (Zhipu BigModel), DashScope (Aliyun Qwen), SiliconFlow, Volcengine (Doubao), Baichuan, StepFun, SenseNova, ModelScope, Yi (01.AI)
   - **International**: OpenAI, Anthropic (Claude), GitHub Copilot, Google Gemini, xAI (Grok), Mistral, Groq, Together, Fireworks, Cerebras, Perplexity, Cohere
-  - **Aggregator**: OpenRouter
+  - **Aggregators**: OpenRouter, OrcaRouter
   - **Custom**: any OpenAI-compatible endpoint (vLLM / Ollama / LiteLLM / local proxies)
 - MiMo first-class support: 5 chat models (`mimo-v2.5-pro` / `mimo-v2-pro` / `mimo-v2.5` / `mimo-v2-omni` / `mimo-v2-flash`), multi-turn `reasoning_content` round-trip, `sk-*` / `tp-*` keys auto-route to the correct Open API or Token Plan host, region-aware Token Plan URLs (`cn` / `sgp` / `ams`), and automatic `web_search` degradation when the paid plugin is unavailable
 - Claude Code passthrough for MiMo / DeepSeek uses ordinary provider model IDs by default; MuxLayer no longer auto-configures `[1m]` suffixed models.
@@ -504,6 +504,19 @@ Launch MuxLayer → **Providers** → **Add Provider**
 </details>
 
 <details>
+<summary>OrcaRouter</summary>
+
+| Field | Value |
+|---|---|
+| Name | `OrcaRouter` |
+| Type | `orcarouter` |
+| Base URL | `https://api.orcarouter.ai/v1` |
+| Default Model | `orcarouter/auto` |
+| Key Prefix | `sk-orca-` (auto-detected) |
+
+</details>
+
+<details>
 <summary>Custom OpenAI Compatible</summary>
 
 | Field | Value |
@@ -718,6 +731,7 @@ Providers marked **Provider-specific handling** have dedicated transform code in
 | Perplexity | `perplexity` | Chat | Generic |
 | Cohere | `cohere` | Chat | Generic |
 | OpenRouter | `openrouter` | Chat | None |
+| OrcaRouter | `orcarouter` | Chat | None |
 | Custom | `custom_openai_compatible` | Chat | None (set Base URL yourself) |
 <!-- PROVIDER_CATALOG_TABLE:END -->
 

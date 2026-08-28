@@ -14,7 +14,7 @@
   ↓<br>
   <b>MuxLayer</b><br>
   ↓<br>
-  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · Ollama · 25+ 家模型供应商
+  DeepSeek · Kimi · MiMo · OpenAI · Anthropic · OpenRouter · OrcaRouter · Ollama · 25+ 家模型供应商
 </p>
 
 <p align="center">
@@ -71,7 +71,7 @@ MuxLayer 不是托管 API 分发平台，也不是普通代理，而是位于 Co
 
 **客户端：** Codex · Claude Code · Gemini CLI · OpenCode · AtomCode · Cursor / Continue / Cline
 
-**Provider：** OpenAI · Anthropic · DeepSeek · Kimi · MiMo · Gemini · OpenRouter · Groq · Mistral · Ollama · LM Studio · 以及 25+ 家模型供应商。
+**Provider：** OpenAI · Anthropic · DeepSeek · Kimi · MiMo · Gemini · OpenRouter · OrcaRouter · Groq · Mistral · Ollama · LM Studio · 以及 25+ 家模型供应商。
 
 完整能力矩阵见[完整 Provider 兼容表](./docs/full-reference-zh.md#支持的-provider)，具体接入方式见[使用指南](./docs/full-reference-zh.md#使用指南)。
 
@@ -107,20 +107,32 @@ MuxLayer 不是托管 API 分发平台，也不是普通代理，而是位于 Co
 | Perplexity | `perplexity` | Chat | 通用 |
 | Cohere | `cohere` | Chat | 通用 |
 | OpenRouter | `openrouter` | Chat | 无 |
+| OrcaRouter | `orcarouter` | Chat | 无 |
 | 自定义 | `custom_openai_compatible` | Chat | 无（Base URL 用户自己填） |
 <!-- PROVIDER_CATALOG_TABLE:END -->
 
 </details>
 
+### OrcaRouter
+
+OrcaRouter 是一级 Provider，不需要按自定义端点手动配。
+
+- Base URL `https://api.orcarouter.ai/v1` 自动填好。
+- 粘贴 `sk-orca-` 开头的 key 会被自动识别，快速添加里直接显示「已识别：OrcaRouter」。
+- 模型列表实时从 OrcaRouter 拉取，不在本地固化一份过期清单。
+- 默认模型 `orcarouter/auto`，由 OrcaRouter 按请求挑选够用且最便宜的模型。
+
+还没有账号？[去拿一个 OrcaRouter API key](https://www.orcarouter.ai/ref/ref_01f91b655d7975ab01ae) —— 推广链接，通过它注册产生的用量 MuxLayer 会有分成。
+
 ## 安装
 
 | 平台 | 安装包 |
 |---|---|
-| macOS Apple 芯片 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_aarch64.dmg) |
-| macOS Intel 芯片 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64.dmg) |
-| Windows 10 / 11 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64-setup.exe) |
-| Debian / Ubuntu | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.deb) |
-| 其他 Linux 发行版 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.AppImage) |
+| macOS Apple 芯片 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_aarch64.dmg) |
+| macOS Intel 芯片 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.deb) |
+| 其他 Linux 发行版 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.AppImage) |
 
 macOS 也可以用 Homebrew：
 

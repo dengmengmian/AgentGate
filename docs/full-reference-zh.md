@@ -30,11 +30,11 @@ English: [Main Reference](./full-reference.md)
 
 | 你的机器 | 下载 |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_aarch64.dmg) |
-| 🍎 macOS — Intel | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64.dmg) |
-| 🪟 Windows 10 / 11 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.deb) |
-| 🐧 Linux — 其他发行版 | [MuxLayer 2.0.2](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.2/MuxLayer_2.0.2_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_aarch64.dmg) |
+| 🍎 macOS — Intel | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64.dmg) |
+| 🪟 Windows 10 / 11 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.deb) |
+| 🐧 Linux — 其他发行版 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.AppImage) |
 
 macOS 也可以用 Homebrew 安装：
 
@@ -185,10 +185,10 @@ MuxLayer 的事就一句话：**让官方客户端的入口在本地可控**—�
 - 所选模型不支持图片的 Provider，会在 Provider 专属层剥掉图片内容，避免上游 400/404
 
 **多 Provider 管理**
-- **26 个内建预设**（自动填 base URL / 协议 / Anthropic endpoint / 默认模型）：
+- **27 个内建预设**（自动填 base URL / 协议 / Anthropic endpoint / 默认模型）：
   - **国内**：小米 MiMo、DeepSeek、Kimi/Moonshot、MiniMax、GLM（智谱 BigModel）、DashScope（阿里通义）、SiliconFlow、Volcengine（豆包）、百川、StepFun、商汤 SenseNova、ModelScope、Yi（零一万物）
   - **海外**：OpenAI、Anthropic（Claude）、GitHub Copilot、Google Gemini、xAI（Grok）、Mistral、Groq、Together、Fireworks、Cerebras、Perplexity、Cohere
-  - **聚合**：OpenRouter
+  - **聚合**：OpenRouter、OrcaRouter
   - **自定义**：任何 OpenAI 兼容的 endpoint（vLLM / Ollama / LiteLLM / 本地代理）
 - MiMo 一等公民支持：5 个 chat 模型（`mimo-v2.5-pro` / `mimo-v2-pro` / `mimo-v2.5` / `mimo-v2-omni` / `mimo-v2-flash`）、多轮 `reasoning_content` 往返、`sk-*` / `tp-*` Key 自动路由到 Open API 或 Token Plan host、按区域的 Token Plan URL（`cn` / `sgp` / `ams`）、付费插件不可用时自动降级 `web_search`
 - Claude Code 经 MiMo / DeepSeek 的 pass-through 默认用普通 Provider 模型 ID；MuxLayer 不再自动配置 `[1m]` 后缀的模型。
@@ -506,6 +506,19 @@ docker build -t agentgate . && docker run -p 9090:9090 \
 </details>
 
 <details>
+<summary>OrcaRouter</summary>
+
+| 字段 | 值 |
+|---|---|
+| 名字 | `OrcaRouter` |
+| 类型 | `orcarouter` |
+| Base URL | `https://api.orcarouter.ai/v1` |
+| 默认模型 | `orcarouter/auto` |
+| Key 前缀 | `sk-orca-`（自动识别） |
+
+</details>
+
+<details>
 <summary>Custom OpenAI Compatible</summary>
 
 | 字段 | 值 |
@@ -720,6 +733,7 @@ Codex 发了一条带图请求
 | Perplexity | `perplexity` | Chat | 通用 |
 | Cohere | `cohere` | Chat | 通用 |
 | OpenRouter | `openrouter` | Chat | 无 |
+| OrcaRouter | `orcarouter` | Chat | 无 |
 | Custom | `custom_openai_compatible` | Chat | 无（Base URL 自己填） |
 <!-- PROVIDER_CATALOG_TABLE:END -->
 
