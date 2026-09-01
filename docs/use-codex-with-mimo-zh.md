@@ -31,7 +31,7 @@ MuxLayer 保留原 Codex 配置的可恢复状态，你可以随时从 Codex 卡
 | Codex 侧 | MuxLayer 侧 | MiMo 侧 |
 |---|---|---|
 | OpenAI Responses API | `/v1/responses` 本地网关路由 | MiMo Chat 或 Anthropic 兼容 endpoint |
-| Codex 模型名 | Model Mapping 或 `agentgate` 虚拟模型 | MiMo 模型 ID，如 `mimo-v2.5-pro`、`mimo-v2.5`、`mimo-v2-flash` |
+| Codex 模型名 | Model Mapping 或 `muxlayer` 虚拟模型（仍兼容 `agentgate`） | MiMo 模型 ID，如 `mimo-v2.5-pro`、`mimo-v2.5`、`mimo-v2-flash` |
 | Codex 的 reasoning 和工具流 | 协议转换和请求追踪 | MiMo 的 `reasoning_content`、模型能力矩阵、web search 处理 |
 
 ## 工作原理

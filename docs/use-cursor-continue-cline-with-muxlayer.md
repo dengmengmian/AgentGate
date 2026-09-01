@@ -19,7 +19,7 @@ MuxLayer exposes a local OpenAI-compatible entry point. Editor plugins that only
 
 Auth: `Authorization: Bearer <ag_local_… token>` (same value as API key in most UIs).
 
-Model: use a virtual name such as `agentgate` if your client allows custom models, or map to the provider model MuxLayer routes to.
+Model: use a virtual name such as `muxlayer` if your client allows custom models, or map to the provider model MuxLayer routes to. Legacy `agentgate` still works.
 
 ## Cursor
 
@@ -39,7 +39,7 @@ Model: use a virtual name such as `agentgate` if your client allows custom model
     {
       "title": "MuxLayer",
       "provider": "openai",
-      "model": "agentgate",
+      "model": "muxlayer",
       "apiBase": "http://127.0.0.1:9090/v1",
       "apiKey": "ag_local_YOUR_TOKEN"
     }
@@ -54,7 +54,7 @@ Model: use a virtual name such as `agentgate` if your client allows custom model
 1. Open the extension settings for OpenAI-compatible providers.
 2. Base URL: `http://127.0.0.1:9090/v1`
 3. API Key: MuxLayer local token.
-4. Model: `agentgate` or a concrete upstream id.
+4. Model: `muxlayer` (or legacy `agentgate`) or a concrete upstream id.
 
 ## Limits
 

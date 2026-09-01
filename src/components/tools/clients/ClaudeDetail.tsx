@@ -1,5 +1,4 @@
 import {
-  Terminal,
   Code,
   FolderOpen,
   AlertTriangle,
@@ -53,7 +52,7 @@ export function ClaudeDetail({
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <DetailHeader
-        Icon={Terminal}
+        clientId="claude_code"
         name={t("tools.claude_code")}
         desc={t("tools.claude_code_desc")}
         badge={badge}

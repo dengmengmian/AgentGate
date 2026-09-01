@@ -180,8 +180,25 @@ fn read_codex_mcp_from_home(home: &Path) -> Vec<McpServer> {
 }
 
 fn read_claude_mcp_from_home(home: &Path) -> Vec<McpServer> {
-    let path = home.join(".claude.json");
-    let content = match fs::read_to_string(&path) {
+    read_json_mcp_servers(
+        &home.join(".claude.json"),
+        "claude_code",
+        "mcpServers",
+        "Cannot parse Claude Code MCP config",
+    )
+}
+
+fn read_gemini_mcp_from_home(home: &Path) -> Vec<McpServer> {
+    read_json_mcp_servers(
+        &home.join(".gemini").join("settings.json"),
+        "gemini",
+        "mcpServers",
+        "Cannot parse Gemini CLI MCP config",
+    )
+}
+
+fn read_json_mcp_servers(path: &Path, client: &str, key: &str, parse_err: &str) -> Vec<McpServer> {
+    let content = match fs::read_to_string(path) {
         Ok(c) => c,
         Err(_) => return vec![],
     };
@@ -189,39 +206,22 @@ fn read_claude_mcp_from_home(home: &Path) -> Vec<McpServer> {
         Ok(v) => v,
         Err(e) => {
             return vec![config_error_server(
-                "claude_code",
+                client,
                 path.to_string_lossy().as_ref(),
-                format!("Cannot parse Claude Code MCP config: {e}"),
+                format!("{parse_err}: {e}"),
             )]
         }
     };
-    let servers = match json.get("mcpServers").and_then(|v| v.as_object()) {
+    let servers = match json.get(key).and_then(|v| v.as_object()) {
         Some(o) => o,
         None => return vec![],
     };
     let mut out = Vec::new();
     for (name, val) in servers.iter() {
-        let command = val
-            .get("command")
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string();
-        let args = val
-            .get("args")
-            .and_then(|v| v.as_array())
-            .map(|a| {
-                a.iter()
-                    .filter_map(|x| x.as_str().map(String::from))
-                    .collect()
-            })
-            .unwrap_or_default();
-        let env = val
-            .get("env")
-            .and_then(|v| v.as_object())
-            .map(|e| e.iter().map(|(k, v)| env_var(k, v.as_str())).collect())
-            .unwrap_or_default();
+        let (command, args) = command_and_args(val);
+        let env = json_env_vars(val);
         out.push(server(
-            "claude_code",
+            client,
             path.to_string_lossy().as_ref(),
             name,
             command,
@@ -230,6 +230,92 @@ fn read_claude_mcp_from_home(home: &Path) -> Vec<McpServer> {
         ));
     }
     out
+}
+
+fn read_opencode_mcp_from_home(home: &Path) -> Vec<McpServer> {
+    let path = home.join(".config").join("opencode").join("opencode.json");
+    let content = match fs::read_to_string(&path) {
+        Ok(c) => c,
+        Err(_) => return vec![],
+    };
+    let json: serde_json::Value = match serde_json::from_str(&content) {
+        Ok(v) => v,
+        Err(e) => {
+            return vec![config_error_server(
+                "opencode",
+                path.to_string_lossy().as_ref(),
+                format!("Cannot parse OpenCode MCP config: {e}"),
+            )]
+        }
+    };
+    let servers = opencode_mcp_object(&json);
+    let Some(servers) = servers else {
+        return vec![];
+    };
+    let mut out = Vec::new();
+    for (name, val) in servers {
+        if name == "servers" {
+            continue;
+        }
+        let (command, args) = command_and_args(&val);
+        let env = json_env_vars(&val);
+        out.push(server(
+            "opencode",
+            path.to_string_lossy().as_ref(),
+            &name,
+            command,
+            args,
+            env,
+        ));
+    }
+    out
+}
+
+fn opencode_mcp_object(
+    json: &serde_json::Value,
+) -> Option<serde_json::Map<String, serde_json::Value>> {
+    let mcp = json.get("mcp")?;
+    if let Some(servers) = mcp.get("servers").and_then(|v| v.as_object()) {
+        return Some(servers.clone());
+    }
+    mcp.as_object().cloned()
+}
+
+fn command_and_args(val: &serde_json::Value) -> (String, Vec<String>) {
+    if let Some(arr) = val.get("command").and_then(|v| v.as_array()) {
+        let parts: Vec<String> = arr
+            .iter()
+            .filter_map(|x| x.as_str().map(String::from))
+            .collect();
+        if parts.is_empty() {
+            return (String::new(), vec![]);
+        }
+        return (parts[0].clone(), parts[1..].to_vec());
+    }
+    let command = val
+        .get("command")
+        .and_then(|v| v.as_str())
+        .unwrap_or_default()
+        .to_string();
+    let args = val
+        .get("args")
+        .and_then(|v| v.as_array())
+        .map(|a| {
+            a.iter()
+                .filter_map(|x| x.as_str().map(String::from))
+                .collect()
+        })
+        .unwrap_or_default();
+    (command, args)
+}
+
+fn json_env_vars(val: &serde_json::Value) -> Vec<McpEnvVar> {
+    let env = val
+        .get("env")
+        .or_else(|| val.get("environment"))
+        .and_then(|v| v.as_object());
+    env.map(|e| e.iter().map(|(k, v)| env_var(k, v.as_str())).collect())
+        .unwrap_or_default()
 }
 
 /// 汇总所有客户端的 MCP server。
@@ -263,17 +349,24 @@ pub fn import_config(
 fn list_all_from_home(home: &Path) -> Vec<McpServer> {
     let mut out = read_codex_mcp_from_home(home);
     out.extend(read_claude_mcp_from_home(home));
+    out.extend(read_gemini_mcp_from_home(home));
+    out.extend(read_opencode_mcp_from_home(home));
     out
 }
 
-fn upsert_in_home(home: &Path, input: UpsertMcpServerInput) -> Result<McpServer, AppError> {
+fn upsert_in_home(home: &Path, mut input: UpsertMcpServerInput) -> Result<McpServer, AppError> {
+    if input.client == "gemini_cli" {
+        input.client = "gemini".into();
+    }
     validate_input(&input)?;
     match input.client.as_str() {
         "codex" => upsert_codex(home, &input)?,
         "claude_code" => upsert_claude(home, &input)?,
+        "gemini" | "gemini_cli" => upsert_gemini(home, &input)?,
+        "opencode" => upsert_opencode(home, &input)?,
         _ => {
             return Err(AppError::validation(
-                "Unsupported MCP client. Expected codex or claude_code",
+                "Unsupported MCP client. Expected codex, claude_code, gemini, or opencode",
             ))
         }
     }
@@ -291,8 +384,10 @@ fn delete_in_home(home: &Path, client: &str, name: &str) -> Result<bool, AppErro
     match client {
         "codex" => delete_codex(home, name),
         "claude_code" => delete_claude(home, name),
+        "gemini" | "gemini_cli" => delete_gemini(home, name),
+        "opencode" => delete_opencode(home, name),
         _ => Err(AppError::validation(
-            "Unsupported MCP client. Expected codex or claude_code",
+            "Unsupported MCP client. Expected codex, claude_code, gemini, or opencode",
         )),
     }
 }
@@ -401,6 +496,13 @@ fn import_in_home(
     Ok(imported)
 }
 
+fn is_supported_mcp_client(client: &str) -> bool {
+    matches!(
+        client,
+        "codex" | "claude_code" | "gemini" | "gemini_cli" | "opencode"
+    )
+}
+
 fn import_clients(
     target_clients: &[String],
     fallback_clients: &[String],
@@ -412,9 +514,9 @@ fn import_clients(
     };
     let mut clients = Vec::new();
     for client in source {
-        if client != "codex" && client != "claude_code" {
+        if !is_supported_mcp_client(client) {
             return Err(AppError::validation(
-                "Unsupported MCP client. Expected codex or claude_code",
+                "Unsupported MCP client. Expected codex, claude_code, gemini, or opencode",
             ));
         }
         if !clients.contains(client) {
@@ -441,8 +543,16 @@ fn read_raw_server(home: &Path, client: &str, name: &str) -> Result<RawMcpServer
     match client {
         "codex" => read_raw_codex_server(home, name),
         "claude_code" => read_raw_claude_server(home, name),
+        "gemini" | "gemini_cli" => read_raw_json_server(
+            home,
+            name,
+            &home.join(".gemini").join("settings.json"),
+            "gemini",
+            "mcpServers",
+        ),
+        "opencode" => read_raw_opencode_server(home, name),
         _ => Err(AppError::validation(
-            "Unsupported MCP client. Expected codex or claude_code",
+            "Unsupported MCP client. Expected codex, claude_code, gemini, or opencode",
         )),
     }
 }
@@ -647,6 +757,231 @@ fn delete_claude(home: &Path, name: &str) -> Result<bool, AppError> {
         write_pretty_json(&path, &json)?;
     }
     Ok(removed)
+}
+
+fn upsert_gemini(home: &Path, input: &UpsertMcpServerInput) -> Result<(), AppError> {
+    upsert_json_mcp_servers(
+        &home.join(".gemini").join("settings.json"),
+        input,
+        "Cannot parse Gemini CLI MCP config",
+    )
+}
+
+fn delete_gemini(home: &Path, name: &str) -> Result<bool, AppError> {
+    delete_json_mcp_servers(
+        &home.join(".gemini").join("settings.json"),
+        name,
+        "Cannot parse Gemini CLI MCP config",
+    )
+}
+
+fn upsert_json_mcp_servers(
+    path: &Path,
+    input: &UpsertMcpServerInput,
+    parse_err: &str,
+) -> Result<(), AppError> {
+    ensure_parent(path)?;
+    let content = fs::read_to_string(path).unwrap_or_else(|_| "{}".to_string());
+    let mut json: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+        AppError::new(
+            crate::errors::codes::MCP_CONFIG_PARSE_ERROR,
+            format!("{parse_err}: {e}"),
+        )
+    })?;
+    if !json.is_object() {
+        return Err(AppError::validation("MCP config root must be an object"));
+    }
+    if json.get("mcpServers").and_then(|v| v.as_object()).is_none() {
+        json["mcpServers"] = serde_json::json!({});
+    }
+    let env = merge_claude_env(&json, &input.name, &input.env);
+    let servers = json["mcpServers"]
+        .as_object_mut()
+        .ok_or_else(|| AppError::validation("mcpServers field must be an object"))?;
+    servers.insert(input.name.clone(), claude_server_value(input, &env));
+    write_pretty_json(path, &json)
+}
+
+fn delete_json_mcp_servers(path: &Path, name: &str, parse_err: &str) -> Result<bool, AppError> {
+    let content = match fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(_) => return Ok(false),
+    };
+    let mut json: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+        AppError::new(
+            crate::errors::codes::MCP_CONFIG_PARSE_ERROR,
+            format!("{parse_err}: {e}"),
+        )
+    })?;
+    let Some(servers) = json.get_mut("mcpServers").and_then(|v| v.as_object_mut()) else {
+        return Ok(false);
+    };
+    let removed = servers.remove(name).is_some();
+    if removed {
+        write_pretty_json(path, &json)?;
+    }
+    Ok(removed)
+}
+
+fn upsert_opencode(home: &Path, input: &UpsertMcpServerInput) -> Result<(), AppError> {
+    let path = home.join(".config").join("opencode").join("opencode.json");
+    ensure_parent(&path)?;
+    let content = fs::read_to_string(&path).unwrap_or_else(|_| "{}".to_string());
+    let mut json: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+        AppError::new(
+            crate::errors::codes::MCP_CONFIG_PARSE_ERROR,
+            format!("Cannot parse OpenCode MCP config: {e}"),
+        )
+    })?;
+    if !json.is_object() {
+        return Err(AppError::validation(
+            "OpenCode config root must be an object",
+        ));
+    }
+    if json.get("mcp").and_then(|v| v.as_object()).is_none() {
+        json["mcp"] = serde_json::json!({});
+    }
+    let env = merge_opencode_env(&json, &input.name, &input.env);
+    let mut cmd = vec![input.command.clone()];
+    cmd.extend(input.args.iter().cloned());
+    let mut value = serde_json::json!({
+        "type": "local",
+        "command": cmd,
+    });
+    if !env.is_empty() {
+        let environment = env
+            .iter()
+            .map(|item| (item.key.clone(), serde_json::json!(item.value)))
+            .collect::<serde_json::Map<String, serde_json::Value>>();
+        value["environment"] = serde_json::Value::Object(environment);
+    }
+    let use_servers = json
+        .get("mcp")
+        .and_then(|v| v.get("servers"))
+        .and_then(|v| v.as_object())
+        .is_some();
+    if use_servers {
+        json["mcp"]["servers"][&input.name] = value;
+    } else {
+        json["mcp"][&input.name] = value;
+    }
+    write_pretty_json(&path, &json)
+}
+
+fn delete_opencode(home: &Path, name: &str) -> Result<bool, AppError> {
+    let path = home.join(".config").join("opencode").join("opencode.json");
+    let content = match fs::read_to_string(&path) {
+        Ok(c) => c,
+        Err(_) => return Ok(false),
+    };
+    let mut json: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+        AppError::new(
+            crate::errors::codes::MCP_CONFIG_PARSE_ERROR,
+            format!("Cannot parse OpenCode MCP config: {e}"),
+        )
+    })?;
+    let removed = if let Some(servers) = json
+        .get_mut("mcp")
+        .and_then(|v| v.get_mut("servers"))
+        .and_then(|v| v.as_object_mut())
+    {
+        servers.remove(name).is_some()
+    } else if let Some(mcp) = json.get_mut("mcp").and_then(|v| v.as_object_mut()) {
+        mcp.remove(name).is_some()
+    } else {
+        false
+    };
+    if removed {
+        write_pretty_json(&path, &json)?;
+    }
+    Ok(removed)
+}
+
+fn merge_opencode_env(
+    json: &serde_json::Value,
+    name: &str,
+    input: &[McpEnvInput],
+) -> Vec<McpEnvInput> {
+    if input.is_empty() {
+        return Vec::new();
+    }
+    let entry = opencode_mcp_object(json).and_then(|m| m.get(name).cloned());
+    let existing = entry
+        .as_ref()
+        .and_then(|v| v.get("environment").or_else(|| v.get("env")))
+        .and_then(|v| v.as_object())
+        .map(|env| {
+            env.iter()
+                .filter_map(|(k, v)| v.as_str().map(|s| (k.clone(), s.to_string())))
+                .collect::<std::collections::HashMap<_, _>>()
+        })
+        .unwrap_or_default();
+    merge_env(input, &existing)
+}
+
+fn read_raw_json_server(
+    _home: &Path,
+    name: &str,
+    path: &Path,
+    client: &str,
+    key: &str,
+) -> Result<RawMcpServer, AppError> {
+    let content = fs::read_to_string(path)
+        .map_err(|_| AppError::not_found(&format!("{client} MCP server"), name))?;
+    let json: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+        AppError::new(
+            crate::errors::codes::MCP_CONFIG_PARSE_ERROR,
+            format!("Cannot parse {client} MCP config: {e}"),
+        )
+    })?;
+    let server = json
+        .get(key)
+        .and_then(|v| v.as_object())
+        .and_then(|servers| servers.get(name))
+        .ok_or_else(|| AppError::not_found(&format!("{client} MCP server"), name))?;
+    let (command, args) = command_and_args(server);
+    let env = server
+        .get("env")
+        .or_else(|| server.get("environment"))
+        .and_then(|v| v.as_object())
+        .map(raw_env_from_json)
+        .unwrap_or_default();
+    Ok(RawMcpServer {
+        name: name.to_string(),
+        command,
+        args,
+        env,
+    })
+}
+
+fn read_raw_opencode_server(home: &Path, name: &str) -> Result<RawMcpServer, AppError> {
+    let path = home.join(".config").join("opencode").join("opencode.json");
+    let content =
+        fs::read_to_string(&path).map_err(|_| AppError::not_found("OpenCode MCP server", name))?;
+    let json: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+        AppError::new(
+            crate::errors::codes::MCP_CONFIG_PARSE_ERROR,
+            format!("Cannot parse OpenCode MCP config: {e}"),
+        )
+    })?;
+    let servers = opencode_mcp_object(&json)
+        .ok_or_else(|| AppError::not_found("OpenCode MCP server", name))?;
+    let server = servers
+        .get(name)
+        .ok_or_else(|| AppError::not_found("OpenCode MCP server", name))?;
+    let (command, args) = command_and_args(server);
+    let env = server
+        .get("environment")
+        .or_else(|| server.get("env"))
+        .and_then(|v| v.as_object())
+        .map(raw_env_from_json)
+        .unwrap_or_default();
+    Ok(RawMcpServer {
+        name: name.to_string(),
+        command,
+        args,
+        env,
+    })
 }
 
 fn ensure_parent(path: &Path) -> Result<(), AppError> {
@@ -1406,5 +1741,55 @@ TOKEN = "secret-token"
             claude_json["mcpServers"]["node_repl"]["env"]["TOKEN"],
             "secret-token"
         );
+    }
+
+    #[test]
+    fn upsert_and_list_gemini_and_opencode_mcp() {
+        let temp = tempfile::tempdir().unwrap();
+        upsert_in_home(
+            temp.path(),
+            UpsertMcpServerInput {
+                client: "gemini".to_string(),
+                name: "github".to_string(),
+                command: "npx".to_string(),
+                args: vec!["-y".into(), "@modelcontextprotocol/server-github".into()],
+                env: vec![],
+            },
+        )
+        .unwrap();
+        upsert_in_home(
+            temp.path(),
+            UpsertMcpServerInput {
+                client: "opencode".to_string(),
+                name: "fs".to_string(),
+                command: "npx".to_string(),
+                args: vec!["-y".into(), "mcp-filesystem".into()],
+                env: vec![],
+            },
+        )
+        .unwrap();
+        let listed = list_all_from_home(temp.path());
+        assert!(listed.iter().any(|s| s.id == "gemini:github"));
+        assert!(listed.iter().any(|s| s.id == "opencode:fs"));
+        let oc: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(
+                temp.path()
+                    .join(".config")
+                    .join("opencode")
+                    .join("opencode.json"),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(oc["mcp"]["fs"]["type"], "local");
+        assert_eq!(
+            oc["mcp"]["fs"]["command"],
+            serde_json::json!(["npx", "-y", "mcp-filesystem"])
+        );
+        let gemini: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(temp.path().join(".gemini").join("settings.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(gemini["mcpServers"]["github"]["command"], "npx");
     }
 }

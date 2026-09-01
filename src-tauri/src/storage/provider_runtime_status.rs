@@ -89,11 +89,13 @@ pub fn list_all(conn: &Connection) -> Result<Vec<ProviderRuntimeStatus>, AppErro
 /// (首败即跳,现行为);偶发抖动误伤健康 provider 时可调大,
 /// `AGENTGATE_CB_FAILURE_THRESHOLD=3` 即 3-strike。
 fn failure_threshold() -> i64 {
-    std::env::var("AGENTGATE_CB_FAILURE_THRESHOLD")
-        .ok()
-        .and_then(|v| v.trim().parse::<i64>().ok())
-        .filter(|v| *v >= 1)
-        .unwrap_or(1)
+    crate::compat::env_value(
+        "MUXLAYER_CB_FAILURE_THRESHOLD",
+        "AGENTGATE_CB_FAILURE_THRESHOLD",
+    )
+    .and_then(|v| v.trim().parse::<i64>().ok())
+    .filter(|v| *v >= 1)
+    .unwrap_or(1)
 }
 
 pub fn mark_failure(

@@ -4,7 +4,7 @@ use crate::errors::AppError;
 
 /// 当前 schema 版本。每加一段新迁移就 +1,放到 `run_versioned_migrations`
 /// 里 match 上对应的 version。读 `PRAGMA user_version` 决定该跑哪些。
-const CURRENT_SCHEMA_VERSION: u32 = 11;
+const CURRENT_SCHEMA_VERSION: u32 = 12;
 
 fn get_user_version(conn: &Connection) -> Result<u32, AppError> {
     let v: u32 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
@@ -197,6 +197,18 @@ fn run_versioned_migrations(conn: &Connection, from_version: u32) -> Result<(), 
                 AND trace_json IS NOT NULL;",
         )?;
         set_user_version(conn, 11)?;
+    }
+    if from_version < 12 {
+        // v12: 路由模板回滚快照。每条 route profile 最多保留一份「套用模板前」的成员。
+        conn.execute_batch(
+            "CREATE TABLE IF NOT EXISTS route_template_snapshots (
+                route_profile_id TEXT PRIMARY KEY,
+                template_id TEXT NOT NULL,
+                snapshot_json TEXT NOT NULL,
+                applied_at TEXT NOT NULL
+             );",
+        )?;
+        set_user_version(conn, 12)?;
     }
     Ok(())
 }
@@ -999,6 +1011,103 @@ mod tests {
         );
         assert_eq!(anthropic_base_url, "https://api.deepseek.com/anthropic");
         assert!(protocol.contains("anthropic_messages"));
+    }
+
+    #[test]
+    fn existing_v11_db_gets_route_template_snapshots_table() {
+        let conn = Connection::open_in_memory().unwrap();
+        run_migrations(&conn).unwrap();
+        conn.execute_batch("DROP TABLE route_template_snapshots;")
+            .unwrap();
+        set_user_version(&conn, 11).unwrap();
+        assert!(
+            conn.prepare("SELECT route_profile_id FROM route_template_snapshots LIMIT 0")
+                .is_err(),
+            "v11 存量库不应有路由模板快照表"
+        );
+
+        run_migrations(&conn).unwrap();
+        assert_eq!(get_user_version(&conn).unwrap(), CURRENT_SCHEMA_VERSION);
+        assert!(
+            conn.prepare("SELECT route_profile_id FROM route_template_snapshots LIMIT 0")
+                .is_ok(),
+            "v12 应创建 route_template_snapshots"
+        );
+    }
+
+    #[test]
+    fn existing_v8_db_gets_cost_budget_columns() {
+        let conn = Connection::open_in_memory().unwrap();
+        run_migrations(&conn).unwrap();
+        conn.execute_batch(
+            "ALTER TABLE gateway_settings DROP COLUMN cost_budget_enabled;
+             ALTER TABLE gateway_settings DROP COLUMN cost_budget_threshold;
+             ALTER TABLE gateway_settings DROP COLUMN cost_budget_strategy;",
+        )
+        .unwrap();
+        set_user_version(&conn, 8).unwrap();
+        assert!(
+            conn.prepare("SELECT cost_budget_enabled FROM gateway_settings LIMIT 0")
+                .is_err(),
+            "v8 存量库不应有 cost_budget 列"
+        );
+
+        run_migrations(&conn).unwrap();
+        assert_eq!(get_user_version(&conn).unwrap(), CURRENT_SCHEMA_VERSION);
+        crate::storage::gateway_settings::get(&conn)
+            .expect("v8 升级后 gateway_settings::get() 必须成功");
+        assert!(conn
+            .prepare("SELECT cost_budget_enabled FROM gateway_settings LIMIT 0")
+            .is_ok());
+    }
+
+    #[test]
+    fn existing_v9_db_gets_auto_compact_columns() {
+        let conn = Connection::open_in_memory().unwrap();
+        run_migrations(&conn).unwrap();
+        conn.execute_batch(
+            "ALTER TABLE gateway_settings DROP COLUMN auto_compact_enabled;
+             ALTER TABLE gateway_settings DROP COLUMN auto_compact_usage_percent;",
+        )
+        .unwrap();
+        set_user_version(&conn, 9).unwrap();
+        assert!(conn
+            .prepare("SELECT auto_compact_enabled FROM gateway_settings LIMIT 0")
+            .is_err());
+
+        run_migrations(&conn).unwrap();
+        assert_eq!(get_user_version(&conn).unwrap(), CURRENT_SCHEMA_VERSION);
+        crate::storage::gateway_settings::get(&conn)
+            .expect("v9 升级后 gateway_settings::get() 必须成功");
+    }
+
+    #[test]
+    fn existing_v10_db_gets_proxy_and_route_profile_id() {
+        let conn = Connection::open_in_memory().unwrap();
+        run_migrations(&conn).unwrap();
+        conn.execute_batch(
+            "DROP INDEX IF EXISTS idx_request_logs_session_id;
+             DROP INDEX IF EXISTS idx_request_logs_route_profile_id;
+             ALTER TABLE gateway_settings DROP COLUMN outbound_proxy_enabled;
+             ALTER TABLE gateway_settings DROP COLUMN outbound_proxy_url;
+             ALTER TABLE request_logs DROP COLUMN route_profile_id;",
+        )
+        .unwrap();
+        set_user_version(&conn, 10).unwrap();
+        assert!(conn
+            .prepare("SELECT outbound_proxy_enabled FROM gateway_settings LIMIT 0")
+            .is_err());
+        assert!(conn
+            .prepare("SELECT route_profile_id FROM request_logs LIMIT 0")
+            .is_err());
+
+        run_migrations(&conn).unwrap();
+        assert_eq!(get_user_version(&conn).unwrap(), CURRENT_SCHEMA_VERSION);
+        crate::storage::gateway_settings::get(&conn)
+            .expect("v10 升级后 gateway_settings::get() 必须成功");
+        assert!(conn
+            .prepare("SELECT route_profile_id FROM request_logs LIMIT 0")
+            .is_ok());
     }
 }
 

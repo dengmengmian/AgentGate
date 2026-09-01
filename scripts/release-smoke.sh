@@ -20,7 +20,8 @@ cargo test \
   --test mimo_capabilities \
   --test deepseek_capabilities \
   --test kimi_capabilities \
-  --test protocol_fixture
+  --test protocol_fixture \
+  --test copilot_upstream
 echo
 
 if [ "${AG_RUN_SMOKE_TESTS:-0}" != "1" ]; then

@@ -104,6 +104,12 @@ pub(crate) fn detect_client_from_ua(headers: &HeaderMap, route_default: &str) ->
     if lower.contains("kimicli") || lower.contains("kimi-cli") || lower.contains("kimi cli") {
         return "Kimi CLI".to_string();
     }
+    if lower.contains("grok-build") || lower.starts_with("grok/") {
+        return "Grok Build".to_string();
+    }
+    if lower.contains("deepseek-harness") || lower.starts_with("dsh/") {
+        return "DeepSeek Harness".to_string();
+    }
     if lower.contains("cursor") {
         return "Cursor".to_string();
     }
@@ -169,7 +175,8 @@ pub(crate) fn detect_client_from_ua(headers: &HeaderMap, route_default: &str) ->
 /// 校验 origin 的 host 部分,`AGENTGATE_ALLOWED_ORIGINS` 可整条放行。
 /// CLI 客户端 Host 是 IP/localhost 且不发 Origin,不受影响。
 pub(crate) fn validate_request_boundary(headers: &HeaderMap) -> Result<(), GatewayError> {
-    let hosts_allow = std::env::var("AGENTGATE_ALLOWED_HOSTS").unwrap_or_default();
+    let hosts_allow = crate::compat::env_value("MUXLAYER_ALLOWED_HOSTS", "AGENTGATE_ALLOWED_HOSTS")
+        .unwrap_or_default();
     let host = headers
         .get("host")
         .and_then(|v| v.to_str().ok())
@@ -184,7 +191,9 @@ pub(crate) fn validate_request_boundary(headers: &HeaderMap) -> Result<(), Gatew
             .with_suggestion("如确需域名访问,设置 AGENTGATE_ALLOWED_HOSTS=your.host"),
         ));
     }
-    let origins_allow = std::env::var("AGENTGATE_ALLOWED_ORIGINS").unwrap_or_default();
+    let origins_allow =
+        crate::compat::env_value("MUXLAYER_ALLOWED_ORIGINS", "AGENTGATE_ALLOWED_ORIGINS")
+            .unwrap_or_default();
     let origin = headers
         .get("origin")
         .and_then(|v| v.to_str().ok())
@@ -361,7 +370,9 @@ pub(crate) fn get_active_provider(
     Ok(provider)
 }
 
-const AGENTGATE_VIRTUAL_MODEL: &str = "agentgate";
+// Canonical virtual model is muxlayer. agentgate remains so old client configs keep working.
+const VIRTUAL_MODEL: &str = "muxlayer";
+const VIRTUAL_MODEL_LEGACY: &str = "agentgate";
 
 pub(crate) fn native_model_override(
     provider: &Provider,
@@ -373,7 +384,7 @@ pub(crate) fn native_model_override(
         return None;
     }
 
-    if is_agentgate_virtual_model(requested) {
+    if is_gateway_virtual_model(requested) {
         return Some(
             resolved_model
                 .unwrap_or(&provider.default_model)
@@ -420,12 +431,12 @@ pub(crate) fn native_model_override_for_images(
     mapped
 }
 
-fn is_agentgate_virtual_model(requested: &str) -> bool {
+fn is_gateway_virtual_model(requested: &str) -> bool {
     let model = requested
         .rsplit_once('/')
         .map(|(_, model)| model)
         .unwrap_or(requested);
-    model.eq_ignore_ascii_case(AGENTGATE_VIRTUAL_MODEL)
+    model.eq_ignore_ascii_case(VIRTUAL_MODEL) || model.eq_ignore_ascii_case(VIRTUAL_MODEL_LEGACY)
 }
 
 fn explicit_model_mapping(provider: &Provider, requested: &str) -> Option<String> {
@@ -1100,6 +1111,20 @@ mod tests {
     }
 
     #[test]
+    fn detect_client_from_ua_grok_build() {
+        let mut h = HeaderMap::new();
+        h.insert("user-agent", "grok-build/1.0".parse().unwrap());
+        assert_eq!(detect_client_from_ua(&h, "Default"), "Grok Build");
+    }
+
+    #[test]
+    fn detect_client_from_ua_deepseek_harness() {
+        let mut h = HeaderMap::new();
+        h.insert("user-agent", "dsh/0.1.0".parse().unwrap());
+        assert_eq!(detect_client_from_ua(&h, "Default"), "DeepSeek Harness");
+    }
+
+    #[test]
     fn detect_client_from_ua_cursor() {
         let mut h = HeaderMap::new();
         h.insert("user-agent", "Cursor/1.0".parse().unwrap());
@@ -1295,7 +1320,24 @@ mod tests {
     // ── native_model_override ──
 
     #[test]
-    fn native_model_override_agentgate_virtual_model() {
+    fn native_model_override_muxlayer_virtual_model() {
+        let provider = provider_with_mapping();
+        assert_eq!(
+            native_model_override(&provider, Some("muxlayer"), None),
+            Some("deepseek-v4-flash".to_string())
+        );
+        assert_eq!(
+            native_model_override(&provider, Some("openai/muxlayer"), None),
+            Some("deepseek-v4-flash".to_string())
+        );
+        assert_eq!(
+            native_model_override(&provider, Some("muxlayer"), Some("deepseek-v4-pro")),
+            Some("deepseek-v4-pro".to_string())
+        );
+    }
+
+    #[test]
+    fn native_model_override_agentgate_virtual_model_alias() {
         let provider = provider_with_mapping();
         assert_eq!(
             native_model_override(&provider, Some("agentgate"), None),

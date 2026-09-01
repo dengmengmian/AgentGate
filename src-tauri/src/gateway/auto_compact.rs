@@ -512,8 +512,7 @@ fn threshold_for(config: &ProviderConfig, model: &str, policy: CompactPolicy) ->
 
 /// `AGENTGATE_AUTO_COMPACT=off|0|false|no` 显式全关。
 fn auto_compact_disabled() -> bool {
-    std::env::var("AGENTGATE_AUTO_COMPACT")
-        .ok()
+    crate::compat::env_value("MUXLAYER_AUTO_COMPACT", "AGENTGATE_AUTO_COMPACT")
         .map(|v| {
             matches!(
                 v.trim().to_ascii_lowercase().as_str(),
@@ -526,7 +525,10 @@ fn auto_compact_disabled() -> bool {
 /// 未设 `AGENTGATE_AUTO_COMPACT_PROVIDERS` → 全部 provider 允许(默认开);
 /// 设置后只允许名单内的 provider name / type。
 fn provider_allowed(config: &ProviderConfig) -> bool {
-    let Ok(list) = std::env::var("AGENTGATE_AUTO_COMPACT_PROVIDERS") else {
+    let Some(list) = crate::compat::env_value(
+        "MUXLAYER_AUTO_COMPACT_PROVIDERS",
+        "AGENTGATE_AUTO_COMPACT_PROVIDERS",
+    ) else {
         return true;
     };
     if list.trim().is_empty() {
@@ -543,10 +545,12 @@ fn provider_allowed(config: &ProviderConfig) -> bool {
 /// 阈值优先级:`AGENTGATE_AUTO_COMPACT_TOKENS` 显式覆盖 > 用户/模型窗口 × usage%
 /// > catalog 内置窗口 × usage% > 默认 110K。
 fn resolve_threshold(config: &ProviderConfig, model: &str, usage_percent: usize) -> usize {
-    if let Some(explicit) = std::env::var("AGENTGATE_AUTO_COMPACT_TOKENS")
-        .ok()
-        .and_then(|v| v.trim().parse::<usize>().ok())
-        .filter(|v| *v > 0)
+    if let Some(explicit) = crate::compat::env_value(
+        "MUXLAYER_AUTO_COMPACT_TOKENS",
+        "AGENTGATE_AUTO_COMPACT_TOKENS",
+    )
+    .and_then(|v| v.trim().parse::<usize>().ok())
+    .filter(|v| *v > 0)
     {
         return explicit;
     }

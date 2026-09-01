@@ -6,6 +6,8 @@ services:
     volumes:
       - agentgate-data:/data
     environment:
+      - MUXLAYER_HOST=0.0.0.0
+      - MUXLAYER_PORT=9090
       - AGENTGATE_HOST=0.0.0.0
       - AGENTGATE_PORT=9090
 

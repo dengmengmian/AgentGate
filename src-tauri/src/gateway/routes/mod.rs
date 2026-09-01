@@ -709,4 +709,44 @@ mod tests {
         .to_string();
         assert!(!anthropic_request_has_images(&body));
     }
+
+    /// 挡住「只加在 Responses」：预算闸、请求分析、选路必须出现在四个入口。
+    /// Gemini 走 Responses profile，没有独立 failover 循环，但预算和分析不能缺。
+    #[test]
+    fn protocol_entries_share_budget_analysis_and_selection() {
+        let handlers = [
+            ("chat", include_str!("chat.rs")),
+            ("messages", include_str!("messages.rs")),
+            ("responses", include_str!("responses.rs")),
+            ("gemini", include_str!("gemini.rs")),
+        ];
+        for (name, src) in handlers {
+            assert!(
+                src.contains("budget::check_new_request"),
+                "{name} 入口缺少日预算闸"
+            );
+            assert!(
+                src.contains("select_for_failover"),
+                "{name} 入口缺少 select_for_failover"
+            );
+            assert!(
+                src.contains("Some(&analysis)"),
+                "{name} 入口选路未传入请求分析，条件/视觉会失效"
+            );
+        }
+        for (name, src) in [
+            ("chat", include_str!("chat.rs")),
+            ("messages", include_str!("messages.rs")),
+            ("responses", include_str!("responses.rs")),
+        ] {
+            assert!(
+                src.contains("failover::build_attempt_order"),
+                "{name} 入口缺少共用 vision/failover 排序"
+            );
+            assert!(
+                src.contains("request_has_images"),
+                "{name} 入口未把带图标记交给 failover"
+            );
+        }
+    }
 }

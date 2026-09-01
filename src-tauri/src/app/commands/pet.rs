@@ -672,7 +672,7 @@ fn pet_chat_body(messages: Vec<serde_json::Value>) -> serde_json::Value {
     // 不带 temperature:部分模型只接受固定值(如 kimi-for-coding 仅允许 1),
     // 交给供应商默认值最稳。
     serde_json::json!({
-        "model": "agentgate",
+        "model": "muxlayer",
         "messages": messages,
         "max_tokens": 200,
     })
@@ -806,7 +806,7 @@ mod pet_chat_tests {
         // kimi-for-coding 只接受 temperature=1,带 0.8 会被 400 拒掉;
         // 请求体不带 temperature,交给供应商默认值。
         let body = pet_chat_body(vec![serde_json::json!({"role":"user","content":"hi"})]);
-        assert_eq!(body["model"], "agentgate");
+        assert_eq!(body["model"], "muxlayer");
         assert_eq!(body["max_tokens"], 200);
         assert_eq!(body["messages"][0]["content"], "hi");
         assert!(

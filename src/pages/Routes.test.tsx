@@ -72,6 +72,19 @@ describe("Routes", () => {
     vi.mocked(api.addProviderToRoute).mockResolvedValue(true);
     vi.mocked(api.removeProviderFromRoute).mockResolvedValue(true);
     vi.mocked(api.reorderRouteProviders).mockResolvedValue(true);
+    vi.mocked(api.hasRouteTemplateRollback).mockResolvedValue(false);
+    vi.mocked(api.previewRouteTemplate).mockResolvedValue({
+      template_id: "task_split",
+      profile_ids: ["r1"],
+      profile_names: ["Default Route"],
+      roles: [],
+      warnings: [],
+      can_apply: true,
+      can_rollback: false,
+      switches_to_failover: true,
+    } as never);
+    vi.mocked(api.applyRouteTemplate).mockResolvedValue({} as never);
+    vi.mocked(api.rollbackRouteTemplate).mockResolvedValue(true);
     vi.mocked(api.resetProviderRuntimeStatus).mockResolvedValue({
       provider_id: "p1",
       available: true,
@@ -233,5 +246,29 @@ describe("Routes", () => {
     await waitFor(() =>
       expect(api.deleteRouteProfile).toHaveBeenCalledWith("r1")
     );
+  });
+
+  it("opens the routing template dialog from the header", async () => {
+    vi.mocked(api.listRouteProfiles).mockResolvedValue([profile("r1")]);
+    vi.mocked(api.listProviders).mockResolvedValue([
+      {
+        id: "p1",
+        name: "OpenAI",
+        base_url: "https://api.openai.com",
+        enabled: true,
+      },
+    ] as any);
+
+    render(
+      <MemoryRouter>
+        <Routes />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => expect(api.getRouteProfile).toHaveBeenCalledWith("r1"));
+    await act(async () => screen.getByText("routes.template").click());
+    expect(
+      await screen.findByText("routes.template_title")
+    ).toBeInTheDocument();
   });
 });

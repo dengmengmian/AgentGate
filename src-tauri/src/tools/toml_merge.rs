@@ -157,6 +157,71 @@ pub fn upsert_section(content: &str, header: &str, body: &str) -> String {
     preserve_final_newline(content, out)
 }
 
+/// Insert or replace a scalar key **inside** `[header]`, leaving the rest of
+/// that section byte-for-byte. If the section is missing, it is appended with
+/// just this key.
+pub fn upsert_section_key(content: &str, header: &str, key: &str, raw_value: &str) -> String {
+    let target = format!("[{header}]");
+    let new_line = format!("{key} = {raw_value}");
+    let mut out = String::new();
+    let mut in_target = false;
+    let mut written = false;
+    let mut saw_section = false;
+
+    for line in content.lines() {
+        let trimmed = line.trim_start();
+        if is_section_header(trimmed) {
+            if in_target && !written {
+                out.push_str(&new_line);
+                out.push('\n');
+                written = true;
+            }
+            in_target = header_matches(trimmed, &target);
+            if in_target {
+                saw_section = true;
+            }
+            out.push_str(line);
+            out.push('\n');
+            continue;
+        }
+        if in_target && !written {
+            if let Some(name) = top_level_key_name(line) {
+                if name == key {
+                    out.push_str(&new_line);
+                    out.push('\n');
+                    written = true;
+                    continue;
+                }
+            }
+        }
+        out.push_str(line);
+        out.push('\n');
+    }
+
+    if in_target && !written {
+        out.push_str(&new_line);
+        out.push('\n');
+        written = true;
+    }
+
+    if !saw_section {
+        if !out.is_empty() && !out.ends_with("\n\n") {
+            if !out.ends_with('\n') {
+                out.push('\n');
+            }
+            out.push('\n');
+        }
+        out.push_str(&target);
+        out.push('\n');
+        out.push_str(&new_line);
+        out.push('\n');
+        written = true;
+    }
+
+    let _ = written;
+    preserve_final_newline(content, out)
+}
+
 // ── helpers ─────────────────────────────────────────────────────
 
 /// True if `trimmed` (already start-trimmed) begins a TOML section.
@@ -477,5 +542,30 @@ api_key = \"sk-kimi\"
         let input = "model = \"gpt-5\"\n";
         let out = upsert_top_level_key(input, "model_provider", "\"OpenAI\"");
         assert!(out.ends_with('\n'));
+    }
+
+    #[test]
+    fn section_key_replaces_inside_section_and_keeps_siblings() {
+        let input = "[models]\ndefault = \"old\"\nweb_search = \"keep\"\n";
+        let out = upsert_section_key(input, "models", "default", "\"muxlayer\"");
+        assert_eq!(
+            out,
+            "[models]\ndefault = \"muxlayer\"\nweb_search = \"keep\"\n"
+        );
+    }
+
+    #[test]
+    fn section_key_appends_section_when_missing() {
+        let out = upsert_section_key("", "models", "default", "\"muxlayer\"");
+        assert_eq!(out, "[models]\ndefault = \"muxlayer\"\n");
+    }
+
+    #[test]
+    fn section_key_inserts_into_existing_section_without_key() {
+        let input = "[models]\nweb_search = \"keep\"\n";
+        let out = upsert_section_key(input, "models", "default", "\"muxlayer\"");
+        assert!(out.contains("web_search = \"keep\""));
+        assert!(out.contains("default = \"muxlayer\""));
+        assert!(out.contains("[models]"));
     }
 }

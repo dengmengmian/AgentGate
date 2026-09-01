@@ -56,7 +56,8 @@ jobs:
                      --test mimo_capabilities \
                      --test deepseek_capabilities \
                      --test kimi_capabilities \
-                     --test protocol_fixture
+                     --test protocol_fixture \
+                     --test copilot_upstream
 
       - name: Docker preflight
         run: bash scripts/release-preflight.sh

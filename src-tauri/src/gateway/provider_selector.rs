@@ -1020,6 +1020,113 @@ mod tests {
         assert!(a.input_char_count >= "sys-hint".len() + "photo".len());
     }
 
+    #[test]
+    fn has_images_condition_selects_on_chat_messages_and_responses() {
+        use crate::models::provider::CreateProviderInput;
+        use crate::models::route_profile::{AddProviderToRouteInput, CreateRouteProfileInput};
+        use crate::storage::db::DbPool;
+        use crate::storage::{migrations, providers, route_profiles};
+        use r2d2::Pool;
+        use r2d2_sqlite::SqliteConnectionManager;
+
+        for protocol in [
+            "openai_chat_completions",
+            "anthropic_messages",
+            "openai_responses",
+        ] {
+            let manager = SqliteConnectionManager::memory();
+            let pool: DbPool = Pool::builder().max_size(1).build(manager).unwrap();
+            let vision_id;
+            let text_id;
+            {
+                let conn = pool.get().unwrap();
+                migrations::run_migrations(&conn).unwrap();
+                let mk = |name: &str| {
+                    providers::create(
+                        &conn,
+                        CreateProviderInput {
+                            name: name.into(),
+                            provider_type: "openai".into(),
+                            base_url: format!("https://api.{name}.example"),
+                            api_key: Some("sk-test".into()),
+                            default_model: "gpt-4o".into(),
+                            protocol: r#"["openai_chat_completions","openai_responses","anthropic_messages"]"#
+                                .into(),
+                            timeout_seconds: Some(120),
+                            enabled: Some(true),
+                            ..Default::default()
+                        },
+                    )
+                    .unwrap()
+                    .id
+                };
+                vision_id = mk("vision");
+                text_id = mk("text");
+                let profile = route_profiles::create(
+                    &conn,
+                    CreateRouteProfileInput {
+                        name: format!("{protocol} vision-lock"),
+                        input_protocol: protocol.into(),
+                        mode: Some("failover".into()),
+                    },
+                )
+                .unwrap();
+                route_profiles::set_default(&conn, &profile.id).unwrap();
+                route_profiles::add_provider(
+                    &conn,
+                    &profile.id,
+                    &vision_id,
+                    AddProviderToRouteInput {
+                        priority: Some(1),
+                        model_override: None,
+                        cooldown_seconds: None,
+                        failover_on_status_codes: None,
+                        failover_on_error_keywords: None,
+                        routing_conditions: Some(r#"{"has_images":true}"#.into()),
+                    },
+                )
+                .unwrap();
+                route_profiles::add_provider(
+                    &conn,
+                    &profile.id,
+                    &text_id,
+                    AddProviderToRouteInput {
+                        priority: Some(2),
+                        model_override: None,
+                        cooldown_seconds: None,
+                        failover_on_status_codes: None,
+                        failover_on_error_keywords: None,
+                        routing_conditions: None,
+                    },
+                )
+                .unwrap();
+            }
+
+            let image = select_for_failover(
+                &pool,
+                protocol,
+                Some("gpt-4o"),
+                Some(&test_analysis(10, true, false, "")),
+            )
+            .unwrap();
+            assert_eq!(
+                image.provider.id, vision_id,
+                "{protocol} 带图应命中 has_images 条件"
+            );
+            let text = select_for_failover(
+                &pool,
+                protocol,
+                Some("gpt-4o"),
+                Some(&test_analysis(10, false, false, "")),
+            )
+            .unwrap();
+            assert_eq!(
+                text.provider.id, text_id,
+                "{protocol} 无图应跳过 has_images 条件"
+            );
+        }
+    }
+
     // ── Capability promotion tests ──
 
     fn mimo_provider_with_matrix(default: &str) -> Provider {

@@ -1,4 +1,4 @@
-import { Atom, FolderOpen, Zap, ToggleLeft, ToggleRight } from "lucide-react";
+import { FolderOpen, Zap, ToggleLeft, ToggleRight } from "lucide-react";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { ClientHistoryButton } from "@/components/tools/ClientHistoryButton";
 import * as api from "@/lib/api";
@@ -35,7 +35,7 @@ export function AtomCodeDetail({
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <DetailHeader
-        Icon={Atom}
+        clientId="atomcode"
         name={t("tools.atomcode")}
         desc={t("tools.atomcode_desc")}
         badge={badge}

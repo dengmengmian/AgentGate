@@ -43,6 +43,9 @@ describe("Sidebar", () => {
     expect(screen.getByRole("link", { name: "Providers" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Clients" })).toBeInTheDocument();
     expect(screen.getAllByText("MuxLayer").length).toBeGreaterThan(0);
+    expect(document.querySelector("aside img")?.getAttribute("src")).toMatch(
+      /svg/i
+    );
     expect(await screen.findByText("v1.4.4")).toBeInTheDocument();
   });
 

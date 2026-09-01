@@ -17,7 +17,10 @@ import { toast } from "@/components/common/Toast";
 import { useI18n } from "@/lib/i18n";
 import { usePolling } from "@/lib/usePolling";
 import { formatLatency } from "@/lib/utils";
-import { estimateCacheSavingsUsd } from "@/lib/requestLogDebug";
+import {
+  cacheHitRatePercent,
+  estimateCacheSavingsUsd,
+} from "@/lib/requestLogDebug";
 import { firstRequestCommandsFor } from "@/lib/firstRequestCommands";
 import * as api from "@/lib/api";
 import {
@@ -177,11 +180,10 @@ function CacheHitBadge({
   cacheWrite: number;
   inputTokens: number;
 }) {
-  const denom = cacheRead + cacheWrite + inputTokens;
-  if (denom <= 0) {
+  const rate = cacheHitRatePercent(cacheRead, cacheWrite, inputTokens);
+  if (rate == null) {
     return <StatusBadge variant="muted">—</StatusBadge>;
   }
-  const rate = (cacheRead / denom) * 100;
   const variant = rate >= 70 ? "success" : rate >= 30 ? "warning" : "error";
   return <StatusBadge variant={variant}>{rate.toFixed(1)}%</StatusBadge>;
 }
@@ -196,7 +198,7 @@ const RANGE_OPTIONS: { days: RangeDays; labelZh: string; labelEn: string }[] = [
 
 export function Dashboard() {
   const { t, locale } = useI18n();
-  // gateway status 走全局 store——Topbar 已经在 3s 轮询，这里只订阅。
+  // gateway status 走全局 store——Topbar 已经在轮询，这里只订阅。
   const status = useGatewayStatus((s) => s.value);
   const providers = useProviders((s) => s.items);
   const [tools, setTools] = useState<ToolConfigView[]>([]);
@@ -218,7 +220,6 @@ export function Dashboard() {
         api.aggregateCostByModel(rangeDays, 8),
         api.aggregateCostByClient(rangeDays, 8),
         api.aggregateRouteProfileStats(rangeDays).catch(() => []),
-        useGatewayStatus.getState().fetch(),
       ]);
       const rp = useRouteProfiles.getState().items;
       const nameMap = Object.fromEntries(rp.map((p) => [p.id, p.name]));
@@ -259,19 +260,23 @@ export function Dashboard() {
 
   const loadClients = useCallback(async () => {
     try {
-      const [tl, codex, claude, opencode, gemini, atom] = await Promise.all([
-        api.listTools(),
-        api.detectCodexConfig().catch(() => null),
-        api.detectClaudeCodeEnv().catch(() => null),
-        api.detectOpenCodeConfig().catch(() => null),
-        api.detectGeminiConfig().catch(() => null),
-        api.detectAtomCodeConfig().catch(() => null),
-        useProviders.getState().refetch(),
-        useRouteProfiles
-          .getState()
-          .refetch()
-          .catch(() => {}),
-      ]);
+      const [tl, codex, claude, opencode, gemini, atom, kimi, grok, dsh] =
+        await Promise.all([
+          api.listTools(),
+          api.detectCodexConfig().catch(() => null),
+          api.detectClaudeCodeEnv().catch(() => null),
+          api.detectOpenCodeConfig().catch(() => null),
+          api.detectGeminiConfig().catch(() => null),
+          api.detectAtomCodeConfig().catch(() => null),
+          api.detectKimiConfig().catch(() => null),
+          api.detectGrokConfig().catch(() => null),
+          api.detectDshConfig().catch(() => null),
+          useProviders.getState().refetch(),
+          useRouteProfiles
+            .getState()
+            .refetch()
+            .catch(() => {}),
+        ]);
       const ps = useProviders.getState().items;
       const wired: string[] = [];
       if (codex?.has_agentgate) wired.push("codex");
@@ -279,6 +284,9 @@ export function Dashboard() {
       if (opencode?.has_agentgate) wired.push("opencode");
       if (gemini?.has_agentgate) wired.push("gemini");
       if (atom?.has_agentgate) wired.push("atomcode");
+      if (kimi?.has_agentgate) wired.push("kimi_cli");
+      if (grok?.has_agentgate) wired.push("grok_build");
+      if (dsh?.has_agentgate) wired.push("deepseek_harness");
       setTools((prev) => (shallowEqual(prev, tl) ? prev : tl));
       setWiredClientIds((prev) => (shallowEqual(prev, wired) ? prev : wired));
       setProviderCount((prev) => (prev === ps.length ? prev : ps.length));
@@ -290,6 +298,7 @@ export function Dashboard() {
   useEffect(() => {
     loadLive();
     loadClients();
+    useGatewayStatus.getState().fetch();
   }, [loadLive, loadClients]);
   usePolling(loadLive, 5000);
   usePolling(loadClients, 30_000);
@@ -333,6 +342,13 @@ export function Dashboard() {
   const todayTokens = stats
     ? stats.today_input_tokens + stats.today_output_tokens
     : 0;
+  const todayCacheHitRate = stats
+    ? cacheHitRatePercent(
+        stats.today_cache_read_tokens,
+        stats.today_cache_write_tokens,
+        stats.today_input_tokens
+      )
+    : null;
   // 种子供应商（空 key）不算就绪：要能真正发请求。
   const hasUsableProvider = providers.some(
     (p) => p.enabled !== false && !!p.masked_api_key
@@ -524,7 +540,7 @@ export function Dashboard() {
           />
         )}
 
-      {/* ── 2. Today card — 5 primary metrics + cache inline footer when present ── */}
+      {/* ── 2. Today card — 6 primary metrics + cache inline footer when present ── */}
       {hasProviders && stats && stats.total > 0 && (
         <div
           className="relative overflow-hidden rounded-xl border border-accent/15 bg-card px-6 py-4"
@@ -548,7 +564,7 @@ export function Dashboard() {
               LIVE
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             <StripMetric
               label={t("stats.requests")}
               value={String(stats.today_total)}
@@ -569,6 +585,19 @@ export function Dashboard() {
             <StripMetric
               label={t("stats.avg_latency")}
               value={formatLatency(stats.avg_latency_ms)}
+            />
+            <StripMetric
+              label={t("stats.hit_rate")}
+              value={
+                todayCacheHitRate == null
+                  ? "—"
+                  : `${todayCacheHitRate.toFixed(1)}%`
+              }
+              tone={
+                todayCacheHitRate != null && todayCacheHitRate >= 70
+                  ? "accent"
+                  : "default"
+              }
             />
           </div>
           {stats.today_codex_compact > 0 && (

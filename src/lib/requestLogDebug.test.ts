@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildReproPackage,
+  cacheHitRatePercent,
   estimateCacheSavingsUsd,
   pairBodies,
   redactSecrets,
@@ -67,6 +68,20 @@ describe("buildReproPackage", () => {
     });
     const parsed = JSON.parse(pkg) as Record<string, unknown>;
     expect(parsed.raw_request).toBeUndefined();
+  });
+});
+
+describe("cacheHitRatePercent", () => {
+  it("returns null when there is no volume", () => {
+    expect(cacheHitRatePercent(0, 0, 0)).toBeNull();
+  });
+
+  it("stays in 0–100 when OpenAI counts cache inside input", () => {
+    expect(cacheHitRatePercent(50, 0, 100)).toBeCloseTo(33.333, 2);
+  });
+
+  it("is 100 when every input token was a cache read", () => {
+    expect(cacheHitRatePercent(100, 0, 0)).toBe(100);
   });
 });
 

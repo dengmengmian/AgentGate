@@ -6,7 +6,7 @@ use serde::Serialize;
 use crate::errors::AppError;
 use crate::security::local_token;
 
-const AGENTGATE_MODEL: &str = "openai/agentgate";
+const AGENTGATE_MODEL: &str = "openai/muxlayer";
 
 pub fn config_path() -> PathBuf {
     let home = std::env::var("HOME")
@@ -46,7 +46,9 @@ pub fn detect() -> OpenCodeConfigStatus {
 
     let (has_agentgate, current_model) = if exists {
         let content = fs::read_to_string(&path).unwrap_or_default();
-        let has_ag = content.contains("ag_local_") || content.contains("agentgate");
+        let has_ag = content.contains("ag_local_")
+            || content.contains("muxlayer")
+            || content.contains("agentgate");
         let model = serde_json::from_str::<serde_json::Value>(&content)
             .ok()
             .and_then(|v| v.get("model")?.as_str().map(String::from));
@@ -199,7 +201,7 @@ mod tests {
         let content = std::fs::read_to_string(config_path()).unwrap();
         assert!(content.contains("ag_local_"));
         assert!(content.contains("127.0.0.1:9090"));
-        assert!(content.contains("openai/agentgate"));
+        assert!(content.contains("openai/muxlayer"));
         cleanup(&temp);
     }
 

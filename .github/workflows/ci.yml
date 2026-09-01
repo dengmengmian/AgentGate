@@ -146,6 +146,7 @@ jobs:
                      --test deepseek_capabilities \
                      --test kimi_capabilities \
                      --test protocol_fixture \
+                     --test copilot_upstream \
                      -- --nocapture
 
   cargo-audit:

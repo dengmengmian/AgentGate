@@ -1,5 +1,4 @@
 import {
-  Sparkles,
   FolderOpen,
   Zap,
   ToggleLeft,
@@ -41,7 +40,7 @@ export function GeminiDetail({
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <DetailHeader
-        Icon={Sparkles}
+        clientId="gemini_cli"
         name={t("tools.gemini_cli")}
         desc={t("tools.gemini_cli_desc")}
         badge={badge}

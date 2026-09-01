@@ -116,6 +116,84 @@ fn is_self_process(command: &str) -> bool {
     lc.contains("agentgate")
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum KillCheck {
+    Ok,
+    InvalidPid,
+    SelfProcess,
+    NotFound,
+}
+
+/// Only PIDs we just listed for this client are killable. Never PID 0/1 or us.
+pub fn kill_check(pid: u32, live: &[RunningProcess]) -> KillCheck {
+    if pid <= 1 {
+        return KillCheck::InvalidPid;
+    }
+    if pid == std::process::id() {
+        return KillCheck::SelfProcess;
+    }
+    if !live.iter().any(|p| p.pid == pid) {
+        return KillCheck::NotFound;
+    }
+    KillCheck::Ok
+}
+
+/// SIGTERM, then SIGKILL if still alive. Windows uses `taskkill /T /F`.
+pub fn terminate(pid: u32) -> Result<(), String> {
+    #[cfg(unix)]
+    {
+        run_cmd("kill", &["-TERM", &pid.to_string()])?;
+        std::thread::sleep(std::time::Duration::from_millis(400));
+        if pid_alive(pid) {
+            run_cmd("kill", &["-KILL", &pid.to_string()])?;
+        }
+        Ok(())
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        let output = std::process::Command::new("taskkill")
+            .args(["/PID", &pid.to_string(), "/T", "/F"])
+            .creation_flags(CREATE_NO_WINDOW)
+            .output()
+            .map_err(|e| e.to_string())?;
+        if output.status.success() {
+            Ok(())
+        } else {
+            Err(String::from_utf8_lossy(&output.stderr).trim().to_string())
+        }
+    }
+    #[cfg(not(any(unix, windows)))]
+    {
+        let _ = pid;
+        Err("kill is not supported on this platform".to_string())
+    }
+}
+
+#[cfg(unix)]
+fn run_cmd(bin: &str, args: &[&str]) -> Result<(), String> {
+    let output = std::process::Command::new(bin)
+        .args(args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        let err = String::from_utf8_lossy(&output.stderr);
+        Err(err.trim().to_string())
+    }
+}
+
+#[cfg(unix)]
+fn pid_alive(pid: u32) -> bool {
+    std::process::Command::new("kill")
+        .args(["-0", &pid.to_string()])
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}
+
 /// Windows：解析 `tasklist /FO CSV /NH` 的输出。每行形如
 /// `"Codex.exe","1234","Console","1","123,456 K"`，取映像名 + PID。
 /// 按 needles 大小写不敏感子串匹配映像名，过滤 AgentGate 自身，
@@ -297,5 +375,40 @@ mod tests {
     fn tasklist_ignores_blank_needles() {
         let out = "\"Codex.exe\",\"88\",\"Console\",\"1\",\"1 K\"\r\n";
         assert!(parse_tasklist_csv(out, &["", "  "]).is_empty());
+    }
+
+    fn live(pid: u32, command: &str) -> RunningProcess {
+        RunningProcess {
+            pid,
+            command: command.to_string(),
+        }
+    }
+
+    #[test]
+    fn kill_check_allows_pid_in_live_list() {
+        assert_eq!(
+            kill_check(4242, &[live(4242, "dsh")]),
+            KillCheck::Ok
+        );
+    }
+
+    #[test]
+    fn kill_check_rejects_pid_zero_and_init() {
+        let list = [live(1, "init")];
+        assert_eq!(kill_check(0, &list), KillCheck::InvalidPid);
+        assert_eq!(kill_check(1, &list), KillCheck::InvalidPid);
+    }
+
+    #[test]
+    fn kill_check_rejects_self_and_missing() {
+        let self_pid = std::process::id();
+        assert_eq!(
+            kill_check(self_pid, &[live(self_pid, "dsh")]),
+            KillCheck::SelfProcess
+        );
+        assert_eq!(
+            kill_check(999_999, &[live(4242, "dsh")]),
+            KillCheck::NotFound
+        );
     }
 }

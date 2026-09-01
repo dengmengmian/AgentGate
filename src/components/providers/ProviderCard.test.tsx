@@ -213,4 +213,21 @@ describe("ProviderCard", () => {
     });
     expect(screen.queryByText(/Type/i)).not.toBeInTheDocument();
   });
+
+  it("shows round-robin hint when masked key reports extras", () => {
+    renderWithProviders(
+      <ProviderCard
+        provider={makeProvider({
+          masked_api_key: "sk-ab****cdef (+2 more)",
+        })}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        onSetActive={() => {}}
+        onTest={() => {}}
+      />
+    );
+    expect(
+      screen.getByText(/3 keys · round-robin|3 把 key/)
+    ).toBeInTheDocument();
+  });
 });

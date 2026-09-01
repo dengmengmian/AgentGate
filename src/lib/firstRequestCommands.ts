@@ -16,6 +16,19 @@ const COMMAND_BY_ID: Record<string, { name: string; command: string }> = {
   gemini: { name: "Gemini CLI", command: "gemini" },
   "gemini-cli": { name: "Gemini CLI", command: "gemini" },
   atomcode: { name: "AtomCode", command: "atomcode" },
+  kimi_cli: { name: "Kimi CLI", command: "kimi" },
+  "kimi-cli": { name: "Kimi CLI", command: "kimi" },
+  grok_build: { name: "Grok Build", command: "grok" },
+  "grok-build": { name: "Grok Build", command: "grok" },
+  deepseek_harness: {
+    name: "DeepSeek Harness",
+    command: "npx @deepseek-ai/dsh web",
+  },
+  "deepseek-harness": {
+    name: "DeepSeek Harness",
+    command: "npx @deepseek-ai/dsh web",
+  },
+  dsh: { name: "DeepSeek Harness", command: "npx @deepseek-ai/dsh web" },
 };
 
 /** Resolve a launch command for a client id or tool slug, if known. */

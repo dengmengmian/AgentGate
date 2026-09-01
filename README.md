@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  Codex · Claude Code · Gemini CLI · OpenCode<br>
+  Codex · Claude Code · Gemini CLI · OpenCode · Kimi CLI · Grok Build · DeepSeek Harness<br>
   ↓<br>
   <b>MuxLayer</b><br>
   ↓<br>
@@ -69,7 +69,7 @@ Send a test request, then open **Logs** to see the selected provider, model, rou
 
 ## Supported clients and providers
 
-**Clients:** Codex · Claude Code · Gemini CLI · OpenCode · AtomCode · Cursor / Continue / Cline
+**Clients:** Codex · Claude Code · Gemini CLI · OpenCode · AtomCode · Kimi CLI · Grok Build · DeepSeek Harness · Cursor / Continue / Cline
 
 **Providers:** OpenAI · Anthropic · DeepSeek · Kimi · MiMo · Gemini · OpenRouter · OrcaRouter · Groq · Mistral · Ollama · LM Studio · and 25+ model providers.
 
@@ -128,11 +128,11 @@ No account yet? [Get an OrcaRouter API key](https://www.orcarouter.ai/ref/ref_01
 
 | Platform | Package |
 |---|---|
-| macOS Apple Silicon | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_aarch64.dmg) |
-| macOS Intel | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64.dmg) |
-| Windows 10 / 11 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64-setup.exe) |
-| Debian / Ubuntu | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.deb) |
-| Other Linux distros | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.AppImage) |
+| macOS Apple Silicon | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_aarch64.dmg) |
+| macOS Intel | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.deb) |
+| Other Linux distros | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.AppImage) |
 
 On macOS:
 

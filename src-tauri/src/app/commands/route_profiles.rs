@@ -246,6 +246,59 @@ pub fn update_route_provider_conditions(
 
 #[tauri::command]
 #[specta::specta]
+pub fn preview_route_template(
+    input: crate::storage::route_templates::RouteTemplateInput,
+    state: State<'_, AppState>,
+) -> Result<crate::storage::route_templates::RouteTemplatePreview, AppError> {
+    let conn = state
+        .db
+        .get()
+        .map_err(|_| AppError::internal("DB lock failed"))?;
+    crate::storage::route_templates::preview(&conn, &input)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn apply_route_template(
+    input: crate::storage::route_templates::RouteTemplateInput,
+    state: State<'_, AppState>,
+) -> Result<crate::storage::route_templates::RouteTemplatePreview, AppError> {
+    let conn = state
+        .db
+        .get()
+        .map_err(|_| AppError::internal("DB lock failed"))?;
+    crate::storage::route_templates::apply(&conn, &input)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn rollback_route_template(
+    profile_id: String,
+    state: State<'_, AppState>,
+) -> Result<bool, AppError> {
+    let conn = state
+        .db
+        .get()
+        .map_err(|_| AppError::internal("DB lock failed"))?;
+    crate::storage::route_templates::rollback(&conn, &profile_id)?;
+    Ok(true)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn has_route_template_rollback(
+    profile_id: String,
+    state: State<'_, AppState>,
+) -> Result<bool, AppError> {
+    let conn = state
+        .db
+        .get()
+        .map_err(|_| AppError::internal("DB lock failed"))?;
+    crate::storage::route_templates::has_rollback(&conn, &profile_id)
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn list_provider_runtime_status(
     state: State<'_, AppState>,
 ) -> Result<Vec<crate::models::route_profile::ProviderRuntimeStatus>, AppError> {

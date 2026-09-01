@@ -27,7 +27,7 @@ MuxLayer 给 Gemini CLI 一个本地模型入口，让它的请求和 Codex、Cl
 | Gemini CLI 侧 | MuxLayer 侧 | Provider 侧 |
 |---|---|---|
 | Gemini API 风格的请求 | 本地网关路由 | 由 Route Profile 选中的 Chat 兼容上游 |
-| Gemini 模型名 | Model Mapping 或 `agentgate` 虚拟模型 | Provider 对应的模型 ID |
+| Gemini 模型名 | Model Mapping 或 `muxlayer` 虚拟模型（仍兼容 `agentgate`） | Provider 对应的模型 ID |
 | 请求日志 | 按客户端和路由归因 | 在可用时附带 Token 和成本估算 |
 
 ## 排查

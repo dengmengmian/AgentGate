@@ -1,5 +1,4 @@
 import {
-  Code,
   FolderOpen,
   AlertTriangle,
   Zap,
@@ -46,7 +45,7 @@ export function CodexDetail({
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <DetailHeader
-        Icon={Code}
+        clientId="codex"
         name={t("tools.codex")}
         desc={t("tools.codex_desc")}
         badge={badge}

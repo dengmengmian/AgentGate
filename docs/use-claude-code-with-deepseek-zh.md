@@ -28,7 +28,7 @@ MuxLayer 把 Claude Code 原本发往 Anthropic Messages 的入口，变成你�
 | Claude Code 侧 | MuxLayer 侧 | DeepSeek 侧 |
 |---|---|---|
 | Anthropic Messages API | `/v1/messages` 本地网关路由 | DeepSeek 的 Anthropic 兼容或 Chat 兼容上游 |
-| Claude 模型名 | Model Mapping 或 `agentgate` 虚拟模型 | DeepSeek 模型 ID |
+| Claude 模型名 | Model Mapping 或 `muxlayer` 虚拟模型（仍兼容 `agentgate`） | DeepSeek 模型 ID |
 | 工具调用和流式输出 | 协议感知路由和追踪 | DeepSeek 专属处理 |
 
 ## 给 claude-code-router 用户的说明

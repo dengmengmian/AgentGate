@@ -30,11 +30,11 @@ English: [Main Reference](./full-reference.md)
 
 | 你的机器 | 下载 |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_aarch64.dmg) |
-| 🍎 macOS — Intel | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64.dmg) |
-| 🪟 Windows 10 / 11 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.deb) |
-| 🐧 Linux — 其他发行版 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_aarch64.dmg) |
+| 🍎 macOS — Intel | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64.dmg) |
+| 🪟 Windows 10 / 11 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.deb) |
+| 🐧 Linux — 其他发行版 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.AppImage) |
 
 macOS 也可以用 Homebrew 安装：
 
@@ -131,10 +131,10 @@ MuxLayer 的事就一句话：**让官方客户端的入口在本地可控**—�
 | 模式 | 触发时机 | 模型处理 | 典型场景 |
 |---|---|---|---|
 | **协议转换** | 客户端协议和上游协议不一样 | Model Mapping 优先；没匹配上就用 Provider 默认模型做兼容兜底 | Codex Responses → DeepSeek / MiMo Chat |
-| **原生 Pass-through** | 客户端协议和某个上游原生 endpoint 一致 | 请求的 `model` 原样保留，除非命中 Model Mapping；虚拟模型 `agentgate` 会解析成路由选中的那个模型 | OpenCode / curl → Chat Completions |
+| **原生 Pass-through** | 客户端协议和某个上游原生 endpoint 一致 | 请求的 `model` 原样保留，除非命中 Model Mapping；虚拟模型 `muxlayer`（仍兼容 `agentgate`）会解析成路由选中的那个模型 | OpenCode / curl → Chat Completions |
 | **Pass-through + Model Mapping** | 协议一致，但客户端模型名和上游不一样 | Model Mapping 改写 `model` | Claude Code 的 `claude-*` → DeepSeek / MiMo 模型 |
 
-经验法则：**协议匹不匹决定走 pass-through 还是转换；Model Mapping 只负责改名。** 对一键客户端集成来说，`agentgate` 是个虚拟模型名，意思是"这一条请求让 MuxLayer 自己挑 Provider 的模型"。
+经验法则：**协议匹不匹决定走 pass-through 还是转换；Model Mapping 只负责改名。** 对一键客户端集成来说，`muxlayer` 是个虚拟模型名，意思是"这一条请求让 MuxLayer 自己挑 Provider 的模型"。旧配置里的 `agentgate` 仍然有效。
 
 ## 功能
 
@@ -156,6 +156,7 @@ MuxLayer 的事就一句话：**让官方客户端的入口在本地可控**—�
 - 看板：总成本 / 今日 / 平均成本卡片，加上按 **模型、客户端、路由** 的成本拆分，限定时间窗（7/30 天）
 - **设置** 里支持就地改价、自定义价格覆盖
 - 每个 Provider 多 API Key：轮询，429 时自动切换
+- **计价规则：** 默认来自 catalog 的 `models[].pricing`（美元 / 百万 token）。设置里的自定义价覆盖同名 catalog。查找顺序：精确自定义 → 精确 catalog → 去掉 `[1m]` 后缀 → 该供应商 `*` 通配 → 跨供应商按模型名（含去掉 `vendor/` 前缀）。**看板上的 `$0` 不是免费**，除非该模型有明确的 `0/0` 标价；缺价显示「无价格 / 去补价」，补价后下次启动会重算历史行（`backfill_costs`）。本地 Ollama / LM Studio 是未标价，不当成 $0。
 
 **智能路由**
 - 任务级路由条件：按输入大小、是否有图、是否有工具、系统关键词、模型名匹配来路由。同一套条件对 Codex Responses、Chat Completions、Anthropic Messages、Gemini 都生效。
@@ -413,7 +414,7 @@ docker build -t agentgate . && docker run -p 9090:9090 \
 | **模型 & 能力** | 默认模型 · 推理模型 · `拉取并探测` 按钮 · 能力矩阵开关 | 新建 Provider 时这一段 **会在后台自动跑**——不点任何按钮就能拿到最新的非 mini 模型当默认 + 最新推理模型 + 按模型能力矩阵 |
 | **高级**（折叠，"一般不用碰"） | 协议和它们的 endpoint（Chat / Responses / Anthropic）· 额外 Header · 超时 · 自动 cache control · Model Mapping | 勾哪个协议就显示哪个 URL——一眼能看出"这个上游原生支持哪几个 endpoint" |
 
-**Model Mapping** 摆在 **高级** 最下面是有原因的：一般不需要。MuxLayer 在你创建 Provider、拉模型、测试 Provider、应用 Codex / Claude Code 配置时，会自动填上推荐的 MiMo / DeepSeek 映射，已有的映射会保留。原生 pass-through 默认不改 `model`，除非命中映射或客户端发的是虚拟模型 `agentgate`；协议转换会优先用映射，再退回到 `default_model` 做兼容，覆盖 Codex、Claude Code、Gemini CLI 这些客户端。
+**Model Mapping** 摆在 **高级** 最下面是有原因的：一般不需要。MuxLayer 在你创建 Provider、拉模型、测试 Provider、应用 Codex / Claude Code 配置时，会自动填上推荐的 MiMo / DeepSeek 映射，已有的映射会保留。原生 pass-through 默认不改 `model`，除非命中映射或客户端发的是虚拟模型 `muxlayer`（仍兼容 `agentgate`）；协议转换会优先用映射，再退回到 `default_model` 做兼容，覆盖 Codex、Claude Code、Gemini CLI 这些客户端。
 
 **Provider 配置示例：**
 
@@ -566,7 +567,7 @@ MuxLayer 会写 `~/.claude/settings.json`，把 `ANTHROPIC_BASE_URL` 指向本�
 
 **客户端** → **OpenCode** → **应用配置**
 
-MuxLayer 写 `~/.config/opencode/opencode.json`，配一个指向本地网关的 OpenAI 兼容 Provider。模型用 `openai/agentgate` 这个虚拟名，这样以后在 MuxLayer 里换 Provider，不需要再改 OpenCode。
+MuxLayer 写 `~/.config/opencode/opencode.json`，配一个指向本地网关的 OpenAI 兼容 Provider。模型用 `openai/muxlayer` 这个虚拟名，这样以后在 MuxLayer 里换 Provider，不需要再改 OpenCode。旧配置里的 `openai/agentgate` 仍然有效。
 
 ### 6. 配置 Gemini CLI
 
@@ -578,7 +579,7 @@ MuxLayer 把 Gemini CLI 的配置写成指向本地网关的 `/v1beta/...` 路�
 
 **客户端** → **AtomCode** → **应用配置**
 
-AtomCode 集成写它的配置文件，把 MuxLayer 当成上游——切换模式跟其他客户端一样。模型用 `agentgate` 这个虚拟名，让网关在请求时再解析成 DeepSeek / MiMo / 其他 Provider 的模型。
+AtomCode 集成写它的配置文件，把 MuxLayer 当成上游——切换模式跟其他客户端一样。模型用 `muxlayer` 这个虚拟名，让网关在请求时再解析成 DeepSeek / MiMo / 其他 Provider 的模型。旧配置里的 `agentgate` 仍然有效。
 
 ### 8. 直接调 API
 
@@ -812,7 +813,7 @@ MuxLayer 把协议处理和模型命名分开。常见请求有三种模式：
 
 ### 原生 Pass-through
 
-客户端协议跟下游 Provider 一致时，MuxLayer 不转换请求格式，只替换 URL 和凭据。模型处理只有一条规则：Model Mapping 优先，否则保留请求里的模型。如果请求里的模型是 `agentgate` 或 `openai/agentgate`，MuxLayer 解析成这次路由选中的模型。客户端没传 `model`，就用 Provider 默认值。
+客户端协议跟下游 Provider 一致时，MuxLayer 不转换请求格式，只替换 URL 和凭据。模型处理只有一条规则：Model Mapping 优先，否则保留请求里的模型。如果请求里的模型是 `muxlayer`、`openai/muxlayer`，或旧别名 `agentgate` / `openai/agentgate`，MuxLayer 解析成这次路由选中的模型。客户端没传 `model`，就用 Provider 默认值。
 
 ```
 ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
@@ -965,6 +966,9 @@ Key 只存在你机器上的本地 SQLite 文件里，绝不发给客户端，�
 
 **这条请求到底打的哪个模型？**
 打开 **日志**——每条请求都显示客户端、路由、最终选中的 Provider、模型、状态、成本。
+
+**为什么今日费用是 $0？**
+要么还没有计过价的流量，要么价格表里没有这个模型。缺价不是免费——拆分里会显示 **去补价**。补价后重启，`cost IS NULL` 的历史行会重算。
 
 ## 开发
 

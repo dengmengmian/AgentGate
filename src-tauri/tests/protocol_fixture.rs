@@ -444,11 +444,47 @@ async fn l2_messages_endpoint_applies_model_mapping() {
 }
 
 #[tokio::test]
+async fn l2_muxlayer_virtual_model_resolves_to_real_model() {
+    // New client apply writes `muxlayer` as the virtual model so the gateway
+    // can pick whichever real model the active route lands on.
+    let mock = MockUpstream::start().await;
+    mock.stub_chat_completions_ok("real-model-v1", "ok").await;
+
+    let spec = ProviderSpec::chat_only("custom", "real-model-v1");
+    let harness = GatewayHarness::start(spec, &mock).await;
+    let client = harness.client();
+
+    let res = client
+        .post(harness.url("/v1/chat/completions"))
+        .bearer_auth(&harness.token)
+        .json(&json!({
+            "model": "muxlayer",
+            "messages": [{ "role": "user", "content": "ping" }],
+            "stream": false,
+            "max_tokens": 16,
+        }))
+        .send()
+        .await
+        .expect("send /v1/chat/completions");
+    assert!(
+        res.status().is_success(),
+        "gateway returned {}",
+        res.status()
+    );
+
+    let received = mock.received().await;
+    assert_eq!(received.len(), 1);
+    assert_eq!(
+        received[0].body["model"], "real-model-v1",
+        "virtual `muxlayer` should resolve to the provider's default model"
+    );
+
+    harness.shutdown().await;
+}
+
+#[tokio::test]
 async fn l2_agentgate_virtual_model_resolves_to_real_model() {
-    // Per 1.2.4: AtomCode/OpenCode write `agentgate` as the client model so
-    // the gateway can pick whichever real model the active route lands on.
-    // On a Chat pass-through, the upstream must see the resolved real model,
-    // not the literal "agentgate".
+    // Old client configs still send `agentgate`; keep it as an alias of muxlayer.
     let mock = MockUpstream::start().await;
     mock.stub_chat_completions_ok("real-model-v1", "ok").await;
 

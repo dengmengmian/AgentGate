@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  Codex · Claude Code · Gemini CLI · OpenCode<br>
+  Codex · Claude Code · Gemini CLI · OpenCode · Kimi CLI · Grok Build · DeepSeek Harness<br>
   ↓<br>
   <b>MuxLayer</b><br>
   ↓<br>
@@ -69,7 +69,7 @@ MuxLayer 不是托管 API 分发平台，也不是普通代理，而是位于 Co
 
 ## 支持的客户端和 Provider
 
-**客户端：** Codex · Claude Code · Gemini CLI · OpenCode · AtomCode · Cursor / Continue / Cline
+**客户端：** Codex · Claude Code · Gemini CLI · OpenCode · AtomCode · Kimi CLI · Grok Build · DeepSeek Harness · Cursor / Continue / Cline
 
 **Provider：** OpenAI · Anthropic · DeepSeek · Kimi · MiMo · Gemini · OpenRouter · OrcaRouter · Groq · Mistral · Ollama · LM Studio · 以及 25+ 家模型供应商。
 
@@ -128,11 +128,11 @@ OrcaRouter 是一级 Provider，不需要按自定义端点手动配。
 
 | 平台 | 安装包 |
 |---|---|
-| macOS Apple 芯片 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_aarch64.dmg) |
-| macOS Intel 芯片 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64.dmg) |
-| Windows 10 / 11 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64-setup.exe) |
-| Debian / Ubuntu | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.deb) |
-| 其他 Linux 发行版 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.AppImage) |
+| macOS Apple 芯片 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_aarch64.dmg) |
+| macOS Intel 芯片 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.deb) |
+| 其他 Linux 发行版 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.AppImage) |
 
 macOS 也可以用 Homebrew：
 

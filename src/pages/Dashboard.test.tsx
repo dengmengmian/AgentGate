@@ -82,6 +82,18 @@ describe("Dashboard", () => {
       exists: true,
       has_agentgate: false,
     } as any);
+    vi.mocked(api.detectKimiConfig).mockResolvedValue({
+      exists: false,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.detectGrokConfig).mockResolvedValue({
+      exists: false,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.detectDshConfig).mockResolvedValue({
+      exists: false,
+      has_agentgate: false,
+    } as any);
   });
 
   it("renders and fetches initial data", async () => {
@@ -123,7 +135,39 @@ describe("Dashboard", () => {
     });
     expect(screen.getByText("dashboard.control_console")).toBeInTheDocument();
     expect(screen.getByText("stats.today_realtime")).toBeInTheDocument();
+    expect(screen.getByText("stats.hit_rate")).toBeInTheDocument();
     expect(screen.getByText("stats.traffic_monitor")).toBeInTheDocument();
+  });
+
+  it("shows cache hit rate as a first-class today metric", async () => {
+    vi.mocked(api.listProviders).mockResolvedValue([
+      { id: "p1", name: "OpenAI", enabled: true, masked_api_key: "sk-***" },
+    ] as any);
+    vi.mocked(api.getRequestStatsRange).mockResolvedValue({
+      total: 1,
+      today_total: 1,
+      today_errors: 0,
+      today_input_tokens: 20,
+      today_output_tokens: 10,
+      today_cost: 0.01,
+      avg_latency_ms: 100,
+      today_codex_compact: 0,
+      today_cache_read_tokens: 70,
+      today_cache_write_tokens: 10,
+      daily: [],
+      providers: [{ name: "OpenAI", count: 1 }],
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText("stats.hit_rate").length).toBeGreaterThan(0);
+    });
+    expect(screen.getAllByText("70.0%").length).toBeGreaterThan(0);
   });
 
   it("stops gateway when stop button is clicked", async () => {

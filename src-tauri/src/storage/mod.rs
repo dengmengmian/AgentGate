@@ -13,3 +13,4 @@ pub mod providers;
 pub mod recommended_mappings;
 pub mod request_logs;
 pub mod route_profiles;
+pub mod route_templates;

@@ -157,6 +157,10 @@ const translations: Record<string, Record<Locale, string>> = {
   "providers.type": { en: "Type", zh: "类型" },
   "providers.protocol": { en: "Protocol", zh: "协议" },
   "providers.api_key": { en: "API Key", zh: "API 密钥" },
+  "providers.key_round_robin": {
+    en: "{n} keys · round-robin",
+    zh: "{n} 把 key · 轮转",
+  },
   "providers.add_key": { en: "Add Key", zh: "添加密钥" },
   "providers.show_key": { en: "Show API Key", zh: "显示密钥" },
   "providers.hide_key": { en: "Hide API Key", zh: "隐藏密钥" },
@@ -349,8 +353,8 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "上游原生协议入口",
   },
   "providers.endpoints_hint": {
-    en: "Checked protocols mean the upstream natively supports that API. Matching client requests use native passthrough; different client protocols use gateway translation. Model Mapping can rename models, and the virtual agentgate model resolves to the routed model.",
-    zh: "勾选表示上游原生支持该协议。客户端协议匹配时走原生直连；客户端协议不同时走网关协议转换。模型映射可以改写模型名，虚拟模型 agentgate 会解析成本次路由选中的模型。",
+    en: "Checked protocols mean the upstream natively supports that API. Matching client requests use native passthrough; different client protocols use gateway translation. Model Mapping can rename models, and the virtual muxlayer model (agentgate still works) resolves to the routed model.",
+    zh: "勾选表示上游原生支持该协议。客户端协议匹配时走原生直连；客户端协议不同时走网关协议转换。模型映射可以改写模型名，虚拟模型 muxlayer（仍兼容 agentgate）会解析成本次路由选中的模型。",
   },
   "providers.model_mapping": { en: "Model Mapping", zh: "模型映射" },
   "providers.model_mapping_hint": {
@@ -358,8 +362,8 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "将客户端模型名（如 gpt-5.5、claude-sonnet-4-7）映射到供应商模型。",
   },
   "providers.model_mapping_hint_v2": {
-    en: "Usually auto-filled for MiMo and DeepSeek. Native pass-through keeps the model name unchanged unless a mapping matches or the client sends the virtual agentgate model; protocol conversion uses mapping first, then falls back to the provider's default model. Existing mappings are preserved.",
-    zh: "MiMo 和 DeepSeek 通常会自动补齐推荐映射。原生直通未命中映射时会保留模型名；客户端传虚拟模型 agentgate 时会解析成本次路由选中的模型；协议转换会优先使用映射，未配置时用默认模型兜底。已有映射不会被覆盖。",
+    en: "Usually auto-filled for MiMo and DeepSeek. Native pass-through keeps the model name unchanged unless a mapping matches or the client sends the virtual muxlayer model (agentgate still works); protocol conversion uses mapping first, then falls back to the provider's default model. Existing mappings are preserved.",
+    zh: "MiMo 和 DeepSeek 通常会自动补齐推荐映射。原生直通未命中映射时会保留模型名；客户端传虚拟模型 muxlayer（仍兼容 agentgate）时会解析成本次路由选中的模型；协议转换会优先使用映射，未配置时用默认模型兜底。已有映射不会被覆盖。",
   },
   "providers.pass_through_prefix": { en: "Native API", zh: "原生入口" },
   "providers.pass_through_tooltip": {
@@ -754,6 +758,57 @@ const translations: Record<string, Record<Locale, string>> = {
     en: "This will write MuxLayer settings to ~/.atomcode/config.toml. Your current config will be saved for restore.",
     zh: "将写入 MuxLayer 配置到 ~/.atomcode/config.toml。当前配置将自动备份。",
   },
+  "tools.kimi_cli": { en: "Kimi CLI", zh: "Kimi CLI" },
+  "tools.kimi_cli_desc": {
+    en: "Moonshot Kimi Code CLI. OpenAI-compatible providers in config.toml.",
+    zh: "Kimi Code CLI。用 config.toml 接 OpenAI 兼容网关。",
+  },
+  "tools.kimi_cli_auth_desc": {
+    en: "Apply writes [providers.muxlayer] into ~/.kimi-code/config.toml (legacy ~/.kimi is used only if the new dir is missing) and sets it as the default model. Start a new session or run /model muxlayer; old sessions stay on the official Kimi login.",
+    zh: "应用配置写入 ~/.kimi-code/config.toml（没有新目录才用旧的 ~/.kimi），并设为默认模型。请开新会话或输入 /model muxlayer；旧会话仍会走官方 Kimi 登录。",
+  },
+  "tools.apply_kimi_msg": {
+    en: "This will update Kimi Code CLI config (usually ~/.kimi-code/config.toml) to use MuxLayer as an OpenAI-compatible provider. Other providers are kept.",
+    zh: "将更新 Kimi Code CLI 配置（一般是 ~/.kimi-code/config.toml），把 MuxLayer 加为 OpenAI 兼容供应商。其它供应商保留。",
+  },
+  "tools.apply_kimi_title": {
+    en: "Apply MuxLayer Config to Kimi CLI",
+    zh: "应用 MuxLayer 配置到 Kimi CLI",
+  },
+  "tools.grok_build": { en: "Grok Build", zh: "Grok Build" },
+  "tools.grok_build_desc": {
+    en: "xAI Grok Build CLI. Custom models in ~/.grok/config.toml.",
+    zh: "xAI Grok Build。自定义模型写在 ~/.grok/config.toml。",
+  },
+  "tools.grok_build_auth_desc": {
+    en: "Apply adds [model.muxlayer] and sets it as the default model. Other [models] keys are kept.",
+    zh: "应用配置会加上 [model.muxlayer] 并设为默认模型。[models] 里其它键保留。",
+  },
+  "tools.apply_grok_title": {
+    en: "Apply MuxLayer Config to Grok Build",
+    zh: "应用 MuxLayer 配置到 Grok Build",
+  },
+  "tools.apply_grok_msg": {
+    en: "This will update ~/.grok/config.toml with a MuxLayer custom model. Existing model entries stay.",
+    zh: "将更新 ~/.grok/config.toml，写入 MuxLayer 自定义模型。已有模型条目保留。",
+  },
+  "tools.deepseek_harness": { en: "DeepSeek Harness", zh: "DeepSeek Harness" },
+  "tools.deepseek_harness_desc": {
+    en: "DeepSeek Harness (dsh). Custom OpenAI-compatible provider in settings.yaml.",
+    zh: "DeepSeek Harness（dsh）。在 settings.yaml 里加自定义 OpenAI 兼容供应商。",
+  },
+  "tools.deepseek_harness_auth_desc": {
+    en: "Apply writes llm-pi-ai.providers.muxlayer into ~/.dsh/settings.yaml and stores the gateway token in .credentials.yaml.",
+    zh: "应用配置会把 llm-pi-ai.providers.muxlayer 写入 ~/.dsh/settings.yaml，网关令牌放进 .credentials.yaml。",
+  },
+  "tools.apply_dsh_title": {
+    en: "Apply MuxLayer Config to DeepSeek Harness",
+    zh: "应用 MuxLayer 配置到 DeepSeek Harness",
+  },
+  "tools.apply_dsh_msg": {
+    en: "This will merge a muxlayer provider into ~/.dsh/settings.yaml and write MUXLAYER_TOKEN into .credentials.yaml. Other providers are kept.",
+    zh: "将把 muxlayer 供应商合并进 ~/.dsh/settings.yaml，并把 MUXLAYER_TOKEN 写入 .credentials.yaml。其它供应商保留。",
+  },
   "tools.test_connection": { en: "Test Connection", zh: "测试连接" },
   "tools.step_config": { en: "Config", zh: "配置" },
   "tools.step_gateway": { en: "Gateway", zh: "网关" },
@@ -791,8 +846,8 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "{name} 当前正在运行",
   },
   "tools.post_apply.running_desc": {
-    en: "Restart the process for the new config to take effect. The terminal session will be interrupted; for Claude Code you can rejoin with `claude --resume`.",
-    zh: "需要重启该进程，新配置才会生效。当前终端会话会被中断；Claude Code 可以用 `claude --resume` 恢复上一轮对话。",
+    en: "Stop the process so the new config takes effect. The terminal session will be interrupted; Claude Code can rejoin with `claude --resume`.",
+    zh: "点「结束进程」让新配置生效。当前终端会话会被中断；Claude Code 可以用 `claude --resume` 恢复上一轮对话。",
   },
   "tools.post_apply.not_running": {
     en: "{name} isn't running. New config takes effect on next launch.",
@@ -805,6 +860,16 @@ const translations: Record<string, Record<Locale, string>> = {
   "tools.post_apply.kill_copied": {
     en: "Kill command copied",
     zh: "已复制 kill 命令",
+  },
+  "tools.post_apply.kill": { en: "Stop process", zh: "结束进程" },
+  "tools.post_apply.killed": { en: "Process stopped", zh: "进程已结束" },
+  "tools.post_apply.kill_failed": {
+    en: "Failed to stop process",
+    zh: "结束进程失败",
+  },
+  "tools.post_apply.kill_gone": {
+    en: "Process already exited",
+    zh: "进程已退出",
   },
   "tools.post_apply.restart_codex": {
     en: "Restart Codex / ChatGPT Desktop",
@@ -1215,6 +1280,91 @@ const translations: Record<string, Record<Locale, string>> = {
     zh: "收起高级规则",
   },
   "routes.back_to_presets": { en: "Back to presets", zh: "返回预设" },
+  "routes.template": { en: "Templates", zh: "场景模板" },
+  "routes.template_title": {
+    en: "Apply a routing template",
+    zh: "套用路由模板",
+  },
+  "routes.template_task_split": {
+    en: "Task split",
+    zh: "任务分流",
+  },
+  "routes.template_task_split_desc": {
+    en: "Think → stronger model. Background/subagent → cheaper model. Main conversation → your primary provider.",
+    zh: "思考走强模型，后台/子任务走便宜模型，主对话走常用供应商。",
+  },
+  "routes.template_local_cloud": {
+    en: "On-device + API",
+    zh: "本机 + API",
+  },
+  "routes.template_local_cloud_desc": {
+    en: "Background/subagent uses Ollama or LM Studio on this machine. Main conversation uses a remote API (DeepSeek, OpenAI, …).",
+    zh: "后台/子任务走本机 Ollama 或 LM Studio，主对话走 DeepSeek 等网上的 API。",
+  },
+  "routes.template_main": { en: "Main conversation", zh: "主对话" },
+  "routes.template_think": { en: "Think (optional)", zh: "思考（可选）" },
+  "routes.template_think_none": { en: "Same as main", zh: "与主对话相同" },
+  "routes.template_background": {
+    en: "Background / subagent",
+    zh: "后台 / 子任务",
+  },
+  "routes.template_apply_all": {
+    en: "Also apply to other default profiles (Codex / Claude / Chat)",
+    zh: "同时写入其他默认路由（Codex / Claude / Chat）",
+  },
+  "routes.template_apply": { en: "Apply template", zh: "套用模板" },
+  "routes.template_applied": {
+    en: "Template applied. Switch to official configs is unchanged; rollback restores this route.",
+    zh: "模板已写入。客户端配置不受影响；回滚只恢复这条路由。",
+  },
+  "routes.template_rollback": { en: "Undo template", zh: "撤销模板" },
+  "routes.template_rolled_back": {
+    en: "Route restored to the pre-template members.",
+    zh: "已恢复套用模板前的路由成员。",
+  },
+  "routes.template_failover_note": {
+    en: "This switches the route to failover so matching conditions can pick the right provider.",
+    zh: "会把路由切到故障转移，条件才能按任务选中对应供应商。",
+  },
+  "routes.template_role_think": { en: "Think", zh: "思考" },
+  "routes.template_role_background": { en: "Background", zh: "后台" },
+  "routes.template_role_main": { en: "Main", zh: "主对话" },
+  "routes.tpl.need_two_providers": {
+    en: "Need two different providers.",
+    zh: "至少需要两家不同的供应商。",
+  },
+  "routes.tpl.need_local_provider": {
+    en: "Add a local provider first (Providers → scan Ollama / LM Studio).",
+    zh: "请先添加本地供应商（供应商页扫描 Ollama / LM Studio）。",
+  },
+  "routes.tpl.background_must_be_local": {
+    en: "Background must be a local endpoint (127.0.0.1 / localhost).",
+    zh: "后台必须是本地端点（127.0.0.1 / localhost）。",
+  },
+  "routes.tpl.main_must_not_be_local": {
+    en: "Main conversation should use a remote API provider, not Ollama on this machine.",
+    zh: "主对话应使用网上的 API 供应商，不要用本机 Ollama。",
+  },
+  "routes.tpl.roles_not_distinct": {
+    en: "Main and background must be different providers.",
+    zh: "主对话和后台必须是不同供应商。",
+  },
+  "routes.tpl.provider_not_found": {
+    en: "A selected provider is missing or disabled.",
+    zh: "所选供应商不存在或已禁用。",
+  },
+  "routes.tpl.think_skipped_same_as_main": {
+    en: "Think uses the same provider as main, so it is skipped (one provider cannot have two condition sets).",
+    zh: "思考与主对话是同一家供应商，已跳过（一家供应商不能挂两套条件）。",
+  },
+  "routes.tpl.think_skipped_same_as_background": {
+    en: "Think uses the same provider as background, so it is skipped.",
+    zh: "思考与后台是同一家供应商，已跳过。",
+  },
+  "routes.tpl.will_enable_failover": {
+    en: "Will switch this route to failover mode.",
+    zh: "会把该路由切换为故障转移。",
+  },
   "routes.add": { en: "Add", zh: "添加" },
   "routes.default_updated": {
     en: "Default route profile updated",

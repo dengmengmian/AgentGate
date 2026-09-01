@@ -86,6 +86,36 @@ pub fn list_tools() -> Result<Vec<ToolConfigView>, AppError> {
             config_exists: std::path::Path::new(&format!("{}/.gemini/settings.json", home))
                 .exists(),
         },
+        ToolConfigView {
+            id: "kimi_cli".to_string(),
+            name: "Kimi CLI".to_string(),
+            slug: "kimi-cli".to_string(),
+            icon: "sparkles".to_string(),
+            config_path: format!("{}/.kimi/config.toml", home),
+            description: "Moonshot Kimi Code CLI. OpenAI-compatible providers in config.toml."
+                .to_string(),
+            config_exists: std::path::Path::new(&format!("{}/.kimi/config.toml", home)).exists(),
+        },
+        ToolConfigView {
+            id: "grok_build".to_string(),
+            name: "Grok Build".to_string(),
+            slug: "grok-build".to_string(),
+            icon: "sparkles".to_string(),
+            config_path: format!("{}/.grok/config.toml", home),
+            description: "xAI Grok Build CLI. Custom models in ~/.grok/config.toml.".to_string(),
+            config_exists: std::path::Path::new(&format!("{}/.grok/config.toml", home)).exists(),
+        },
+        ToolConfigView {
+            id: "deepseek_harness".to_string(),
+            name: "DeepSeek Harness".to_string(),
+            slug: "deepseek-harness".to_string(),
+            icon: "sparkles".to_string(),
+            config_path: format!("{}/.dsh/settings.yaml", home),
+            description:
+                "DeepSeek Harness (dsh). Custom OpenAI-compatible provider in settings.yaml."
+                    .to_string(),
+            config_exists: std::path::Path::new(&format!("{}/.dsh/settings.yaml", home)).exists(),
+        },
     ];
 
     Ok(tools)
@@ -507,6 +537,126 @@ pub fn apply_atomcode_config(
     crate::tools::atomcode::apply(&host, port, &model)
 }
 
+fn gateway_host_port(state: &State<'_, AppState>) -> Result<(String, i64), AppError> {
+    let conn = state
+        .db
+        .get()
+        .map_err(|_| AppError::internal("DB lock failed"))?;
+    let settings = storage::gateway_settings::get(&conn)?;
+    Ok((settings.host, settings.port))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn detect_kimi_config() -> Result<crate::tools::kimi_cli::KimiCliConfigStatus, AppError> {
+    Ok(crate::tools::kimi_cli::detect())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn apply_kimi_config(
+    state: State<'_, AppState>,
+) -> Result<crate::tools::kimi_cli::ApplyConfigResult, AppError> {
+    let (host, port) = gateway_host_port(&state)?;
+    record_pre_apply(
+        &state,
+        "kimi_cli",
+        "apply",
+        crate::tools::kimi_cli::snapshot_paths(),
+        "apply",
+    );
+    crate::tools::kimi_cli::apply(&host, port)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn generate_kimi_config(state: State<'_, AppState>) -> Result<String, AppError> {
+    let (host, port) = gateway_host_port(&state)?;
+    Ok(crate::tools::kimi_cli::generate_snippet(&host, port))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn open_kimi_config() -> Result<bool, AppError> {
+    crate::tools::kimi_cli::open_config()?;
+    Ok(true)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn detect_grok_config() -> Result<crate::tools::grok_build::GrokBuildConfigStatus, AppError> {
+    Ok(crate::tools::grok_build::detect())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn apply_grok_config(
+    state: State<'_, AppState>,
+) -> Result<crate::tools::grok_build::ApplyConfigResult, AppError> {
+    let (host, port) = gateway_host_port(&state)?;
+    record_pre_apply(
+        &state,
+        "grok_build",
+        "apply",
+        crate::tools::grok_build::snapshot_paths(),
+        "apply",
+    );
+    crate::tools::grok_build::apply(&host, port)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn generate_grok_config(state: State<'_, AppState>) -> Result<String, AppError> {
+    let (host, port) = gateway_host_port(&state)?;
+    Ok(crate::tools::grok_build::generate_snippet(&host, port))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn open_grok_config() -> Result<bool, AppError> {
+    crate::tools::grok_build::open_config()?;
+    Ok(true)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn detect_dsh_config(
+) -> Result<crate::tools::deepseek_harness::DeepSeekHarnessConfigStatus, AppError> {
+    Ok(crate::tools::deepseek_harness::detect())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn apply_dsh_config(
+    state: State<'_, AppState>,
+) -> Result<crate::tools::deepseek_harness::ApplyConfigResult, AppError> {
+    let (host, port) = gateway_host_port(&state)?;
+    record_pre_apply(
+        &state,
+        "deepseek_harness",
+        "apply",
+        crate::tools::deepseek_harness::snapshot_paths(),
+        "apply",
+    );
+    crate::tools::deepseek_harness::apply(&host, port)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn generate_dsh_config(state: State<'_, AppState>) -> Result<String, AppError> {
+    let (host, port) = gateway_host_port(&state)?;
+    Ok(crate::tools::deepseek_harness::generate_snippet(
+        &host, port,
+    ))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn open_dsh_config() -> Result<bool, AppError> {
+    crate::tools::deepseek_harness::open_config()?;
+    Ok(true)
+}
+
 #[tauri::command]
 #[specta::specta]
 pub fn generate_atomcode_config(state: State<'_, AppState>) -> Result<String, AppError> {
@@ -527,6 +677,20 @@ pub fn generate_atomcode_config(state: State<'_, AppState>) -> Result<String, Ap
     ))
 }
 
+fn client_process_needles(client_id: &str) -> Result<&'static [&'static str], AppError> {
+    match client_id {
+        "codex" => Ok(&["codex"]),
+        "claude_code" => Ok(&["claude"]),
+        "opencode" => Ok(&["opencode"]),
+        "gemini" | "gemini_cli" => Ok(&["gemini"]),
+        "atomcode" => Ok(&["atomcode"]),
+        "kimi_cli" | "kimi" => Ok(&["kimi"]),
+        "grok_build" | "grok" => Ok(&["grok"]),
+        "deepseek_harness" | "dsh" => Ok(&["dsh"]),
+        _ => Err(AppError::validation("unknown client_id")),
+    }
+}
+
 /// After a client's config is rewritten, look up matching live processes
 /// so the UI can warn the user that the existing session needs to be
 /// restarted to pick up the new config. Each `client_id` maps to one or
@@ -538,15 +702,40 @@ pub fn generate_atomcode_config(state: State<'_, AppState>) -> Result<String, Ap
 pub fn detect_client_running(
     client_id: String,
 ) -> Result<Vec<crate::tools::process_detect::RunningProcess>, AppError> {
-    let needles: &[&str] = match client_id.as_str() {
-        "codex" => &["codex"],
-        "claude_code" => &["claude"],
-        "opencode" => &["opencode"],
-        "gemini" => &["gemini"],
-        "atomcode" => &["atomcode"],
-        _ => return Err(AppError::validation("unknown client_id")),
-    };
+    let needles = client_process_needles(&client_id)?;
     Ok(crate::tools::process_detect::find_running(needles))
+}
+
+/// Stop one process that `detect_client_running` currently lists for this
+/// client. Re-checks the live list so a stale dialog PID cannot kill something
+/// else. Never auto-called; only the PostApply "结束进程" button fires this.
+#[tauri::command]
+#[specta::specta]
+pub fn kill_client_process(client_id: String, pid: u32) -> Result<(), AppError> {
+    let needles = client_process_needles(&client_id)?;
+    let live = crate::tools::process_detect::find_running(needles);
+    match crate::tools::process_detect::kill_check(pid, &live) {
+        crate::tools::process_detect::KillCheck::Ok => {}
+        crate::tools::process_detect::KillCheck::InvalidPid
+        | crate::tools::process_detect::KillCheck::SelfProcess => {
+            return Err(AppError::new(
+                crate::errors::codes::CLIENT_PROCESS_KILL_DENIED,
+                "Refusing to kill this process",
+            ));
+        }
+        crate::tools::process_detect::KillCheck::NotFound => {
+            return Err(AppError::new(
+                crate::errors::codes::CLIENT_PROCESS_NOT_FOUND,
+                format!("PID {pid} is no longer a {client_id} process"),
+            ));
+        }
+    }
+    crate::tools::process_detect::terminate(pid).map_err(|e| {
+        AppError::new(
+            crate::errors::codes::CLIENT_PROCESS_KILL_FAILED,
+            format!("Failed to stop PID {pid}: {e}"),
+        )
+    })
 }
 
 /// Restart Codex Desktop so freshly-written config.toml / auth.json take
@@ -956,5 +1145,19 @@ mod tests {
         let result = detect_client_running("codex".to_string()).unwrap();
         // On macOS/Linux pgrep may find nothing in CI; empty is a valid shape.
         assert!(result.is_empty() || result.iter().all(|p| !p.command.is_empty()));
+    }
+
+    #[test]
+    fn kill_client_process_rejects_unknown_client() {
+        let err = kill_client_process("unknown".to_string(), 4242).unwrap_err();
+        assert_eq!(err.code, "VALIDATION_ERROR");
+    }
+
+    #[test]
+    fn kill_client_process_rejects_stale_or_init_pid() {
+        let missing = kill_client_process("deepseek_harness".to_string(), 999_999).unwrap_err();
+        assert_eq!(missing.code, crate::errors::codes::CLIENT_PROCESS_NOT_FOUND);
+        let init = kill_client_process("deepseek_harness".to_string(), 1).unwrap_err();
+        assert_eq!(init.code, crate::errors::codes::CLIENT_PROCESS_KILL_DENIED);
     }
 }

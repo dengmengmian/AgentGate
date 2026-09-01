@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   AlertTriangle,
@@ -6,7 +6,6 @@ import {
   RefreshCw,
   Loader2,
 } from "lucide-react";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { toast } from "@/components/common/Toast";
 import { useI18n } from "@/lib/i18n";
 import * as api from "@/lib/api";
@@ -27,10 +26,8 @@ interface Props {
   onClose: () => void;
 }
 
-/// Post-apply summary dialog. Replaces the previous plain success toast so
-/// users learn that an existing client session needs a restart before the
-/// new config matters, with a copy-to-clipboard kill command for advanced
-/// users. We never auto-kill — this was a deliberate UX call.
+/// Post-apply summary dialog. Does not auto-kill: the user clicks 结束进程.
+/// Kill re-checks the live process list so a stale PID cannot hit something else.
 export function PostApplyDialog({
   open,
   clientId,
@@ -41,16 +38,33 @@ export function PostApplyDialog({
 }: Props) {
   const { t } = useI18n();
   const [restarting, setRestarting] = useState(false);
+  const [killingPid, setKillingPid] = useState<number | null>(null);
+  const [alive, setAlive] = useState(processes);
+  useEffect(() => {
+    if (open) setAlive(processes);
+  }, [open, processes]);
   if (!open) return null;
 
-  const handleCopyKill = async (pid: number) => {
+  const handleKill = async (pid: number) => {
+    if (!clientId) {
+      toast("error", t("tools.post_apply.kill_failed"));
+      return;
+    }
+    setKillingPid(pid);
     try {
-      await writeText(`kill ${pid}`);
-      toast("success", t("tools.post_apply.kill_copied"));
-    } catch {
-      // Clipboard plugin missing or permission denied — degrade gracefully
-      // by showing the command in a toast so the user can copy by hand.
-      toast("error", `kill ${pid}`);
+      await api.killClientProcess(clientId, pid);
+      setAlive((list) => list.filter((p) => p.pid !== pid));
+      toast("success", t("tools.post_apply.killed"));
+    } catch (err) {
+      const code = (err as api.AppError | undefined)?.code;
+      toast(
+        "error",
+        code === "CLIENT_PROCESS_NOT_FOUND"
+          ? t("tools.post_apply.kill_gone")
+          : t("tools.post_apply.kill_failed")
+      );
+    } finally {
+      setKillingPid(null);
     }
   };
 
@@ -118,7 +132,7 @@ export function PostApplyDialog({
             </div>
           </div>
 
-          {processes.length > 0 ? (
+          {alive.length > 0 ? (
             <div className="rounded-md border border-warning/30 bg-warning-soft p-3">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
@@ -135,7 +149,7 @@ export function PostApplyDialog({
                 </div>
               </div>
               <div className="mt-2 space-y-1">
-                {processes.map((p) => (
+                {alive.map((p) => (
                   <div
                     key={p.pid}
                     className="flex items-center justify-between gap-2 rounded border border-border bg-card px-2 py-1"
@@ -145,12 +159,14 @@ export function PostApplyDialog({
                     </code>
                     <button
                       type="button"
-                      onClick={() => handleCopyKill(p.pid)}
-                      className="shrink-0 rounded bg-card-secondary px-2 py-0.5 text-[10px] font-medium text-text-primary hover:bg-hover"
+                      onClick={() => handleKill(p.pid)}
+                      disabled={killingPid === p.pid}
+                      className="shrink-0 rounded bg-warning/15 px-2 py-0.5 text-[10px] font-medium text-warning hover:bg-warning/25 disabled:opacity-60"
                     >
-                      {t("tools.post_apply.copy_kill").replace(
-                        "{pid}",
-                        String(p.pid)
+                      {killingPid === p.pid ? (
+                        <Loader2 className="inline h-3 w-3 animate-spin" />
+                      ) : (
+                        t("tools.post_apply.kill")
                       )}
                     </button>
                   </div>

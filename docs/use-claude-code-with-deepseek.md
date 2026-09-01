@@ -28,7 +28,7 @@ Use this guide if you want:
 | Claude Code side | MuxLayer side | DeepSeek side |
 |---|---|---|
 | Anthropic Messages API | `/v1/messages` local gateway route | DeepSeek Anthropic-compatible or Chat-compatible upstream |
-| Claude model names | Model Mapping or `agentgate` virtual model | DeepSeek model IDs |
+| Claude model names | Model Mapping or `muxlayer` virtual model (`agentgate` still works) | DeepSeek model IDs |
 | Tool calls and streaming | Protocol-aware routing and tracing | Provider-specific DeepSeek handling |
 
 ## Notes for claude-code-router users

@@ -1,4 +1,4 @@
-import { Braces, FolderOpen, Zap } from "lucide-react";
+import { FolderOpen, Zap } from "lucide-react";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { ClientHistoryButton } from "@/components/tools/ClientHistoryButton";
 import * as api from "@/lib/api";
@@ -33,7 +33,7 @@ export function OpenCodeDetail({
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <DetailHeader
-        Icon={Braces}
+        clientId="opencode"
         name={t("tools.opencode")}
         desc={t("tools.opencode_desc")}
         badge={badge}

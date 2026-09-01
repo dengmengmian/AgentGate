@@ -321,6 +321,67 @@ const pagePairs = [
     },
   },
   {
+    slug: "muxlayer-vs-cc-switch-and-ccr",
+    en: {
+      title: "MuxLayer vs cc-switch vs CCR",
+      description:
+        "cc-switch switches client configs. CCR is a multi-agent control plane. MuxLayer is a local protocol gateway with routing, logs, and one-click apply/rollback.",
+      eyebrow: "MuxLayer vs cc-switch / CCR",
+      h1: "Not a config switcher. Not a multi-agent console.",
+      summary:
+        "Use cc-switch if you only need to swap API endpoints across many clients. Use CCR if you want a control plane for many agents. Use MuxLayer if the client stays pointed at one local gateway and you need protocol conversion, failover, cost, and request traces.",
+      keywords:
+        "MuxLayer vs cc-switch, MuxLayer vs CCR, Claude Code Router alternative, local AI gateway comparison",
+      sections: [
+        {
+          heading: "What each one is",
+          body: "cc-switch writes provider settings into client config files and switches among them. CCR (Claude Code Router and similar) sits in front of coding agents as a multi-agent / routing control plane. MuxLayer is a local HTTP gateway: Chat Completions, Anthropic Messages, Responses, and Gemini enter one process; mapping, failover, budget, cache, and logs happen there.",
+        },
+        {
+          heading: "Choose MuxLayer when",
+          body: "You want Codex, Claude Code, Gemini CLI, OpenCode, Kimi CLI, Grok Build, or DeepSeek Harness to keep one stable local endpoint. Provider changes, model mapping, task-split routes, and debugging stay in MuxLayer. Apply/rollback is included, but the product is the gateway, not the config editor.",
+        },
+        {
+          heading: "Choose the others when",
+          body: "cc-switch is enough if you never need a proxy: just rewrite client files and restart. CCR is a better fit if your problem is orchestrating many agents, not converting protocols or inspecting token cost. MuxLayer does not try to copy their client count or agent marketplace.",
+        },
+      ],
+      faq: [
+        ["Can MuxLayer replace cc-switch?", "Only the part where you point a client at a local gateway. It does not sync every client format cc-switch knows."],
+        ["Can MuxLayer replace CCR?", "No. CCR is a multi-agent control plane. MuxLayer routes model HTTP and keeps traces."],
+      ],
+    },
+    zh: {
+      title: "MuxLayer vs cc-switch vs CCR",
+      description:
+        "cc-switch 负责改客户端配置。CCR 是多 agent 控制面。MuxLayer 是本地协议网关：路由、日志、一键 apply/回滚。",
+      eyebrow: "MuxLayer vs cc-switch / CCR",
+      h1: "不是配置切换器，也不是多 agent 控制台。",
+      summary:
+        "只想在很多客户端之间换 API 入口，用 cc-switch。要管一堆 agent，用 CCR。客户端永远指向一个本地网关，需要协议转换、故障转移、成本和请求追踪，用 MuxLayer。",
+      keywords:
+        "MuxLayer vs cc-switch, MuxLayer vs CCR, Claude Code Router 对比, 本地 AI 网关对比",
+      sections: [
+        {
+          heading: "各自是什么",
+          body: "cc-switch 把供应商写进各客户端配置文件并来回切换。CCR（Claude Code Router 一类）挡在编程 agent 前面，当多 agent / 路由控制面。MuxLayer 是本地 HTTP 网关：Chat Completions、Anthropic Messages、Responses、Gemini 进同一个进程，映射、故障转移、预算、缓存和日志都在这里发生。",
+        },
+        {
+          heading: "什么时候选 MuxLayer",
+          body: "你希望 Codex、Claude Code、Gemini CLI、OpenCode、Kimi CLI、Grok Build、DeepSeek Harness 一直指向同一个本地入口。换供应商、模型映射、任务分流、排错都在 MuxLayer 里做。一键 apply/回滚是附带的，产品本身是网关，不是配置编辑器。",
+        },
+        {
+          heading: "什么时候选另外两个",
+          body: "如果你根本不需要代理、只改客户端文件再重启，cc-switch 就够。如果你的问题是编排很多 agent，而不是转协议、看 token 成本，CCR 更合适。MuxLayer 不去抄它们的客户端数量，也不做 agent 市场。",
+        },
+      ],
+      faq: [
+        ["MuxLayer 能替代 cc-switch 吗？", "只能替代「把客户端指到本地网关」这一段。它不会同步 cc-switch 认识的每一种客户端格式。"],
+        ["MuxLayer 能替代 CCR 吗？", "不能。CCR 是多 agent 控制面。MuxLayer 路由模型 HTTP，并留下追踪。"],
+      ],
+    },
+  },
+  {
     slug: "muxlayer-vs-openrouter",
     en: {
       title: "MuxLayer vs OpenRouter: local gateway or hosted model router",

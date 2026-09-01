@@ -687,6 +687,102 @@ async openAtomcodeConfig() : Promise<Result<boolean, AppError>> {
     else return { status: "error", error: e  as any };
 }
 },
+async detectKimiConfig() : Promise<Result<KimiCliConfigStatus, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("detect_kimi_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async applyKimiConfig() : Promise<Result<KimiCliApplyConfigResult, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("apply_kimi_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async generateKimiConfig() : Promise<Result<string, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("generate_kimi_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async openKimiConfig() : Promise<Result<boolean, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_kimi_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async detectGrokConfig() : Promise<Result<GrokBuildConfigStatus, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("detect_grok_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async applyGrokConfig() : Promise<Result<GrokBuildApplyConfigResult, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("apply_grok_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async generateGrokConfig() : Promise<Result<string, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("generate_grok_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async openGrokConfig() : Promise<Result<boolean, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_grok_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async detectDshConfig() : Promise<Result<DeepSeekHarnessConfigStatus, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("detect_dsh_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async applyDshConfig() : Promise<Result<DeepSeekHarnessApplyConfigResult, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("apply_dsh_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async generateDshConfig() : Promise<Result<string, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("generate_dsh_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async openDshConfig() : Promise<Result<boolean, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_dsh_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 /**
  * After a client's config is rewritten, look up matching live processes
  * so the UI can warn the user that the existing session needs to be
@@ -698,6 +794,19 @@ async openAtomcodeConfig() : Promise<Result<boolean, AppError>> {
 async detectClientRunning(clientId: string) : Promise<Result<RunningProcess[], AppError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("detect_client_running", { clientId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop one process that `detect_client_running` currently lists for this
+ * client. Re-checks the live list so a stale dialog PID cannot kill something
+ * else. Never auto-called; only the PostApply "结束进程" button fires this.
+ */
+async killClientProcess(clientId: string, pid: number) : Promise<Result<null, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("kill_client_process", { clientId, pid }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -917,6 +1026,38 @@ async removeProviderFromRoute(routeProfileId: string, providerId: string) : Prom
 async reorderRouteProviders(routeProfileId: string, providerIds: string[]) : Promise<Result<boolean, AppError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("reorder_route_providers", { routeProfileId, providerIds }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async previewRouteTemplate(input: RouteTemplateInput) : Promise<Result<RouteTemplatePreview, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("preview_route_template", { input }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async applyRouteTemplate(input: RouteTemplateInput) : Promise<Result<RouteTemplatePreview, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("apply_route_template", { input }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async rollbackRouteTemplate(profileId: string) : Promise<Result<boolean, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("rollback_route_template", { profileId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async hasRouteTemplateRollback(profileId: string) : Promise<Result<boolean, AppError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("has_route_template_rollback", { profileId }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1509,6 +1650,8 @@ has_price: boolean }
 export type CreateProviderInput = { name: string; provider_type: string; base_url: string; api_key: string | null; default_model: string; reasoning_model: string | null; supported_models: string | null; model_mapping: string | null; extra_headers: string | null; anthropic_base_url: string | null; responses_base_url: string | null; protocol: string; timeout_seconds: number | null; auto_cache_control: boolean | null; model_capabilities: string | null; provider_quirks: string | null; body_filter_enabled: number | null; thinking_rectifier_enabled: number | null; error_mapper_enabled: number | null; model_degradation_chain: string | null; model_context_windows: string | null; enabled: boolean | null }
 export type CreateRouteProfileInput = { name: string; input_protocol: string; mode: string | null }
 export type DailyStat = { date: string; total: number; errors: number; success: number; input_tokens: number; output_tokens: number; cost: number; cache_write_tokens: number; cache_read_tokens: number }
+export type DeepSeekHarnessApplyConfigResult = { success: boolean; config_path: string; changed_keys: string[]; warnings: string[] }
+export type DeepSeekHarnessConfigStatus = { config_path: string; exists: boolean; has_agentgate: boolean; current_model: string | null }
 export type ExportResult = { success: boolean; path: string; files: string[]; warnings: string[] }
 export type FullSelfTestReport = { overall_status: string; reports: CheckReport[]; summary: string; created_at: string }
 export type GatewayAuthSettings = { gateway_auth_enabled: boolean; auth_mode: string; token_path: string; masked_token: string; codex_auth_type: string; claude_code_auth_type: string }
@@ -1594,6 +1737,8 @@ export type GatewayStatus = { running: boolean; host: string; port: number; acti
 export type GeminiCliApplyConfigResult = { success: boolean; config_path: string; changed_keys: string[]; warnings: string[] }
 export type GeminiCliConfigStatus = { config_path: string; exists: boolean; has_agentgate: boolean; current_model: string | null; has_saved_official: boolean }
 export type GeminiCliToggleResult = { success: boolean; new_provider: string; config_path: string }
+export type GrokBuildApplyConfigResult = { success: boolean; config_path: string; changed_keys: string[]; warnings: string[] }
+export type GrokBuildConfigStatus = { config_path: string; exists: boolean; has_agentgate: boolean; current_model: string | null }
 /**
  * 一条历史条目的可序列化形态。`snapshot_json` 是 `ClientSnapshot` 序列化
  * 后的字符串，反序列化交给 caller —— 5 个客户端各自知道怎么 restore。
@@ -1654,6 +1799,8 @@ category: string;
  */
 scopes: string[]; content: string }
 export type JsonValue = null | boolean | number | string | JsonValue[] | Partial<{ [key in string]: JsonValue }>
+export type KimiCliApplyConfigResult = { success: boolean; config_path: string; changed_keys: string[]; warnings: string[] }
+export type KimiCliConfigStatus = { config_path: string; exists: boolean; has_agentgate: boolean; current_model: string | null }
 export type LocalEndpoint = { 
 /**
  * Display name, e.g. "Ollama".
@@ -1786,6 +1933,9 @@ export type RouteProfileDetail = { profile: RouteProfileView; providers: RoutePr
 export type RouteProfileProviderView = { id: string; provider_id: string; provider_name: string; provider_type: string; provider_protocol: string; has_anthropic_url: boolean; supports_vision: boolean | null; model_capabilities: string | null; priority: number; enabled: boolean; model_override: string | null; cooldown_seconds: number; failover_on_status_codes: string | null; failover_on_error_keywords: string | null; routing_conditions: string | null; runtime_available: boolean; cooldown_until: string | null; consecutive_failures: number }
 export type RouteProfileStats = { route_profile_id: string; request_count: number; success_count: number; error_count: number; success_rate: number; avg_latency_ms: number; cost: number }
 export type RouteProfileView = { id: string; name: string; input_protocol: string; mode: string; selection_strategy: string; active_provider_id: string | null; active_provider_name: string | null; enabled: boolean; is_default: boolean; providers_count: number; created_at: string; updated_at: string }
+export type RouteTemplateInput = { template_id: string; profile_id: string; main_provider_id: string | null; think_provider_id: string | null; background_provider_id: string | null; apply_to_all_defaults?: boolean }
+export type RouteTemplatePreview = { template_id: string; profile_ids: string[]; profile_names: string[]; roles: RouteTemplateRole[]; warnings: string[]; can_apply: boolean; can_rollback: boolean; switches_to_failover: boolean }
+export type RouteTemplateRole = { role: string; provider_id: string; provider_name: string; is_local: boolean; routing_conditions: string | null; priority: number }
 export type RunningProcess = { pid: number; command: string }
 /**
  * Live runtime KPIs surfaced in the bottom footer of Dashboard / Routes.

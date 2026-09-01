@@ -143,10 +143,12 @@ pub async fn start(
     // 默认关:探测发的是真实最小补全(speedtest::probe),会产生少量 token
     // 费用,不能静默烧钱。设 AGENTGATE_LATENCY_PROBE_MINUTES=N(分钟)开启;
     // 开启后也只在存在 selection_strategy="fastest" 的路由档位时才真正探测。
-    if let Some(minutes) = std::env::var("AGENTGATE_LATENCY_PROBE_MINUTES")
-        .ok()
-        .and_then(|v| v.trim().parse::<u64>().ok())
-        .filter(|m| *m >= 1)
+    if let Some(minutes) = crate::compat::env_value(
+        "MUXLAYER_LATENCY_PROBE_MINUTES",
+        "AGENTGATE_LATENCY_PROBE_MINUTES",
+    )
+    .and_then(|v| v.trim().parse::<u64>().ok())
+    .filter(|m| *m >= 1)
     {
         let probe_db = state.db.clone();
         tokio::spawn(async move {
@@ -247,8 +249,7 @@ pub async fn start(
 
     // 可选 per-IP 限流(默认关)。AGENTGATE_RATE_LIMIT = 每 IP 每秒最大请求数。
     // 在请求入口计一次,不占整条 SSE 流;SmartIp 提取器兼容反代,否则回落 peer IP。
-    let rate = std::env::var("AGENTGATE_RATE_LIMIT")
-        .ok()
+    let rate = crate::compat::env_value("MUXLAYER_RATE_LIMIT", "AGENTGATE_RATE_LIMIT")
         .and_then(|s| s.trim().parse::<u32>().ok())
         .filter(|n| *n > 0);
     let app = if let Some(r) = rate {
@@ -374,12 +375,14 @@ pub async fn start(
 
 fn effective_request_body_limit_mb(configured_mb: i64) -> i64 {
     let configured_mb = configured_mb.clamp(1, MAX_REQUEST_BODY_LIMIT_MB);
-    std::env::var("AGENTGATE_REQUEST_BODY_LIMIT_MB")
-        .ok()
-        .and_then(|v| v.trim().parse::<i64>().ok())
-        .filter(|v| *v > 0)
-        .map(|v| v.clamp(1, MAX_REQUEST_BODY_LIMIT_MB))
-        .unwrap_or(configured_mb)
+    crate::compat::env_value(
+        "MUXLAYER_REQUEST_BODY_LIMIT_MB",
+        "AGENTGATE_REQUEST_BODY_LIMIT_MB",
+    )
+    .and_then(|v| v.trim().parse::<i64>().ok())
+    .filter(|v| *v > 0)
+    .map(|v| v.clamp(1, MAX_REQUEST_BODY_LIMIT_MB))
+    .unwrap_or(configured_mb)
 }
 
 fn request_body_limit_bytes(limit_mb: i64) -> usize {

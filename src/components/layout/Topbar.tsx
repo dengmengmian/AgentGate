@@ -38,7 +38,7 @@ export function Topbar({ onOpenCmdK }: { onOpenCmdK?: () => void }) {
   useEffect(() => {
     refresh();
   }, [location.pathname, refresh]);
-  usePolling(refresh, 3000);
+  usePolling(refresh, 10_000);
 
   return (
     <header

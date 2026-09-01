@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  Terminal,
-  Code,
-  Braces,
-  Sparkles,
-  Atom,
   Zap,
   Activity,
   CheckCircle,
@@ -13,6 +8,7 @@ import {
   Monitor,
   Eye,
 } from "lucide-react";
+import { ClientLogo, type ClientLogoId } from "@/components/tools/ClientLogo";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { PostApplyDialog } from "@/components/tools/PostApplyDialog";
@@ -22,6 +18,9 @@ import { ClaudeDetail } from "@/components/tools/clients/ClaudeDetail";
 import { OpenCodeDetail } from "@/components/tools/clients/OpenCodeDetail";
 import { GeminiDetail } from "@/components/tools/clients/GeminiDetail";
 import { AtomCodeDetail } from "@/components/tools/clients/AtomCodeDetail";
+import { KimiCliDetail } from "@/components/tools/clients/KimiCliDetail";
+import { GrokBuildDetail } from "@/components/tools/clients/GrokBuildDetail";
+import { DeepSeekHarnessDetail } from "@/components/tools/clients/DeepSeekHarnessDetail";
 import { toast } from "@/components/common/Toast";
 import { useI18n } from "@/lib/i18n";
 import { usePolling } from "@/lib/usePolling";
@@ -33,19 +32,16 @@ import type {
   GeminiCliConfigStatus,
   AtomCodeConfigStatus,
   ClaudeDesktopStatus,
+  KimiCliConfigStatus,
+  GrokBuildConfigStatus,
+  DeepSeekHarnessConfigStatus,
 } from "@/types/config";
 import type { GatewayStatus } from "@/types/gateway";
 
 /// Master-detail 布局：左侧 5 行客户端列表常驻显示状态，右侧渲染选中客户端
 /// 的完整详情。比原先的手风琴更适合「同时管理 5 个客户端」的场景——总览不
 /// 丢失、详情区不再被卡片 chrome 切碎。
-type ClientId =
-  | "codex"
-  | "claude_code"
-  | "opencode"
-  | "gemini_cli"
-  | "atomcode"
-  | "claude_desktop";
+type ClientId = ClientLogoId;
 
 /// 把每个客户端在「列表行」上需要的状态压成统一三态：
 /// - `active`：已接入 MuxLayer
@@ -78,6 +74,14 @@ export function Tools() {
     useState<AtomCodeConfigStatus | null>(null);
   const [claudeDesktopStatus, setClaudeDesktopStatus] =
     useState<ClaudeDesktopStatus | null>(null);
+  const [kimiStatus, setKimiStatus] = useState<KimiCliConfigStatus | null>(
+    null
+  );
+  const [grokStatus, setGrokStatus] = useState<GrokBuildConfigStatus | null>(
+    null
+  );
+  const [dshStatus, setDshStatus] =
+    useState<DeepSeekHarnessConfigStatus | null>(null);
   const [cdPreview, setCdPreview] = useState("");
   const [historyClients, setHistoryClients] = useState<string[]>([]);
   const [gatewayStatus, setGatewayStatus] = useState<GatewayStatus | null>(
@@ -90,6 +94,9 @@ export function Tools() {
   const [confirmApplyOpenCode, setConfirmApplyOpenCode] = useState(false);
   const [confirmApplyGemini, setConfirmApplyGemini] = useState(false);
   const [confirmApplyAtomCode, setConfirmApplyAtomCode] = useState(false);
+  const [confirmApplyKimi, setConfirmApplyKimi] = useState(false);
+  const [confirmApplyGrok, setConfirmApplyGrok] = useState(false);
+  const [confirmApplyDsh, setConfirmApplyDsh] = useState(false);
 
   /// Post-apply summary: shown once per apply with config path + running
   /// process warning. Null means "no dialog open right now". Detect failure
@@ -131,22 +138,29 @@ export function Tools() {
 
   const load = useCallback(async () => {
     try {
-      const [c, cc, oc, gc, ac, cd, gw, hist] = await Promise.all([
-        api.detectCodexConfig(),
-        api.detectClaudeCodeEnv(),
-        api.detectOpenCodeConfig(),
-        api.detectGeminiConfig(),
-        api.detectAtomCodeConfig(),
-        api.detectClaudeDesktop().catch(() => null),
-        api.getGatewayStatus(),
-        api.clientsWithApplyHistory().catch(() => [] as string[]),
-      ]);
+      const [c, cc, oc, gc, ac, cd, kimi, grok, dsh, gw, hist] =
+        await Promise.all([
+          api.detectCodexConfig(),
+          api.detectClaudeCodeEnv(),
+          api.detectOpenCodeConfig(),
+          api.detectGeminiConfig(),
+          api.detectAtomCodeConfig(),
+          api.detectClaudeDesktop().catch(() => null),
+          api.detectKimiConfig().catch(() => null),
+          api.detectGrokConfig().catch(() => null),
+          api.detectDshConfig().catch(() => null),
+          api.getGatewayStatus(),
+          api.clientsWithApplyHistory().catch(() => [] as string[]),
+        ]);
       setCodexStatus(c);
       setClaudeEnv(cc);
       setOpenCodeStatus(oc);
       setGeminiStatus(gc);
       setAtomCodeStatus(ac);
       setClaudeDesktopStatus(cd);
+      setKimiStatus(kimi);
+      setGrokStatus(grok);
+      setDshStatus(dsh);
       setGatewayStatus(gw);
       setHistoryClients(hist);
       const snippet = await api.generateCodexConfig();
@@ -170,6 +184,9 @@ export function Tools() {
     const detectId = (id: ClientId): string | null => {
       if (id === "claude_desktop") return null; // GUI，basename 不稳
       if (id === "gemini_cli") return "gemini";
+      if (id === "kimi_cli") return "kimi";
+      if (id === "grok_build") return "grok";
+      if (id === "deepseek_harness") return "dsh";
       return id;
     };
     const activeIds = (
@@ -179,6 +196,9 @@ export function Tools() {
         ["opencode", openCodeStatus?.has_agentgate],
         ["gemini_cli", geminiStatus?.has_agentgate],
         ["atomcode", atomCodeStatus?.has_agentgate],
+        ["kimi_cli", kimiStatus?.has_agentgate],
+        ["grok_build", grokStatus?.has_agentgate],
+        ["deepseek_harness", dshStatus?.has_agentgate],
       ] as const
     )
       .filter(([, ok]) => !!ok)
@@ -204,6 +224,9 @@ export function Tools() {
     openCodeStatus?.has_agentgate,
     geminiStatus?.has_agentgate,
     atomCodeStatus?.has_agentgate,
+    kimiStatus?.has_agentgate,
+    grokStatus?.has_agentgate,
+    dshStatus?.has_agentgate,
   ]);
 
   useEffect(() => {
@@ -365,6 +388,49 @@ export function Tools() {
     }
   };
 
+  const handleApplyKimi = async () => {
+    try {
+      const result = await api.applyKimiConfig();
+      setConfirmApplyKimi(false);
+      load();
+      if (result.success) {
+        await showPostApply("kimi_cli", "Kimi CLI", result.config_path);
+      }
+    } catch (err) {
+      toast("error", (err as api.AppError).message);
+    }
+  };
+
+  const handleApplyGrok = async () => {
+    try {
+      const result = await api.applyGrokConfig();
+      setConfirmApplyGrok(false);
+      load();
+      if (result.success) {
+        await showPostApply("grok_build", "Grok Build", result.config_path);
+      }
+    } catch (err) {
+      toast("error", (err as api.AppError).message);
+    }
+  };
+
+  const handleApplyDsh = async () => {
+    try {
+      const result = await api.applyDshConfig();
+      setConfirmApplyDsh(false);
+      load();
+      if (result.success) {
+        await showPostApply(
+          "deepseek_harness",
+          "DeepSeek Harness",
+          result.config_path
+        );
+      }
+    } catch (err) {
+      toast("error", (err as api.AppError).message);
+    }
+  };
+
   const handleToggleAtomCode = async () => {
     try {
       const result = await api.toggleAtomCodeProvider();
@@ -420,7 +486,6 @@ export function Tools() {
     id: ClientId;
     name: string;
     desc: string;
-    icon: React.ComponentType<{ className?: string }>;
     presence: ClientPresence;
     drifted: boolean;
   }[] = useMemo(() => {
@@ -455,6 +520,21 @@ export function Tools() {
       : atomCodeStatus?.exists
         ? "detected"
         : "absent";
+    const kimiPresence: ClientPresence = kimiStatus?.has_agentgate
+      ? "active"
+      : kimiStatus?.exists
+        ? "detected"
+        : "absent";
+    const grokPresence: ClientPresence = grokStatus?.has_agentgate
+      ? "active"
+      : grokStatus?.exists
+        ? "detected"
+        : "absent";
+    const dshPresence: ClientPresence = dshStatus?.has_agentgate
+      ? "active"
+      : dshStatus?.exists
+        ? "detected"
+        : "absent";
     const claudeDesktopPresence: ClientPresence =
       claudeDesktopStatus?.has_agentgate_profile
         ? "active"
@@ -466,7 +546,6 @@ export function Tools() {
         id: "codex",
         name: t("tools.codex"),
         desc: t("tools.codex_desc"),
-        icon: Code,
         presence: codexPresence,
         drifted: drifted("codex", codexPresence),
       },
@@ -474,7 +553,6 @@ export function Tools() {
         id: "claude_code",
         name: t("tools.claude_code"),
         desc: t("tools.claude_code_desc"),
-        icon: Terminal,
         presence: claudePresence,
         drifted: drifted("claude_code", claudePresence),
       },
@@ -482,7 +560,6 @@ export function Tools() {
         id: "opencode",
         name: t("tools.opencode"),
         desc: t("tools.opencode_desc"),
-        icon: Braces,
         presence: opencodePresence,
         drifted: drifted("opencode", opencodePresence),
       },
@@ -490,7 +567,6 @@ export function Tools() {
         id: "gemini_cli",
         name: t("tools.gemini_cli"),
         desc: t("tools.gemini_cli_desc"),
-        icon: Sparkles,
         presence: geminiPresence,
         drifted: drifted("gemini_cli", geminiPresence),
       },
@@ -498,7 +574,6 @@ export function Tools() {
         id: "atomcode",
         name: t("tools.atomcode"),
         desc: t("tools.atomcode_desc"),
-        icon: Atom,
         presence: atomPresence,
         drifted: drifted("atomcode", atomPresence),
       },
@@ -506,9 +581,29 @@ export function Tools() {
         id: "claude_desktop",
         name: "Claude Desktop",
         desc: t("tools.claude_desktop_desc"),
-        icon: Monitor,
         presence: claudeDesktopPresence,
         drifted: drifted("claude_desktop", claudeDesktopPresence),
+      },
+      {
+        id: "kimi_cli",
+        name: t("tools.kimi_cli"),
+        desc: t("tools.kimi_cli_desc"),
+        presence: kimiPresence,
+        drifted: drifted("kimi_cli", kimiPresence),
+      },
+      {
+        id: "grok_build",
+        name: t("tools.grok_build"),
+        desc: t("tools.grok_build_desc"),
+        presence: grokPresence,
+        drifted: drifted("grok_build", grokPresence),
+      },
+      {
+        id: "deepseek_harness",
+        name: t("tools.deepseek_harness"),
+        desc: t("tools.deepseek_harness_desc"),
+        presence: dshPresence,
+        drifted: drifted("deepseek_harness", dshPresence),
       },
     ];
   }, [
@@ -518,6 +613,9 @@ export function Tools() {
     geminiStatus,
     atomCodeStatus,
     claudeDesktopStatus,
+    kimiStatus,
+    grokStatus,
+    dshStatus,
     historyClients,
     t,
   ]);
@@ -670,7 +768,6 @@ export function Tools() {
           )}
           <ul className="space-y-1">
             {clientRows.map((row) => {
-              const Icon = row.icon;
               const selected = selectedClientId === row.id;
               return (
                 <li key={row.id}>
@@ -685,7 +782,7 @@ export function Tools() {
                     }
                   >
                     <PresenceDot presence={row.presence} />
-                    <Icon className="h-4 w-4 shrink-0" />
+                    <ClientLogo id={row.id} className="h-5 w-5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-xs font-medium">
                         {row.name}
@@ -781,10 +878,34 @@ export function Tools() {
               t={t}
             />
           )}
+          {selectedClientId === "kimi_cli" && (
+            <KimiCliDetail
+              status={kimiStatus}
+              onApply={() => setConfirmApplyKimi(true)}
+              load={load}
+              t={t}
+            />
+          )}
+          {selectedClientId === "grok_build" && (
+            <GrokBuildDetail
+              status={grokStatus}
+              onApply={() => setConfirmApplyGrok(true)}
+              load={load}
+              t={t}
+            />
+          )}
+          {selectedClientId === "deepseek_harness" && (
+            <DeepSeekHarnessDetail
+              status={dshStatus}
+              onApply={() => setConfirmApplyDsh(true)}
+              load={load}
+              t={t}
+            />
+          )}
           {selectedClientId === "claude_desktop" && (
             <div className="rounded-xl border border-border bg-card p-5">
               <DetailHeader
-                Icon={Monitor}
+                clientId="claude_desktop"
                 name="Claude Desktop"
                 desc={t("tools.claude_desktop_detail_desc")}
                 badge={
@@ -907,6 +1028,33 @@ export function Tools() {
         onConfirm={handleApplyAtomCode}
         onCancel={() => setConfirmApplyAtomCode(false)}
       />
+      <ConfirmDialog
+        open={confirmApplyKimi}
+        title={t("tools.apply_kimi_title")}
+        message={t("tools.apply_kimi_msg")}
+        confirmLabel={t("common.apply")}
+        variant="default"
+        onConfirm={handleApplyKimi}
+        onCancel={() => setConfirmApplyKimi(false)}
+      />
+      <ConfirmDialog
+        open={confirmApplyGrok}
+        title={t("tools.apply_grok_title")}
+        message={t("tools.apply_grok_msg")}
+        confirmLabel={t("common.apply")}
+        variant="default"
+        onConfirm={handleApplyGrok}
+        onCancel={() => setConfirmApplyGrok(false)}
+      />
+      <ConfirmDialog
+        open={confirmApplyDsh}
+        title={t("tools.apply_dsh_title")}
+        message={t("tools.apply_dsh_msg")}
+        confirmLabel={t("common.apply")}
+        variant="default"
+        onConfirm={handleApplyDsh}
+        onCancel={() => setConfirmApplyDsh(false)}
+      />
 
       <PostApplyDialog
         open={postApply !== null}
@@ -947,12 +1095,12 @@ export type T = (k: string) => string;
 
 /// 详情区共用的页眉：图标 + 标题 + 描述 + 状态徽章。
 export function DetailHeader({
-  Icon,
+  clientId,
   name,
   desc,
   badge,
 }: {
-  Icon: React.ComponentType<{ className?: string }>;
+  clientId: ClientLogoId;
   name: string;
   desc: string;
   badge: React.ReactNode;
@@ -960,9 +1108,7 @@ export function DetailHeader({
   return (
     <div className="mb-4 flex items-start justify-between gap-3">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-soft">
-          <Icon className="h-5 w-5 text-accent" />
-        </div>
+        <ClientLogo id={clientId} className="h-10 w-10 shrink-0" />
         <div>
           <h3 className="text-sm font-semibold text-text-primary">{name}</h3>
           <p className="text-xs text-text-muted">{desc}</p>

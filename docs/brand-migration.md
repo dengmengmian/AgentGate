@@ -48,7 +48,7 @@
 - Tauri `productName`、安装包默认文件名和应用 bundle 显示名
 - Homebrew cask `agentgate` 及 tap 路径
 - 现有 `AgentGate_<version>_*` 安装包文件名
-- `agentgate` / `openai/agentgate` 虚拟模型名
+- 虚拟模型名：新写入用 `muxlayer` / `openai/muxlayer`，长期保留 `agentgate` / `openai/agentgate` 别名
 - 数据库、日志、Docker image 和 release automation 中的旧标识
 
 第二阶段后续的最低兼容要求：
@@ -63,5 +63,5 @@
 
 - 对外页面和当前文档不再把 AgentGate 当作主品牌。
 - `AgentGate` 只出现在迁移说明、历史 release notes、现有安装包名和兼容标识中。
-- `agentgate-serve`、`~/.agentgate`、`AGENTGATE_*`、bundle ID、Homebrew cask 和虚拟模型名没有被误改；其中 CLI 数据目录和 token 已增加新名称入口，但旧入口仍可用。
+- `agentgate-serve`、`~/.agentgate`、`AGENTGATE_*`、bundle ID、Homebrew cask 没有被误改；虚拟模型新写入用 `muxlayer`，`agentgate` 仍是别名。CLI 数据目录和 token 已增加新名称入口，但旧入口仍可用。
 - README、官网、SEO 页面、Release 链接和 GitHub 元数据使用 `muxlayer`。

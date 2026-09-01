@@ -107,6 +107,21 @@ function validateProvider(provider, file) {
       );
     }
   }
+  const modelById = new Map(provider.models.map((model) => [model.id, model]));
+  for (const [role, id] of [
+    ["defaultModel", provider.defaultModel],
+    ["reasoningModel", provider.reasoningModel],
+  ]) {
+    if (!id) continue;
+    const model = modelById.get(id);
+    if (!model) continue;
+    assert(
+      model.pricing &&
+        typeof model.pricing.inputPerMillion === "number" &&
+        typeof model.pricing.outputPerMillion === "number",
+      `${file}: ${role} '${id}' is listed in models[] but has no pricing. Set pricing (use 0/0 if the model is actually free). Omitting pricing is not free.`,
+    );
+  }
 }
 
 function loadCatalog() {

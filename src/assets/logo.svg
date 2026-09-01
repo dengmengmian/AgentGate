@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="56" y1="36" x2="456" y2="476" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F766E"/>
+      <stop offset="0.52" stop-color="#0E7490"/>
+      <stop offset="1" stop-color="#164E63"/>
+    </linearGradient>
+    <linearGradient id="layer" x1="112" y1="134" x2="390" y2="378" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFEFF"/>
+      <stop offset="1" stop-color="#A5F3FC"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(180 124) scale(310)">
+      <stop stop-color="#67E8F9" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#67E8F9" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="round"><rect x="12" y="12" width="488" height="488" rx="116"/></clipPath>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="13" flood-color="#082F49" flood-opacity=".48"/>
+    </filter>
+  </defs>
+
+  <g clip-path="url(#round)">
+    <rect x="12" y="12" width="488" height="488" fill="url(#bg)"/>
+    <rect x="12" y="12" width="488" height="488" fill="url(#glow)"/>
+    <path d="M-20 404C114 338 205 458 536 318V524H-20V404Z" fill="#082F49" opacity=".28"/>
+  </g>
+
+  <g filter="url(#shadow)" fill="url(#layer)">
+    <rect x="146" y="126" width="220" height="58" rx="29"/>
+    <rect x="110" y="227" width="256" height="58" rx="29"/>
+    <rect x="74" y="328" width="292" height="58" rx="29"/>
+  </g>
+  <path d="M366 155L414 206M366 256L414 307M366 357L414 408" stroke="#CFFAFE" stroke-width="18" stroke-linecap="round" opacity=".9"/>
+  <circle cx="414" cy="256" r="30" fill="#FFFFFF"/>
+  <circle cx="414" cy="256" r="15" fill="#0E7490"/>
+</svg>

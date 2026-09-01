@@ -346,8 +346,11 @@ pub async fn get_copilot_token(
     if let Some(token) = cached_token(github_token) {
         return Ok(token);
     }
-    let base = std::env::var("AGENTGATE_COPILOT_GITHUB_API_BASE")
-        .unwrap_or_else(|_| DEFAULT_GITHUB_API_BASE.to_string());
+    let base = crate::compat::env_value(
+        "MUXLAYER_COPILOT_GITHUB_API_BASE",
+        "AGENTGATE_COPILOT_GITHUB_API_BASE",
+    )
+    .unwrap_or_else(|| DEFAULT_GITHUB_API_BASE.to_string());
     let (token, expires_at) = exchange_copilot_token(client, github_token, &base).await?;
     store_token(github_token, &token, expires_at);
     Ok(token)

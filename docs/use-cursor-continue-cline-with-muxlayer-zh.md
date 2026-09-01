@@ -19,7 +19,7 @@ MuxLayer 在本机提供 OpenAI 兼容入口。编辑器插件只需配置 `base
 
 鉴权：`Authorization: Bearer <ag_local_…>`（多数 UI 的 API key 填同一值）。
 
-模型：可用虚拟名 `agentgate`，或映射到 MuxLayer 路由目标模型。
+模型：可用虚拟名 `muxlayer`（仍兼容 `agentgate`），或映射到 MuxLayer 路由目标模型。
 
 ## Cursor
 
@@ -36,7 +36,7 @@ MuxLayer 在本机提供 OpenAI 兼容入口。编辑器插件只需配置 `base
     {
       "title": "MuxLayer",
       "provider": "openai",
-      "model": "agentgate",
+      "model": "muxlayer",
       "apiBase": "http://127.0.0.1:9090/v1",
       "apiKey": "ag_local_YOUR_TOKEN"
     }

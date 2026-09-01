@@ -130,6 +130,17 @@ export function buildReproPackage(input: ReproExportInput): string {
 }
 
 /** Estimate Anthropic-style cache savings only when real cache_read exists. */
+/** Cache hit rate in 0–100, or null when there is no token volume to ratio. */
+export function cacheHitRatePercent(
+  cacheRead: number,
+  cacheWrite: number,
+  inputTokens: number
+): number | null {
+  const denom = cacheRead + cacheWrite + inputTokens;
+  if (denom <= 0) return null;
+  return (cacheRead / denom) * 100;
+}
+
 export function estimateCacheSavingsUsd(
   cacheReadTokens: number,
   inputPricePerMillion: number | null | undefined

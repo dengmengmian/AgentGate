@@ -30,8 +30,8 @@ pub(super) fn apply_effort_overrides(
 }
 
 fn provider_in_env_list(provider_type: &str, env_var: &str) -> bool {
-    std::env::var(env_var)
-        .ok()
+    let mux = env_var.replacen("AGENTGATE_", "MUXLAYER_", 1);
+    crate::compat::env_value(&mux, env_var)
         .map(|raw| {
             raw.split(',')
                 .any(|s| s.trim().eq_ignore_ascii_case(provider_type))

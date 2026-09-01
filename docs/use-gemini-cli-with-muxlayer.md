@@ -27,7 +27,7 @@ Use this guide if you want:
 | Gemini CLI side | MuxLayer side | Provider side |
 |---|---|---|
 | Gemini API style request | Local gateway route | Chat-compatible upstream selected by route profile |
-| Gemini model names | Model Mapping or `agentgate` virtual model | Provider-specific model ID |
+| Gemini model names | Model Mapping or `muxlayer` virtual model (`agentgate` still works) | Provider-specific model ID |
 | Request logs | Client and route attribution | Token and cost estimation where available |
 
 ## Troubleshooting

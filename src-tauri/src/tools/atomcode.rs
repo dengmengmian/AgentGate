@@ -6,7 +6,7 @@ use serde::Serialize;
 use crate::errors::AppError;
 use crate::security::local_token;
 
-const AGENTGATE_MODEL: &str = "agentgate";
+const AGENTGATE_MODEL: &str = "muxlayer";
 
 /// AtomCode config.toml path
 pub fn config_path() -> PathBuf {
@@ -103,7 +103,9 @@ pub fn detect() -> AtomCodeConfigStatus {
 
     let (has_agentgate, current_model) = if exists {
         let content = fs::read_to_string(&path).unwrap_or_default();
-        let has_ag = content.contains("ag_local_") || content.contains("agentgate");
+        let has_ag = content.contains("ag_local_")
+            || content.contains("muxlayer")
+            || content.contains("agentgate");
         // Try to extract model from TOML
         let model = content
             .lines()
@@ -272,7 +274,7 @@ mod tests {
         assert!(content.contains("ag_local_"));
         assert!(content.contains("127.0.0.1:9090"));
         // surgical merge 后 key = value 不再带 padding 对齐空格
-        assert!(content.contains(r#"model = "agentgate""#));
+        assert!(content.contains(r#"model = "muxlayer""#));
         assert!(content.contains("[providers.agentgate]"));
         cleanup(&temp);
     }

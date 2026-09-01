@@ -18,7 +18,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { getVersion } from "@tauri-apps/api/app";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useProviders } from "@/store/global";

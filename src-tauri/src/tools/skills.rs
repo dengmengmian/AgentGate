@@ -27,7 +27,7 @@ const MANIFEST: &str = "SKILL.md";
 const MANIFEST_DISABLED: &str = "SKILL.md.disabled";
 
 /// 支持的来源客户端。新增来源在这里加一条 + `skills_dir_for` 加分支即可。
-const SOURCES: &[&str] = &["claude", "codex"];
+const SOURCES: &[&str] = &["claude", "codex", "opencode", "gemini"];
 
 /// 一个本地 skill（归一后的展示形态）。
 #[derive(Debug, Clone, Serialize, PartialEq, specta::Type)]
@@ -88,6 +88,8 @@ fn skills_dir_for(source: &str) -> Option<PathBuf> {
     match source {
         "claude" => Some(home().join(".claude").join("skills")),
         "codex" => Some(home().join(".codex").join("skills")),
+        "opencode" => Some(home().join(".config").join("opencode").join("skills")),
+        "gemini" => Some(home().join(".gemini").join("skills")),
         _ => None,
     }
 }

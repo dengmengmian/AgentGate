@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
-  Code,
   Copy,
   Download,
   Edit2,
@@ -14,7 +13,6 @@ import {
   Plug,
   Save,
   Search,
-  Terminal,
   Trash2,
   Upload,
   XCircle,
@@ -25,6 +23,7 @@ import { DetailDrawer } from "@/components/layout/DetailDrawer";
 import { useI18n } from "@/lib/i18n";
 import * as api from "@/lib/api";
 import type { McpServer, McpValidationStatus } from "@/lib/api";
+import { ClientLogo, type ClientLogoId } from "@/components/tools/ClientLogo";
 
 type Draft = {
   client: string;
@@ -36,11 +35,19 @@ type Draft = {
 };
 
 type TransferMode = "export" | "import" | null;
-type Filter = "all" | "issues" | "codex" | "claude_code";
+type Filter =
+  | "all"
+  | "issues"
+  | "codex"
+  | "claude_code"
+  | "gemini"
+  | "opencode";
 
 const clients = [
-  { id: "codex", label: "Codex", icon: Code },
-  { id: "claude_code", label: "Claude Code", icon: Terminal },
+  { id: "codex", label: "Codex", logo: "codex" as ClientLogoId },
+  { id: "claude_code", label: "Claude Code", logo: "claude_code" as ClientLogoId },
+  { id: "gemini", label: "Gemini CLI", logo: "gemini_cli" as ClientLogoId },
+  { id: "opencode", label: "OpenCode", logo: "opencode" as ClientLogoId },
 ];
 
 /// MCP 面板。以客户端文件为真相源，读写 Codex / Claude Code 现有 MCP server。
@@ -97,6 +104,12 @@ export function Mcp() {
       claude_code: servers.filter((server) =>
         server.enabled_clients.includes("claude_code")
       ).length,
+      gemini: servers.filter((server) =>
+        server.enabled_clients.includes("gemini")
+      ).length,
+      opencode: servers.filter((server) =>
+        server.enabled_clients.includes("opencode")
+      ).length,
     };
   }, [servers]);
 
@@ -111,6 +124,10 @@ export function Mcp() {
         filter === "claude_code" &&
         !server.enabled_clients.includes("claude_code")
       )
+        return false;
+      if (filter === "gemini" && !server.enabled_clients.includes("gemini"))
+        return false;
+      if (filter === "opencode" && !server.enabled_clients.includes("opencode"))
         return false;
       if (!keyword) return true;
       const haystack = [
@@ -425,6 +442,18 @@ export function Mcp() {
             count={counts.claude_code}
             onClick={() => setFilter("claude_code")}
           />
+          <FilterButton
+            active={filter === "gemini"}
+            label="Gemini CLI"
+            count={counts.gemini}
+            onClick={() => setFilter("gemini")}
+          />
+          <FilterButton
+            active={filter === "opencode"}
+            label="OpenCode"
+            count={counts.opencode}
+            onClick={() => setFilter("opencode")}
+          />
         </div>
       </section>
 
@@ -455,6 +484,8 @@ export function Mcp() {
                   >
                     <option value="codex">Codex</option>
                     <option value="claude_code">Claude Code</option>
+                    <option value="gemini">Gemini CLI</option>
+                    <option value="opencode">OpenCode</option>
                   </select>
                   <button
                     onClick={handleImport}
@@ -787,6 +818,8 @@ function DraftForm({
         >
           <option value="codex">Codex</option>
           <option value="claude_code">Claude Code</option>
+          <option value="gemini">Gemini CLI</option>
+          <option value="opencode">OpenCode</option>
         </select>
       </label>
       <label className="space-y-1 text-[11px] text-text-muted">
@@ -986,6 +1019,7 @@ function clientLabel(client: string) {
 }
 
 function clientIcon(client: string) {
-  const Icon = clients.find((item) => item.id === client)?.icon ?? ChevronDown;
-  return <Icon className="h-3 w-3" />;
+  const logo = clients.find((item) => item.id === client)?.logo;
+  if (!logo) return <ChevronDown className="h-3 w-3" />;
+  return <ClientLogo id={logo} className="h-3.5 w-3.5" />;
 }

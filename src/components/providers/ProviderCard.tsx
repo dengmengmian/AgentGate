@@ -73,6 +73,7 @@ export function ProviderCard({
   const { t } = useI18n();
   const [health, setHealth] = useState<ProviderHealth | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const keyCount = keyCountFromMasked(provider.masked_api_key);
 
   useEffect(() => {
     api
@@ -241,6 +242,14 @@ export function ProviderCard({
             <p className="flex items-center gap-1 truncate font-mono text-[11px] text-text-secondary">
               <Key className="h-3 w-3 shrink-0" />
               {provider.masked_api_key ?? "—"}
+              {keyCount > 1 && (
+                <span className="ml-1 shrink-0 font-sans text-[10px] text-text-muted">
+                  {t("providers.key_round_robin").replace(
+                    "{n}",
+                    String(keyCount)
+                  )}
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -477,4 +486,12 @@ export function ProviderCard({
       </div>
     </div>
   );
+}
+
+/** Backend masks JSON key arrays as `sk-ab****cdef (+2 more)`. */
+export function keyCountFromMasked(masked?: string | null): number {
+  if (!masked) return 0;
+  const extra = masked.match(/\(\+(\d+) more\)/i);
+  if (extra) return Number(extra[1]) + 1;
+  return 1;
 }

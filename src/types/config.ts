@@ -11,6 +11,9 @@ import type {
   OpenCodeConfigStatus,
   GeminiCliConfigStatus,
   AtomCodeConfigStatus,
+  KimiCliConfigStatus,
+  GrokBuildConfigStatus,
+  DeepSeekHarnessConfigStatus,
   ClaudeDesktopStatus,
   ClaudeDesktopApplyResult,
   CodexApplyConfigResult,
@@ -18,6 +21,9 @@ import type {
   OpenCodeApplyConfigResult,
   GeminiCliApplyConfigResult,
   AtomCodeApplyConfigResult,
+  KimiCliApplyConfigResult,
+  GrokBuildApplyConfigResult,
+  DeepSeekHarnessApplyConfigResult,
   CodexToggleResult,
   ClaudeCodeToggleResult,
   GeminiCliToggleResult,
@@ -32,6 +38,9 @@ export type {
   OpenCodeConfigStatus,
   GeminiCliConfigStatus,
   AtomCodeConfigStatus,
+  KimiCliConfigStatus,
+  GrokBuildConfigStatus,
+  DeepSeekHarnessConfigStatus,
   ClaudeDesktopStatus,
   ClaudeDesktopApplyResult,
 };
@@ -41,7 +50,10 @@ export type ApplyConfigResult =
   | ClaudeCodeApplyConfigResult
   | OpenCodeApplyConfigResult
   | GeminiCliApplyConfigResult
-  | AtomCodeApplyConfigResult;
+  | AtomCodeApplyConfigResult
+  | KimiCliApplyConfigResult
+  | GrokBuildApplyConfigResult
+  | DeepSeekHarnessApplyConfigResult;
 
 export type ToggleResult =
   | CodexToggleResult

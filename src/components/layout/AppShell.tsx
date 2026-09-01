@@ -1,8 +1,13 @@
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { CommandPalette } from "@/components/common/CommandPalette";
+
+const CommandPalette = lazy(() =>
+  import("@/components/common/CommandPalette").then((m) => ({
+    default: m.CommandPalette,
+  }))
+);
 
 export function AppShell() {
   // Cmd+K（mac）/ Ctrl+K（其它平台）全局快捷键打开命令面板。
@@ -33,7 +38,11 @@ export function AppShell() {
           </div>
         </main>
       </div>
-      <CommandPalette open={cmdkOpen} onClose={() => setCmdkOpen(false)} />
+      {cmdkOpen && (
+        <Suspense fallback={null}>
+          <CommandPalette open={cmdkOpen} onClose={() => setCmdkOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

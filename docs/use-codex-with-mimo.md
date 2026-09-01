@@ -31,7 +31,7 @@ MuxLayer keeps the official Codex configuration restorable, so you can switch ba
 | Codex side | MuxLayer side | MiMo side |
 |---|---|---|
 | OpenAI Responses API | `/v1/responses` local gateway route | MiMo Chat or Anthropic-compatible endpoint |
-| Codex model names | Model Mapping or `agentgate` virtual model | MiMo model IDs such as `mimo-v2.5-pro`, `mimo-v2.5`, or `mimo-v2-flash` |
+| Codex model names | Model Mapping or `muxlayer` virtual model (`agentgate` still works) | MiMo model IDs such as `mimo-v2.5-pro`, `mimo-v2.5`, or `mimo-v2-flash` |
 | Codex reasoning/tool flow | Protocol conversion and request tracing | MiMo `reasoning_content`, model capability matrix, and web search handling |
 
 ## Chinese Notes / 中文说明

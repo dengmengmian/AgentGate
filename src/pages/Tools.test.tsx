@@ -48,6 +48,18 @@ describe("Tools", () => {
       supported: false,
       has_agentgate_profile: false,
     } as any);
+    vi.mocked(api.detectKimiConfig).mockResolvedValue({
+      exists: false,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.detectGrokConfig).mockResolvedValue({
+      exists: false,
+      has_agentgate: false,
+    } as any);
+    vi.mocked(api.detectDshConfig).mockResolvedValue({
+      exists: false,
+      has_agentgate: false,
+    } as any);
     vi.mocked(api.getGatewayStatus).mockResolvedValue(gatewayStatus());
     vi.mocked(api.clientsWithApplyHistory).mockResolvedValue([]);
     vi.mocked(api.generateCodexConfig).mockResolvedValue("{}");
@@ -73,6 +85,13 @@ describe("Tools", () => {
     expect(screen.getAllByText("tools.clients").length).toBeGreaterThan(0);
     expect(screen.getByText("tools.console")).toBeInTheDocument();
     expect(screen.getByText("tools.connection_path")).toBeInTheDocument();
+    expect(screen.getAllByTestId("client-logo-codex").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("client-logo-claude_code")).toBeInTheDocument();
+    expect(screen.getByTestId("client-logo-deepseek_harness")).toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: "Codex" }).length).toBeGreaterThan(
+      0
+    );
+    expect(screen.getByRole("img", { name: "Kimi CLI" })).toBeInTheDocument();
   });
 
   it("runs connection test", async () => {

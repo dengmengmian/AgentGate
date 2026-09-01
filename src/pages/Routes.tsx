@@ -21,6 +21,7 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { SummaryTile } from "@/components/routes/SummaryTile";
 import { ConditionsDialog } from "@/components/routes/ConditionsDialog";
+import { RouteTemplateDialog } from "@/components/routes/RouteTemplateDialog";
 import { toast } from "@/components/common/Toast";
 import { useI18n } from "@/lib/i18n";
 import { usePolling } from "@/lib/usePolling";
@@ -96,6 +97,8 @@ export function Routes() {
   );
   const selectedIdRef = useRef<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [showTemplate, setShowTemplate] = useState(false);
+  const [canRollbackTemplate, setCanRollbackTemplate] = useState(false);
   const [newName, setNewName] = useState("");
   const [newProtocol, setNewProtocol] = useState("openai_responses");
   const [editingName, setEditingName] = useState(false);
@@ -129,6 +132,9 @@ export function Routes() {
         const d = await api.getRouteProfile(toLoad);
         selectedIdRef.current = toLoad;
         setDetail(d);
+        setCanRollbackTemplate(
+          await api.hasRouteTemplateRollback(toLoad).catch(() => false)
+        );
       }
     } catch (err) {
       toast("error", (err as api.AppError).message);
@@ -148,6 +154,9 @@ export function Routes() {
       const d = await api.getRouteProfile(id);
       selectedIdRef.current = id;
       setDetail(d);
+      setCanRollbackTemplate(
+        await api.hasRouteTemplateRollback(id).catch(() => false)
+      );
     } catch (err) {
       toast("error", (err as api.AppError).message);
     }
@@ -312,13 +321,41 @@ export function Routes() {
         <p className="text-xs text-text-muted">
           {profiles.length} {t("routes.route_profiles")}
         </p>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent/90"
-        >
-          <Plus className="h-3 w-3" />
-          {t("routes.create_profile")}
-        </button>
+        <div className="flex items-center gap-2">
+          {detail && canRollbackTemplate && (
+            <button
+              onClick={async () => {
+                try {
+                  await api.rollbackRouteTemplate(detail.profile.id);
+                  toast("success", t("routes.template_rolled_back"));
+                  setCanRollbackTemplate(false);
+                  load();
+                } catch (err) {
+                  toast("error", (err as api.AppError).message);
+                }
+              }}
+              className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-hover"
+            >
+              <RotateCcw className="h-3 w-3" />
+              {t("routes.template_rollback")}
+            </button>
+          )}
+          <button
+            onClick={() => setShowTemplate(true)}
+            disabled={!detail}
+            className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-hover disabled:opacity-40"
+          >
+            <Route className="h-3 w-3" />
+            {t("routes.template")}
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent/90"
+          >
+            <Plus className="h-3 w-3" />
+            {t("routes.create_profile")}
+          </button>
+        </div>
       </div>
 
       {/* Create form */}
@@ -993,6 +1030,35 @@ export function Routes() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
       />
+
+      {showTemplate && detail && (
+        <RouteTemplateDialog
+          profileId={detail.profile.id}
+          providers={providers.map((p) => ({
+            id: p.id,
+            name: p.name,
+            base_url: p.base_url,
+          }))}
+          canRollback={canRollbackTemplate}
+          onClose={() => setShowTemplate(false)}
+          onApplied={() => {
+            setShowTemplate(false);
+            setCanRollbackTemplate(true);
+            load();
+          }}
+          onRollback={async () => {
+            try {
+              await api.rollbackRouteTemplate(detail.profile.id);
+              toast("success", t("routes.template_rolled_back"));
+              setShowTemplate(false);
+              setCanRollbackTemplate(false);
+              load();
+            } catch (err) {
+              toast("error", (err as api.AppError).message);
+            }
+          }}
+        />
+      )}
 
       {/* Routing Conditions Dialog */}
       {conditionsTarget && (

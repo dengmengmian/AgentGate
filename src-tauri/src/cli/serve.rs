@@ -409,13 +409,16 @@ async fn main() {
         }
         None => {
             // Default: serve. env-based TLS（用户不传子命令 + 仅靠 env 配置 TLS）。
-            let host = std::env::var("AGENTGATE_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
-            let port = std::env::var("AGENTGATE_PORT")
-                .ok()
+            let host = agentgate_lib::compat::env_value("MUXLAYER_HOST", "AGENTGATE_HOST")
+                .unwrap_or_else(|| "127.0.0.1".to_string());
+            let port = agentgate_lib::compat::env_value("MUXLAYER_PORT", "AGENTGATE_PORT")
                 .and_then(|value| value.parse::<u16>().ok())
                 .unwrap_or(9090);
-            let tls_cert = std::env::var("AGENTGATE_TLS_CERT").ok().map(PathBuf::from);
-            let tls_key = std::env::var("AGENTGATE_TLS_KEY").ok().map(PathBuf::from);
+            let tls_cert =
+                agentgate_lib::compat::env_value("MUXLAYER_TLS_CERT", "AGENTGATE_TLS_CERT")
+                    .map(PathBuf::from);
+            let tls_key = agentgate_lib::compat::env_value("MUXLAYER_TLS_KEY", "AGENTGATE_TLS_KEY")
+                .map(PathBuf::from);
             cmd_serve(&cli, &host, port, tls_cert, tls_key).await;
         }
     }
@@ -432,7 +435,9 @@ async fn cmd_serve(
     let db = open_db(cli);
 
     // 声明式部署:AGENTGATE_CONFIG_FILE 指向一份导出的配置,库为空时种子化。
-    if let Ok(path) = std::env::var("AGENTGATE_CONFIG_FILE") {
+    if let Some(path) =
+        agentgate_lib::compat::env_value("MUXLAYER_CONFIG_FILE", "AGENTGATE_CONFIG_FILE")
+    {
         if !path.trim().is_empty() {
             seed_config_if_empty(&db, &path);
         }

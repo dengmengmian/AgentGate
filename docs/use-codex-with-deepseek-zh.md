@@ -29,7 +29,7 @@ MuxLayer 保留了原 Codex 配置的可恢复状态，你可以随时从 Codex 
 | Codex 侧 | MuxLayer 侧 | DeepSeek 侧 |
 |---|---|---|
 | OpenAI Responses API | `/v1/responses` 本地网关路由 | DeepSeek Chat Completions 或 Anthropic 兼容 endpoint |
-| Codex 模型名 | Model Mapping 或 `agentgate` 虚拟模型 | DeepSeek 模型 ID，如 `deepseek-v4-flash`、`deepseek-v4-pro` 或 `deepseek-v4-flash-vision-exp` |
+| Codex 模型名 | Model Mapping 或 `muxlayer` 虚拟模型（仍兼容 `agentgate`） | DeepSeek 模型 ID，如 `deepseek-v4-flash`、`deepseek-v4-pro` 或 `deepseek-v4-flash-vision-exp` |
 | Codex 的工具和流式输出 | 协议转换和请求追踪 | DeepSeek 专属处理 |
 
 ## 工作原理
@@ -42,7 +42,7 @@ MuxLayer 的作用，是把 Codex 原本发往官方的 Responses API 入口变�
 Codex -> http://127.0.0.1:9090/v1/responses -> MuxLayer -> DeepSeek
 ```
 
-你不需要长期手改 Codex 配置文件，也不需要在 DeepSeek、MiMo、OpenAI 等 Provider 之间来回改模型名。MuxLayer 会通过 Provider、Route Profile、Model Mapping 和 `agentgate` 虚拟模型处理这些差异。
+你不需要长期手改 Codex 配置文件，也不需要在 DeepSeek、MiMo、OpenAI 等 Provider 之间来回改模型名。MuxLayer 会通过 Provider、Route Profile、Model Mapping 和 `muxlayer` 虚拟模型（仍兼容 `agentgate`）处理这些差异。
 
 ## 为什么默认不直连 DeepSeek 的 Responses API
 

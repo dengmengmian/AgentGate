@@ -127,19 +127,25 @@ import type {
   OpenCodeApplyConfigResult,
   GeminiCliApplyConfigResult,
   AtomCodeApplyConfigResult,
+  KimiCliApplyConfigResult,
+  GrokBuildApplyConfigResult,
+  DeepSeekHarnessApplyConfigResult,
   CodexToggleResult,
   ClaudeCodeToggleResult,
   GeminiCliToggleResult,
   AtomCodeToggleResult,
 } from "./bindings";
 
-// 历史 API 名字。多数前端组件按通用名引用,union 兼容 5 个 client 的扩展字段。
+// 历史 API 名字。多数前端组件按通用名引用,union 兼容各 client 的扩展字段。
 export type ApplyConfigResult =
   | CodexApplyConfigResult
   | ClaudeCodeApplyConfigResult
   | OpenCodeApplyConfigResult
   | GeminiCliApplyConfigResult
-  | AtomCodeApplyConfigResult;
+  | AtomCodeApplyConfigResult
+  | KimiCliApplyConfigResult
+  | GrokBuildApplyConfigResult
+  | DeepSeekHarnessApplyConfigResult;
 
 export type ToggleResult =
   | CodexToggleResult
@@ -328,6 +334,24 @@ export const toggleAtomCodeProvider = (): Promise<ToggleResult> =>
   unwrap(bindings.toggleAtomcodeProvider());
 export const openAtomCodeConfig = () => unwrap(bindings.openAtomcodeConfig());
 
+export const detectKimiConfig = () => unwrap(bindings.detectKimiConfig());
+export const applyKimiConfig = (): Promise<ApplyConfigResult> =>
+  unwrap(bindings.applyKimiConfig());
+export const generateKimiConfig = () => unwrap(bindings.generateKimiConfig());
+export const openKimiConfig = () => unwrap(bindings.openKimiConfig());
+
+export const detectGrokConfig = () => unwrap(bindings.detectGrokConfig());
+export const applyGrokConfig = (): Promise<ApplyConfigResult> =>
+  unwrap(bindings.applyGrokConfig());
+export const generateGrokConfig = () => unwrap(bindings.generateGrokConfig());
+export const openGrokConfig = () => unwrap(bindings.openGrokConfig());
+
+export const detectDshConfig = () => unwrap(bindings.detectDshConfig());
+export const applyDshConfig = (): Promise<ApplyConfigResult> =>
+  unwrap(bindings.applyDshConfig());
+export const generateDshConfig = () => unwrap(bindings.generateDshConfig());
+export const openDshConfig = () => unwrap(bindings.openDshConfig());
+
 // ── Post-apply process detection ───────────────────────────────
 
 /// Match `client_id` ∈ {codex, claude_code, opencode, gemini, atomcode}.
@@ -335,6 +359,9 @@ export const openAtomCodeConfig = () => unwrap(bindings.openAtomcodeConfig());
 /// empty as "couldn't detect" rather than "definitely not running".
 export const detectClientRunning = (clientId: string) =>
   unwrap(bindings.detectClientRunning(clientId));
+
+export const killClientProcess = (clientId: string, pid: number) =>
+  unwrap(bindings.killClientProcess(clientId, pid));
 
 /// Restart Codex Desktop so the freshly-written config picks up. macOS only
 /// for now; on other platforms returns `supported: false` and the UI hides
@@ -462,6 +489,16 @@ export const resetProviderRuntimeStatus = (providerId: string) =>
   unwrap(bindings.resetProviderRuntimeStatus(providerId));
 export const resetAllProviderRuntimeStatus = () =>
   unwrap(bindings.resetAllProviderRuntimeStatus());
+export const previewRouteTemplate = (
+  input: import("@/lib/bindings").RouteTemplateInput
+) => unwrap(bindings.previewRouteTemplate(input));
+export const applyRouteTemplate = (
+  input: import("@/lib/bindings").RouteTemplateInput
+) => unwrap(bindings.applyRouteTemplate(input));
+export const rollbackRouteTemplate = (profileId: string) =>
+  unwrap(bindings.rollbackRouteTemplate(profileId));
+export const hasRouteTemplateRollback = (profileId: string) =>
+  unwrap(bindings.hasRouteTemplateRollback(profileId));
 
 // ── Stats ──────────────────────────────────────────────────────
 

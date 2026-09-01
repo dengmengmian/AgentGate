@@ -1,5 +1,23 @@
 # Changelog / 更新日志
 
+## [2.0.4] - 2026-09-01
+
+### Added / 新增
+
+- **Kimi CLI, Grok Build, DeepSeek Harness / 三个客户端一键接入** —— Apply from the Clients page. Each client has its own icon. 客户端页一键接入。图标换成各自的样子。
+- **Stop a running client after apply / 应用后可结束进程** —— Click Stop process instead of copying `kill`. 点「结束进程」，不用自己复制 kill。
+- **Route templates / 路由模板** —— Task split, local-first, cloud-first. 任务拆分、本地优先、云端优先。
+- **OpenCode and Gemini MCP/Skills / OpenCode 与 Gemini 的 MCP 和 Skills** —— Same console as Codex and Claude Code. 和 Codex、Claude Code 同一套管理。
+
+### Improvements / 改进
+
+- **Virtual model is `muxlayer` / 虚拟模型叫 muxlayer** —— `agentgate` still works. 旧配置里的 `agentgate` 仍然认。
+- **Kimi config path / Kimi 写对目录** —— Writes `~/.kimi-code` and includes `max_context_size` so a session can start. 写到 `~/.kimi-code`，并补上上下文长度。
+- **Several keys / 多 Key** —— Shows "N keys · round-robin", no fake per-key quota. 显示「N 把 key · 轮转」，不编额度。
+- **`MUXLAYER_*` env vars / 环境变量** —— Preferred names; `AGENTGATE_*` still works; Docker writes both. 优先新名字，旧名字兼容，Docker 双写。
+- **Overview hit rate / 概览命中率** —— Cache hit rate is visible on the dashboard. 概览能看到缓存命中率。
+- **Lighter UI / 界面轻一点** —— SVG sidebar logo, slower gateway polling, command palette loads on open. 小 logo、轮询没那么勤、命令面板用时才加载。
+
 ## [2.0.3] - 2026-08-28
 
 ### Added / 新增

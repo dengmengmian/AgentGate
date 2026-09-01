@@ -28,11 +28,11 @@
 
 | Your machine | Download |
 |---|---|
-| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_aarch64.dmg) |
-| 🍎 macOS — Intel | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64.dmg) |
-| 🪟 Windows 10 / 11 | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_x64-setup.exe) |
-| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.deb) |
-| 🐧 Linux — other distros | [MuxLayer 2.0.3](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.3/MuxLayer_2.0.3_amd64.AppImage) |
+| 🍎 macOS — Apple Silicon (M1–M4) | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_aarch64.dmg) |
+| 🍎 macOS — Intel | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64.dmg) |
+| 🪟 Windows 10 / 11 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64-setup.exe) |
+| 🐧 Linux — Debian / Ubuntu | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.deb) |
+| 🐧 Linux — other distros | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.AppImage) |
 
 On macOS you can also install with Homebrew:
 
@@ -129,10 +129,10 @@ If you have a Copilot subscription (Pro / Business), Claude Code can run on the 
 | Mode | When it happens | Model handling | Typical case |
 |---|---|---|---|
 | **Protocol Conversion** | Client protocol differs from upstream protocol | Model Mapping wins; otherwise provider default model is used as a compatibility fallback | Codex Responses → DeepSeek / MiMo Chat |
-| **Native Pass-through** | Client protocol matches a native upstream endpoint | Request `model` is preserved unless a Model Mapping matches; the virtual `agentgate` model resolves to the model selected by routing | OpenCode / curl → Chat Completions |
+| **Native Pass-through** | Client protocol matches a native upstream endpoint | Request `model` is preserved unless a Model Mapping matches; the virtual `muxlayer` model (legacy `agentgate` still works) resolves to the model selected by routing | OpenCode / curl → Chat Completions |
 | **Pass-through + Model Mapping** | Protocol matches, but client model names differ from upstream names | Model Mapping rewrites `model` | Claude Code `claude-*` → DeepSeek / MiMo model |
 
-Rule of thumb: **protocol match decides pass-through vs conversion; Model Mapping only renames models.** For one-click client integrations, `agentgate` is a virtual model name that means "let MuxLayer pick the provider model for this request."
+Rule of thumb: **protocol match decides pass-through vs conversion; Model Mapping only renames models.** For one-click client integrations, `muxlayer` is a virtual model name that means "let MuxLayer pick the provider model for this request." Existing configs that still send `agentgate` keep working.
 
 ## Features
 
@@ -154,6 +154,7 @@ Rule of thumb: **protocol match decides pass-through vs conversion; Model Mappin
 - Dashboard: total/today/average cost cards, plus cost breakdown **by model, by client, and by route**, scoped to a time range (7/30 days)
 - Settings: inline price editing, custom price overrides
 - Multi-API-key per provider: round-robin rotation, auto-switch on 429
+- **Pricing rules:** catalog `models[].pricing` is the default (USD per 1M tokens). Settings custom rows override catalog for the same model. Lookup order: exact custom → exact catalog → strip `[1m]` qualifier → provider `*` wildcard → model name across providers (including `vendor/model` prefix strip). **`$0` in the dashboard is not free** unless that model has an explicit `0/0` price; a missing price is shown as “no price / set price”, and historical rows get cost filled on next launch after you add a price (`backfill_costs`). Local Ollama/LM Studio models are unlabeled, not treated as $0.
 
 **Smart Routing**
 - Task-level routing conditions: route by input size, images, tools, system keywords, and model-name match. The same conditions apply to Codex Responses, Chat Completions, Anthropic Messages, and Gemini.
@@ -411,7 +412,7 @@ Launch MuxLayer → **Providers** → **Add Provider**
 | **Models & Capabilities** | Default model · Reasoning model · `Fetch & detect` button · capability matrix toggle | On a freshly created provider, this is **auto-run in the background** — you get newest non-mini model as default + newest reasoning model + per-model capability matrix without clicking anything |
 | **Advanced** *(collapsed, "usually no need to touch")* | Protocols + their endpoints (Chat / Responses / Anthropic) · Extra Headers · Timeout · Auto cache control · Model Mapping | Each protocol you tick shows its own URL — one place to read "which native endpoints this upstream supports" |
 
-**Model Mapping** is at the bottom of Advanced for a reason: usually not needed. MuxLayer auto-fills recommended MiMo / DeepSeek mappings when you create the provider, fetch models, test the provider, or apply Codex / Claude Code config. Existing mappings are preserved. Native pass-through keeps `model` unchanged unless a mapping matches or the client sends the virtual `agentgate` model; protocol conversion uses mapping first, then falls back to `default_model` for compatibility with clients like Codex, Claude Code, and Gemini CLI.
+**Model Mapping** is at the bottom of Advanced for a reason: usually not needed. MuxLayer auto-fills recommended MiMo / DeepSeek mappings when you create the provider, fetch models, test the provider, or apply Codex / Claude Code config. Existing mappings are preserved. Native pass-through keeps `model` unchanged unless a mapping matches or the client sends the virtual `muxlayer` model (`agentgate` remains an alias); protocol conversion uses mapping first, then falls back to `default_model` for compatibility with clients like Codex, Claude Code, and Gemini CLI.
 
 **Provider configuration examples:**
 
@@ -564,7 +565,7 @@ Click **Switch to Official** to restore the original settings.json.
 
 **Clients** → **OpenCode** → **Apply Config**
 
-MuxLayer writes to `~/.config/opencode/opencode.json`, configuring an OpenAI-compatible provider pointing to the local gateway. It uses `openai/agentgate` as a virtual model so switching providers in MuxLayer does not require editing OpenCode again.
+MuxLayer writes to `~/.config/opencode/opencode.json`, configuring an OpenAI-compatible provider pointing to the local gateway. It uses `openai/muxlayer` as a virtual model so switching providers in MuxLayer does not require editing OpenCode again. Existing `openai/agentgate` configs still resolve.
 
 ### 6. Configure Gemini CLI
 
@@ -576,7 +577,7 @@ MuxLayer writes Gemini CLI's config to point at the local gateway's `/v1beta/...
 
 **Clients** → **AtomCode** → **Apply Config**
 
-AtomCode integration writes its config to use MuxLayer as the upstream — same toggle pattern as the others. It uses `agentgate` as a virtual model so the gateway can resolve DeepSeek / MiMo / other provider model names at request time.
+AtomCode integration writes its config to use MuxLayer as the upstream — same toggle pattern as the others. It uses `muxlayer` as a virtual model so the gateway can resolve DeepSeek / MiMo / other provider model names at request time. Existing `agentgate` model values still resolve.
 
 ### 8. Direct API Calls
 
@@ -810,7 +811,7 @@ When the client protocol differs from the downstream provider, MuxLayer converts
 
 ### Native Passthrough
 
-When the client protocol matches the downstream provider, MuxLayer does not convert the request format. It replaces the URL and credentials. Model handling follows one rule: Model Mapping wins; otherwise the request model is preserved. If the request model is `agentgate` or `openai/agentgate`, MuxLayer resolves it to the model selected by routing for that request. If the client omits `model`, MuxLayer uses the provider default.
+When the client protocol matches the downstream provider, MuxLayer does not convert the request format. It replaces the URL and credentials. Model handling follows one rule: Model Mapping wins; otherwise the request model is preserved. If the request model is `muxlayer`, `openai/muxlayer`, or the legacy `agentgate` / `openai/agentgate` aliases, MuxLayer resolves it to the model selected by routing for that request. If the client omits `model`, MuxLayer uses the provider default.
 
 ```
 ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
@@ -963,6 +964,9 @@ First check the gateway is up: `curl http://127.0.0.1:9090/health`. If it fails,
 
 **Which model does a request actually hit?**
 Open **Logs** — every request shows the client, route, resolved provider, model, status, and cost.
+
+**Why is today's cost $0?**
+Either no priced traffic yet, or the model has no row in Settings → pricing. Missing price is not free — the breakdown shows **Set price**. After you add a price, restart so historical rows with `cost IS NULL` are backfilled.
 
 ## Development
 

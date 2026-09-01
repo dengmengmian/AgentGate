@@ -9,6 +9,7 @@ import {
   resolveKnownProviderEndpoints,
   resolveProviderPresetForKey,
 } from "./providerPresets";
+import { GENERATED_PROVIDER_CATALOG } from "./generatedProviderCatalog";
 
 describe("MiMo provider endpoints", () => {
   it("uses token-plan hosts for tp keys", () => {
@@ -166,5 +167,38 @@ describe("isKnownMimoEndpointUrl", () => {
   it("returns false for null/undefined", () => {
     expect(isKnownMimoEndpointUrl(null)).toBe(false);
     expect(isKnownMimoEndpointUrl(undefined)).toBe(false);
+  });
+});
+
+describe("catalog main-model pricing", () => {
+  it("default and reasoning models listed in models[] have explicit pricing", () => {
+    const missing: string[] = [];
+    for (const provider of Object.values(GENERATED_PROVIDER_CATALOG)) {
+      const byId = new Map(
+        (provider.models ?? []).map((m: { id: string; pricing?: unknown }) => [
+          m.id,
+          m,
+        ])
+      );
+      for (const [role, id] of [
+        ["defaultModel", provider.defaultModel],
+        ["reasoningModel", provider.reasoningModel],
+      ] as const) {
+        if (!id) continue;
+        const model = byId.get(id) as
+          | {
+              pricing?: { inputPerMillion?: number; outputPerMillion?: number };
+            }
+          | undefined;
+        if (!model) continue;
+        if (
+          model.pricing?.inputPerMillion == null ||
+          model.pricing?.outputPerMillion == null
+        ) {
+          missing.push(`${provider.type} ${role}=${id}`);
+        }
+      }
+    }
+    expect(missing).toEqual([]);
   });
 });
