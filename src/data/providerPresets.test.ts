@@ -174,15 +174,19 @@ describe("catalog main-model pricing", () => {
   it("default and reasoning models listed in models[] have explicit pricing", () => {
     const missing: string[] = [];
     for (const provider of Object.values(GENERATED_PROVIDER_CATALOG)) {
-      const byId = new Map(
-        (provider.models ?? []).map((m: { id: string; pricing?: unknown }) => [
-          m.id,
-          m,
-        ])
-      );
+      const rec = provider as unknown as {
+        type: string;
+        defaultModel?: string;
+        reasoningModel?: string;
+        models?: readonly {
+          id: string;
+          pricing?: { inputPerMillion?: number; outputPerMillion?: number };
+        }[];
+      };
+      const byId = new Map((rec.models ?? []).map((m) => [m.id, m]));
       for (const [role, id] of [
-        ["defaultModel", provider.defaultModel],
-        ["reasoningModel", provider.reasoningModel],
+        ["defaultModel", rec.defaultModel],
+        ["reasoningModel", rec.reasoningModel],
       ] as const) {
         if (!id) continue;
         const model = byId.get(id) as
@@ -195,7 +199,7 @@ describe("catalog main-model pricing", () => {
           model.pricing?.inputPerMillion == null ||
           model.pricing?.outputPerMillion == null
         ) {
-          missing.push(`${provider.type} ${role}=${id}`);
+          missing.push(`${rec.type} ${role}=${id}`);
         }
       }
     }

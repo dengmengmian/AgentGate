@@ -647,7 +647,9 @@ mod tests {
     fn bad_source_rejected() {
         with_temp_home(|| {
             assert_eq!(
-                set_skill_enabled("gemini", "x", false).unwrap_err().code,
+                set_skill_enabled("not-a-client", "x", false)
+                    .unwrap_err()
+                    .code,
                 "SKILL_BAD_SOURCE"
             );
         });
@@ -803,7 +805,9 @@ mod tests {
         with_temp_home(|| {
             let zip = build_zip(&[("SKILL.md", "---\nname: X\n---\n")]);
             assert_eq!(
-                import_skill_from_zip("gemini", &zip).unwrap_err().code,
+                import_skill_from_zip("not-a-client", &zip)
+                    .unwrap_err()
+                    .code,
                 "SKILL_BAD_SOURCE"
             );
         });

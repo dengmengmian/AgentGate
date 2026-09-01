@@ -280,7 +280,7 @@ mod tests {
         let v: u32 = conn
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(v, 11);
+        assert_eq!(v, 12);
         let ok = conn
             .prepare(
                 "SELECT cost_budget_enabled, cost_budget_strategy, auto_compact_enabled, auto_compact_usage_percent FROM gateway_settings LIMIT 0",
