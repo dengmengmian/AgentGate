@@ -386,10 +386,7 @@ mod tests {
 
     #[test]
     fn kill_check_allows_pid_in_live_list() {
-        assert_eq!(
-            kill_check(4242, &[live(4242, "dsh")]),
-            KillCheck::Ok
-        );
+        assert_eq!(kill_check(4242, &[live(4242, "dsh")]), KillCheck::Ok);
     }
 
     #[test]

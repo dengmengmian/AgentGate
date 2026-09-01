@@ -45,7 +45,11 @@ type Filter =
 
 const clients = [
   { id: "codex", label: "Codex", logo: "codex" as ClientLogoId },
-  { id: "claude_code", label: "Claude Code", logo: "claude_code" as ClientLogoId },
+  {
+    id: "claude_code",
+    label: "Claude Code",
+    logo: "claude_code" as ClientLogoId,
+  },
   { id: "gemini", label: "Gemini CLI", logo: "gemini_cli" as ClientLogoId },
   { id: "opencode", label: "OpenCode", logo: "opencode" as ClientLogoId },
 ];

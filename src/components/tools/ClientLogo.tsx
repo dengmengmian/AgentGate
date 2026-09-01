@@ -29,13 +29,7 @@ const LABELS: Record<ClientLogoId, string> = {
   deepseek_harness: "DeepSeek Harness",
 };
 
-function Tile({
-  fill,
-  children,
-}: {
-  fill: string;
-  children: ReactNode;
-}) {
+function Tile({ fill, children }: { fill: string; children: ReactNode }) {
   return (
     <>
       <rect
@@ -186,8 +180,22 @@ function KimiMark() {
 function GrokMark() {
   return (
     <Tile fill="#000000">
-      <circle cx="12" cy="12" r="7.2" fill="none" stroke="#F5F5F5" strokeWidth="1.6" />
-      <circle cx="12" cy="12" r="3.6" fill="none" stroke="#F5F5F5" strokeWidth="1.4" />
+      <circle
+        cx="12"
+        cy="12"
+        r="7.2"
+        fill="none"
+        stroke="#F5F5F5"
+        strokeWidth="1.6"
+      />
+      <circle
+        cx="12"
+        cy="12"
+        r="3.6"
+        fill="none"
+        stroke="#F5F5F5"
+        strokeWidth="1.4"
+      />
       <circle cx="13.4" cy="11" r="1.5" fill="#F5F5F5" />
     </Tile>
   );

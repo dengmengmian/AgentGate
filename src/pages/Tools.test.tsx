@@ -85,12 +85,16 @@ describe("Tools", () => {
     expect(screen.getAllByText("tools.clients").length).toBeGreaterThan(0);
     expect(screen.getByText("tools.console")).toBeInTheDocument();
     expect(screen.getByText("tools.connection_path")).toBeInTheDocument();
-    expect(screen.getAllByTestId("client-logo-codex").length).toBeGreaterThan(0);
-    expect(screen.getByTestId("client-logo-claude_code")).toBeInTheDocument();
-    expect(screen.getByTestId("client-logo-deepseek_harness")).toBeInTheDocument();
-    expect(screen.getAllByRole("img", { name: "Codex" }).length).toBeGreaterThan(
+    expect(screen.getAllByTestId("client-logo-codex").length).toBeGreaterThan(
       0
     );
+    expect(screen.getByTestId("client-logo-claude_code")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("client-logo-deepseek_harness")
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("img", { name: "Codex" }).length
+    ).toBeGreaterThan(0);
     expect(screen.getByRole("img", { name: "Kimi CLI" })).toBeInTheDocument();
   });
 

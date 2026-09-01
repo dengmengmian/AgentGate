@@ -1,9 +1,4 @@
-import {
-  FolderOpen,
-  Zap,
-  ToggleLeft,
-  ToggleRight,
-} from "lucide-react";
+import { FolderOpen, Zap, ToggleLeft, ToggleRight } from "lucide-react";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { ClientHistoryButton } from "@/components/tools/ClientHistoryButton";
 import * as api from "@/lib/api";
