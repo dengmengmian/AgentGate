@@ -16,19 +16,22 @@ import * as api from "@/lib/api";
 import type { Skill } from "@/lib/api";
 
 type TransferMode = "export" | "import" | null;
-type Filter = "all" | "claude" | "codex";
 
 const SOURCES = [
   { id: "claude", label: "Claude Code" },
   { id: "codex", label: "Codex" },
-];
+  { id: "opencode", label: "OpenCode" },
+  { id: "gemini", label: "Gemini CLI" },
+] as const;
+
+type Filter = "all" | (typeof SOURCES)[number]["id"];
 
 const skillKey = (s: Skill) => `${s.source}:${s.id}`;
 const sourceLabel = (source: string) =>
   SOURCES.find((s) => s.id === source)?.label ?? source;
 
-/// 本地 Skills 管理页。来源 ~/.claude/skills 与 ~/.codex/skills：启用/禁用靠重命名
-/// manifest，导入支持本地 .zip（不碰网络），备份走 JSON 导出/导入。
+/// 本地 Skills 管理页。来源 Claude Code / Codex / OpenCode / Gemini CLI 的 skills
+/// 目录：启用/禁用靠重命名 manifest，导入支持本地 .zip（不碰网络），备份走 JSON。
 export function Skills() {
   const { t } = useI18n();
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -53,14 +56,13 @@ export function Skills() {
 
   useEffect(() => load(), []);
 
-  const counts = useMemo(
-    () => ({
-      all: skills.length,
-      claude: skills.filter((s) => s.source === "claude").length,
-      codex: skills.filter((s) => s.source === "codex").length,
-    }),
-    [skills]
-  );
+  const counts = useMemo(() => {
+    const next: Record<string, number> = { all: skills.length };
+    for (const source of SOURCES) {
+      next[source.id] = skills.filter((s) => s.source === source.id).length;
+    }
+    return next;
+  }, [skills]);
 
   const visibleSkills = useMemo(
     () =>
@@ -273,25 +275,22 @@ export function Skills() {
               </p>
             </div>
           </div>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="flex flex-wrap items-center gap-1.5">
             <FilterButton
               active={filter === "all"}
               label={t("nav.skills")}
               count={counts.all}
               onClick={() => setFilter("all")}
             />
-            <FilterButton
-              active={filter === "claude"}
-              label="Claude Code"
-              count={counts.claude}
-              onClick={() => setFilter("claude")}
-            />
-            <FilterButton
-              active={filter === "codex"}
-              label="Codex"
-              count={counts.codex}
-              onClick={() => setFilter("codex")}
-            />
+            {SOURCES.map((source) => (
+              <FilterButton
+                key={source.id}
+                active={filter === source.id}
+                label={source.label}
+                count={counts[source.id] ?? 0}
+                onClick={() => setFilter(source.id)}
+              />
+            ))}
           </div>
         </section>
       )}

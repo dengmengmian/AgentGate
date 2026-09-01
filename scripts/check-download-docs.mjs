@@ -3,7 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const packageJson = JSON.parse(
-  fs.readFileSync(path.join(root, "package.json"), "utf8"),
+  fs.readFileSync(path.join(root, "package.json"), "utf8")
 );
 
 const downloadDocs = [
@@ -15,10 +15,8 @@ const downloadDocs = [
 
 const websiteDocs = ["site/index.html", "site/zh/index.html"];
 const currentSurfaceDocs = [...downloadDocs, ...websiteDocs];
-const primaryBrewCommand =
-  "brew install --cask dengmengmian/tap/muxlayer";
-const legacyBrewCommand =
-  "brew install --cask dengmengmian/tap/agentgate";
+const primaryBrewCommand = "brew install --cask dengmengmian/tap/muxlayer";
+const legacyBrewCommand = "brew install --cask dengmengmian/tap/agentgate";
 
 let failed = false;
 
@@ -26,7 +24,7 @@ for (const file of downloadDocs) {
   const content = fs.readFileSync(path.join(root, file), "utf8");
   const releaseVersions = [
     ...content.matchAll(
-      /github\.com\/dengmengmian\/muxlayer\/releases\/download\/v([0-9]+\.[0-9]+\.[0-9]+)/g,
+      /github\.com\/dengmengmian\/muxlayer\/releases\/download\/v([0-9]+\.[0-9]+\.[0-9]+)/g
     ),
   ].map((match) => match[1]);
   const assetVersions = [
@@ -44,7 +42,7 @@ for (const file of downloadDocs) {
   ) {
     failed = true;
     console.error(
-      `${file} download reference mismatch: expected MuxLayer ${packageJson.version}, found ${[...versions].join(", ") || "none"}${legacyAssetRefs.length > 0 ? "; legacy AgentGate asset reference found" : ""}`,
+      `${file} download reference mismatch: expected MuxLayer ${packageJson.version}, found ${[...versions].join(", ") || "none"}${legacyAssetRefs.length > 0 ? "; legacy AgentGate asset reference found" : ""}`
     );
   }
 
@@ -54,7 +52,7 @@ for (const file of downloadDocs) {
   ) {
     failed = true;
     console.error(
-      `${file} Homebrew command mismatch: MuxLayer must be the primary cask`,
+      `${file} Homebrew command mismatch: MuxLayer must be the primary cask`
     );
   }
 }
@@ -66,7 +64,7 @@ const providerCount = fs
 if (providerCount < 25) {
   failed = true;
   console.error(
-    `Provider marketing claim requires at least 25 catalog providers, found ${providerCount}`,
+    `Provider marketing claim requires at least 25 catalog providers, found ${providerCount}`
   );
 }
 
@@ -83,7 +81,7 @@ const staleProviderClaims = [
 for (const file of currentSurfaceDocs) {
   const content = fs.readFileSync(path.join(root, file), "utf8");
   const staleClaim = staleProviderClaims.find((pattern) =>
-    pattern.test(content),
+    pattern.test(content)
   );
   if (staleClaim) {
     failed = true;
@@ -156,9 +154,44 @@ for (const { file, required } of caskChecks) {
   }
 }
 
+function walkHtml(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...walkHtml(full));
+    else if (entry.name.endsWith(".html")) out.push(full);
+  }
+  return out;
+}
+
+const staleVirtualModel = [
+  /<code>agentgate<\/code>\s*virtual model/i,
+  /<code>openai\/agentgate<\/code>\s*virtual model/i,
+  /<code>agentgate<\/code>\s*虚拟模型/,
+  /<code>openai\/agentgate<\/code>\s*虚拟模型/,
+];
+
+for (const file of walkHtml(path.join(root, "site"))) {
+  const rel = path.relative(root, file);
+  if (
+    rel.includes("with-agentgate") ||
+    rel.includes("agentgate-vs-") ||
+    rel.includes(`${path.sep}agentgate-`)
+  ) {
+    continue;
+  }
+  const content = fs.readFileSync(file, "utf8");
+  if (staleVirtualModel.some((pattern) => pattern.test(content))) {
+    failed = true;
+    console.error(
+      `${rel} still presents agentgate as the virtual model; use muxlayer (agentgate remains an alias)`
+    );
+  }
+}
+
 const releaseWorkflow = fs.readFileSync(
   path.join(root, ".github", "workflows", "release.yml"),
-  "utf8",
+  "utf8"
 );
 for (const cask of ["tap/Casks/muxlayer.rb", "tap/Casks/agentgate.rb"]) {
   if (!releaseWorkflow.includes(cask)) {

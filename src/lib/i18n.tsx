@@ -1035,12 +1035,12 @@ const translations: Record<string, Record<Locale, string>> = {
   },
   "skills.title": { en: "Skills", zh: "本地技能" },
   "skills.subtitle": {
-    en: "Manage local Claude Code skills under ~/.claude/skills. Toggle, import or back up.",
-    zh: "管理 ~/.claude/skills 下的本地技能：启用/禁用、导入、备份。",
+    en: "Manage local skills for Claude Code, Codex, OpenCode, and Gemini CLI. Toggle, import or back up.",
+    zh: "管理 Claude Code、Codex、OpenCode、Gemini CLI 的本地技能：启用/禁用、导入、备份。",
   },
   "skills.empty": {
-    en: "No skills found. Drop a skill folder into ~/.claude/skills or import a .zip.",
-    zh: "没有检测到技能。把技能目录放进 ~/.claude/skills，或导入 .zip。",
+    en: "No skills found. Put a skill folder in ~/.claude/skills, ~/.codex/skills, ~/.config/opencode/skills, or ~/.gemini/skills, or import a .zip.",
+    zh: "没有检测到技能。把技能目录放进 ~/.claude/skills、~/.codex/skills、~/.config/opencode/skills 或 ~/.gemini/skills，或导入 .zip。",
   },
   "skills.enabled": { en: "Enabled", zh: "已启用" },
   "skills.disabled": { en: "Disabled", zh: "已禁用" },

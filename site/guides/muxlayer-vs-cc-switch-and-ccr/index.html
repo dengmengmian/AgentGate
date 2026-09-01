@@ -3,23 +3,23 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Local AI gateway for model routing, tracing, and failover | MuxLayer</title>
-    <meta name="description" content="MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
-    <meta name="keywords" content="local AI gateway, AI model gateway, local LLM proxy, OpenAI compatible gateway, Anthropic gateway" />
+    <title>MuxLayer vs cc-switch vs CCR | MuxLayer</title>
+    <meta name="description" content="cc-switch switches client configs. CCR is a multi-agent control plane. MuxLayer is a local protocol gateway with routing, logs, and one-click apply/rollback." />
+    <meta name="keywords" content="MuxLayer vs cc-switch, MuxLayer vs CCR, Claude Code Router alternative, local AI gateway comparison" />
     <meta name="author" content="dengmengmian" />
-    <link rel="canonical" href="https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/" />
-    <link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/" />
-    <link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/muxlayer/zh/guides/local-ai-gateway/" />
-    <link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/" />
+    <link rel="canonical" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/" />
+    <link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/muxlayer/zh/guides/muxlayer-vs-cc-switch-and-ccr/" />
+    <link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="MuxLayer" />
-    <meta property="og:url" content="https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/" />
-    <meta property="og:title" content="Local AI gateway for model routing, tracing, and failover" />
-    <meta property="og:description" content="MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
+    <meta property="og:url" content="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/" />
+    <meta property="og:title" content="MuxLayer vs cc-switch vs CCR" />
+    <meta property="og:description" content="cc-switch switches client configs. CCR is a multi-agent control plane. MuxLayer is a local protocol gateway with routing, logs, and one-click apply/rollback." />
     <meta property="og:image" content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Local AI gateway for model routing, tracing, and failover" />
-    <meta name="twitter:description" content="MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible." />
+    <meta name="twitter:title" content="MuxLayer vs cc-switch vs CCR" />
+    <meta name="twitter:description" content="cc-switch switches client configs. CCR is a multi-agent control plane. MuxLayer is a local protocol gateway with routing, logs, and one-click apply/rollback." />
     <meta name="twitter:image" content="https://dengmengmian.github.io/muxlayer/assets/demo-header.gif" />
     <link rel="icon" type="image/svg+xml" href="../../assets/logo.svg?v=2" />
     <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png" />
@@ -27,8 +27,8 @@
     <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "Article",
-  "headline": "Local AI gateway for model routing, tracing, and failover",
-  "description": "MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible.",
+  "headline": "MuxLayer vs cc-switch vs CCR",
+  "description": "cc-switch switches client configs. CCR is a multi-agent control plane. MuxLayer is a local protocol gateway with routing, logs, and one-click apply/rollback.",
   "datePublished": "2026-06-16",
   "dateModified": "2026-07-03",
   "author": {
@@ -42,7 +42,7 @@
     "url": "https://dengmengmian.github.io/muxlayer",
     "logo": "https://dengmengmian.github.io/muxlayer/assets/logo.svg"
   },
-  "mainEntityOfPage": "https://dengmengmian.github.io/muxlayer/guides/local-ai-gateway/"
+  "mainEntityOfPage": "https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/"
 }</script>
     <script type="application/ld+json">{
   "@context": "https://schema.org",
@@ -50,18 +50,18 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is MuxLayer only for coding tools?",
+      "name": "Can MuxLayer replace cc-switch?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. It works best with supported clients today, but the goal is broader AI app request routing."
+        "text": "Only the part where you point a client at a local gateway. It does not sync every client format cc-switch knows."
       }
     },
     {
       "@type": "Question",
-      "name": "Does MuxLayer sell API keys?",
+      "name": "Can MuxLayer replace CCR?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. You bring your own provider keys and run the gateway locally."
+        "text": "No. CCR is a multi-agent control plane. MuxLayer routes model HTTP and keeps traces."
       }
     }
   ]
@@ -83,7 +83,7 @@
           <a href="https://github.com/dengmengmian/muxlayer/releases/latest" class="hover:text-ink">download <span class="text-faint">↗</span></a>
           <a href="https://github.com/dengmengmian/muxlayer" class="hover:text-ink">github <span class="text-faint">↗</span></a>
           <span class="text-faint">·</span>
-          <a href="../../zh/guides/local-ai-gateway/" class="hover:text-ink">中文</a>
+          <a href="../../zh/guides/muxlayer-vs-cc-switch-and-ccr/" class="hover:text-ink">中文</a>
         </nav>
       </div>
     </header>
@@ -92,13 +92,13 @@
       <section class="relative overflow-hidden border-b border-border-soft">
         <div class="absolute inset-0 grid-bg opacity-50"></div>
         <div class="relative mx-auto max-w-4xl px-6 pt-20 pb-16">
-          <div class="prompt text-sm text-ink-soft">muxlayer guides/local-ai-gateway</div>
-          <p class="mt-6 text-xs uppercase tracking-wider text-amber">Local AI gateway</p>
-          <h1 class="h-display mt-5 text-ink">A local AI gateway for model requests.</h1>
-          <p class="mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">MuxLayer sits on your machine and gives AI apps one local entry for provider routing, protocol conversion, tracing, and rollback.</p>
+          <div class="prompt text-sm text-ink-soft">muxlayer guides/muxlayer-vs-cc-switch-and-ccr</div>
+          <p class="mt-6 text-xs uppercase tracking-wider text-amber">MuxLayer vs cc-switch / CCR</p>
+          <h1 class="h-display mt-5 text-ink">Not a config switcher. Not a multi-agent console.</h1>
+          <p class="mt-8 max-w-2xl text-base leading-relaxed text-ink-soft">Use cc-switch if you only need to swap API endpoints across many clients. Use CCR if you want a control plane for many agents. Use MuxLayer if the client stays pointed at one local gateway and you need protocol conversion, failover, cost, and request traces.</p>
           <div class="mt-8 max-w-2xl border-l-2 border-amber/50 pl-4">
             <div class="text-xs uppercase tracking-wider text-amber">direct answer</div>
-            <p class="mt-3 text-base leading-relaxed text-ink">Short answer: MuxLayer sits on your machine and gives AI apps one local entry for provider routing, protocol conversion, tracing, and rollback.</p>
+            <p class="mt-3 text-base leading-relaxed text-ink">Short answer: Use cc-switch if you only need to swap API endpoints across many clients. Use CCR if you want a control plane for many agents. Use MuxLayer if the client stays pointed at one local gateway and you need protocol conversion, failover, cost, and request traces.</p>
           </div>
           <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
             <a href="https://github.com/dengmengmian/muxlayer/releases/latest" class="inline-flex items-center gap-2 rounded border border-amber bg-amber/10 px-4 py-2 font-medium text-amber transition-colors hover:bg-amber hover:text-bg">
@@ -116,36 +116,36 @@
             <section class="frame rounded p-6">
               <h2 class="text-xl font-medium text-ink">Best fit</h2>
               <ul class="mt-4 list-disc space-y-2 pl-5">
-                <li class="leading-relaxed text-ink-soft">You want AI apps to keep one stable local endpoint.</li>
-<li class="leading-relaxed text-ink-soft">You need provider switching, request logs, cost visibility, or failover.</li>
-<li class="leading-relaxed text-ink-soft">You want client config changes to be reversible.</li>
+                <li class="leading-relaxed text-ink-soft">You need to decide where MuxLayer fits compared with another option.</li>
+<li class="leading-relaxed text-ink-soft">You are choosing between local AI app routing, hosted routing, or direct provider config.</li>
+<li class="leading-relaxed text-ink-soft">You want clear trade-offs instead of a feature list.</li>
               </ul>
             </section>
             <section class="frame rounded p-6">
               <h2 class="text-xl font-medium text-ink">Not ideal</h2>
               <ul class="mt-4 list-disc space-y-2 pl-5">
-                <li class="leading-relaxed text-ink-soft">You use one client, one provider, and the setup rarely changes.</li>
-<li class="leading-relaxed text-ink-soft">You do not need logs, failover, cost tracking, or config rollback.</li>
+                <li class="leading-relaxed text-ink-soft">You already know which tool you will use and only need API reference.</li>
+<li class="leading-relaxed text-ink-soft">You do not need local client workflow or provider-routing trade-offs.</li>
               </ul>
             </section>
             <section class="frame rounded p-6">
-              <h2 class="text-xl font-medium text-ink">What a local AI gateway does</h2>
-              <p class="mt-4 leading-relaxed text-ink-soft">It gives your AI apps a stable local endpoint, then decides which upstream provider and model should handle each request.</p>
+              <h2 class="text-xl font-medium text-ink">What each one is</h2>
+              <p class="mt-4 leading-relaxed text-ink-soft">cc-switch writes provider settings into client config files and switches among them. CCR (Claude Code Router and similar) sits in front of coding agents as a multi-agent / routing control plane. MuxLayer is a local HTTP gateway: Chat Completions, Anthropic Messages, Responses, and Gemini enter one process; mapping, failover, budget, cache, and logs happen there.</p>
             </section>
 <section class="frame rounded p-6">
-              <h2 class="text-xl font-medium text-ink">Why MuxLayer</h2>
-              <p class="mt-4 leading-relaxed text-ink-soft">MuxLayer focuses on client compatibility, local logs, provider failover, multi-key rotation, and reversible config changes instead of hiding everything behind a hosted service.</p>
+              <h2 class="text-xl font-medium text-ink">Choose MuxLayer when</h2>
+              <p class="mt-4 leading-relaxed text-ink-soft">You want Codex, Claude Code, Gemini CLI, OpenCode, Kimi CLI, Grok Build, or DeepSeek Harness to keep one stable local endpoint. Provider changes, model mapping, task-split routes, and debugging stay in MuxLayer. Apply/rollback is included, but the product is the gateway, not the config editor.</p>
             </section>
 <section class="frame rounded p-6">
-              <h2 class="text-xl font-medium text-ink">Who it is for</h2>
-              <p class="mt-4 leading-relaxed text-ink-soft">Use it when you run multiple AI clients, compare providers, need request history, or want a safer way to switch model backends without breaking client workflows.</p>
+              <h2 class="text-xl font-medium text-ink">Choose the others when</h2>
+              <p class="mt-4 leading-relaxed text-ink-soft">cc-switch is enough if you never need a proxy: just rewrite client files and restart. CCR is a better fit if your problem is orchestrating many agents, not converting protocols or inspecting token cost. MuxLayer does not try to copy their client count or agent marketplace.</p>
             </section>
           </article>
 
           <aside class="space-y-4 text-sm">
             <div class="frame rounded p-5">
               <div class="text-xs uppercase tracking-wider text-amber">search intent</div>
-              <p class="mt-3 text-ink-soft">MuxLayer is a local AI gateway for model requests from AI apps and clients. Route providers, trace requests, fail over, and keep configs reversible.</p>
+              <p class="mt-3 text-ink-soft">cc-switch switches client configs. CCR is a multi-agent control plane. MuxLayer is a local protocol gateway with routing, logs, and one-click apply/rollback.</p>
             </div>
             <div class="frame rounded p-5">
               <div class="text-xs uppercase tracking-wider text-amber">quick links</div>
@@ -165,12 +165,12 @@
           <h2 class="h-section mt-4">FAQ.</h2>
           <div class="mt-10 space-y-4">
             <details class="frame rounded p-5">
-              <summary class="cursor-pointer text-ink">Is MuxLayer only for coding tools?</summary>
-              <p class="mt-3 leading-relaxed text-ink-soft">No. It works best with supported clients today, but the goal is broader AI app request routing.</p>
+              <summary class="cursor-pointer text-ink">Can MuxLayer replace cc-switch?</summary>
+              <p class="mt-3 leading-relaxed text-ink-soft">Only the part where you point a client at a local gateway. It does not sync every client format cc-switch knows.</p>
             </details>
 <details class="frame rounded p-5">
-              <summary class="cursor-pointer text-ink">Does MuxLayer sell API keys?</summary>
-              <p class="mt-3 leading-relaxed text-ink-soft">No. You bring your own provider keys and run the gateway locally.</p>
+              <summary class="cursor-pointer text-ink">Can MuxLayer replace CCR?</summary>
+              <p class="mt-3 leading-relaxed text-ink-soft">No. CCR is a multi-agent control plane. MuxLayer routes model HTTP and keeps traces.</p>
             </details>
           </div>
         </div>
@@ -181,10 +181,10 @@
           <div class="prompt text-sm text-ink-soft">muxlayer --related</div>
           <h2 class="mt-4 text-xl font-medium">Keep reading.</h2>
           <div class="mt-8 space-y-3 text-sm">
-            <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../muxlayer-vs-litellm/">MuxLayer vs LiteLLM <span class="text-faint">— MuxLayer vs LiteLLM: local desktop gateway or API proxy</span></a>
-<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../muxlayer-vs-cc-switch-and-ccr/">MuxLayer vs cc-switch / CCR <span class="text-faint">— MuxLayer vs cc-switch vs CCR</span></a>
-<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../muxlayer-vs-openrouter/">MuxLayer vs OpenRouter <span class="text-faint">— MuxLayer vs OpenRouter: local gateway or hosted model router</span></a>
+            <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../muxlayer-vs-openrouter/">MuxLayer vs OpenRouter <span class="text-faint">— MuxLayer vs OpenRouter: local gateway or hosted model router</span></a>
 <a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../muxlayer-vs-direct-provider-config/">Gateway vs direct config <span class="text-faint">— MuxLayer vs direct provider config for AI apps</span></a>
+<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../use-codex-with-deepseek/">Codex + DeepSeek <span class="text-faint">— Use Codex with DeepSeek</span></a>
+<a class="hover-prompt block py-1 text-ink-soft hover:text-ink" href="../use-claude-code-with-deepseek/">Claude Code + DeepSeek <span class="text-faint">— Use Claude Code with DeepSeek</span></a>
           </div>
         </div>
       </section>

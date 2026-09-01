@@ -519,7 +519,7 @@ const docPages = [
   {
     slug: "use-codex-with-deepseek",
     published: "2026-06-13",
-    lastmod: "2026-06-13",
+    lastmod: "2026-09-01",
     en: {
       eyebrow: "Codex + DeepSeek",
       navTitle: "Use Codex with DeepSeek",
@@ -540,7 +540,7 @@ const docPages = [
   {
     slug: "use-claude-code-with-deepseek",
     published: "2026-06-13",
-    lastmod: "2026-06-16",
+    lastmod: "2026-09-01",
     en: {
       eyebrow: "Claude Code + DeepSeek",
       navTitle: "Use Claude Code with DeepSeek",
@@ -561,7 +561,7 @@ const docPages = [
   {
     slug: "use-codex-with-mimo",
     published: "2026-06-13",
-    lastmod: "2026-06-13",
+    lastmod: "2026-09-01",
     en: {
       eyebrow: "Codex + MiMo",
       navTitle: "Use Codex with Xiaomi MiMo",
@@ -603,7 +603,7 @@ const docPages = [
   {
     slug: "use-gemini-cli-with-muxlayer",
     published: "2026-06-13",
-    lastmod: "2026-06-13",
+    lastmod: "2026-09-01",
     en: {
       eyebrow: "Gemini CLI",
       navTitle: "Use Gemini CLI with MuxLayer",
@@ -624,7 +624,7 @@ const docPages = [
   {
     slug: "use-opencode-with-muxlayer",
     published: "2026-06-13",
-    lastmod: "2026-06-13",
+    lastmod: "2026-09-01",
     en: {
       eyebrow: "OpenCode",
       navTitle: "Use OpenCode with MuxLayer",

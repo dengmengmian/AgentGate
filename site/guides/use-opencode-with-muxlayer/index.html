@@ -30,7 +30,7 @@
   "headline": "Use OpenCode with MuxLayer",
   "description": "Point OpenCode at a local MuxLayer endpoint and switch providers freely, with model mapping, failover, diagnostics, request tracing, and cost tracking.",
   "datePublished": "2026-06-13",
-  "dateModified": "2026-06-13",
+  "dateModified": "2026-09-01",
   "author": {
     "@type": "Person",
     "name": "dengmengmian",
@@ -91,7 +91,7 @@
 <p>Use this guide if you want:</p>
 <ul>
 <li>OpenCode to switch between DeepSeek, MiMo, OpenAI, Kimi, GLM, DashScope, or another provider from one local UI.</li>
-<li>The <code>agentgate</code> virtual model to resolve to the currently selected route model.</li>
+<li>The <code>muxlayer</code> virtual model (<code>agentgate</code> still works) to resolve to the currently selected route model.</li>
 <li>OpenCode requests to appear in the same request logs and cost dashboard as Codex and Claude Code.</li>
 <li>One-click restore if you want to go back to the previous OpenCode config.</li>
 </ul>
@@ -119,7 +119,7 @@
 <td>Chat-compatible upstream</td>
 </tr>
 <tr>
-<td><code>openai/agentgate</code> virtual model</td>
+<td><code>openai/muxlayer</code> virtual model (<code>openai/agentgate</code> still works)</td>
 <td>Route-selected real model</td>
 <td>Provider-specific model ID</td>
 </tr>
@@ -151,7 +151,7 @@
 </tr>
 <tr>
 <td>You changed providers but OpenCode still sends an old model name</td>
-<td>Use the <code>agentgate</code> virtual model path rather than hardcoding a provider model.</td>
+<td>Use the <code>muxlayer</code> virtual model path rather than hardcoding a provider model.</td>
 </tr>
 </tbody></table>
 <h2>Related</h2>

@@ -21,7 +21,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/guides/use-codex-with-deepseek/</loc>
-    <lastmod>2026-06-13</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-codex-with-deepseek/" />
@@ -30,7 +30,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-deepseek/</loc>
-    <lastmod>2026-06-13</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-codex-with-deepseek/" />
@@ -39,7 +39,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/guides/use-claude-code-with-deepseek/</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-claude-code-with-deepseek/" />
@@ -48,7 +48,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/zh/guides/use-claude-code-with-deepseek/</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-claude-code-with-deepseek/" />
@@ -57,7 +57,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/guides/use-codex-with-mimo/</loc>
-    <lastmod>2026-06-13</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-codex-with-mimo/" />
@@ -66,7 +66,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/zh/guides/use-codex-with-mimo/</loc>
-    <lastmod>2026-06-13</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-codex-with-mimo/" />
@@ -93,7 +93,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/guides/use-gemini-cli-with-muxlayer/</loc>
-    <lastmod>2026-06-13</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-gemini-cli-with-muxlayer/" />
@@ -102,7 +102,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/zh/guides/use-gemini-cli-with-muxlayer/</loc>
-    <lastmod>2026-06-13</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-gemini-cli-with-muxlayer/" />
@@ -111,7 +111,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-muxlayer/</loc>
-    <lastmod>2026-06-13</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-muxlayer/" />
@@ -120,7 +120,7 @@
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/zh/guides/use-opencode-with-muxlayer/</loc>
-    <lastmod>2026-06-13</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/use-opencode-with-muxlayer/" />
@@ -234,6 +234,24 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-litellm/" />
     <xhtml:link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/muxlayer/zh/guides/muxlayer-vs-litellm/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-litellm/" />
+  </url>
+  <url>
+    <loc>https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/muxlayer/zh/guides/muxlayer-vs-cc-switch-and-ccr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/" />
+  </url>
+  <url>
+    <loc>https://dengmengmian.github.io/muxlayer/zh/guides/muxlayer-vs-cc-switch-and-ccr/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://dengmengmian.github.io/muxlayer/zh/guides/muxlayer-vs-cc-switch-and-ccr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-cc-switch-and-ccr/" />
   </url>
   <url>
     <loc>https://dengmengmian.github.io/muxlayer/guides/muxlayer-vs-openrouter/</loc>

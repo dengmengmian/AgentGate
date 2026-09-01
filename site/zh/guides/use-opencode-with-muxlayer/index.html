@@ -30,7 +30,7 @@
   "headline": "让 OpenCode 通过 MuxLayer 切换多供应商模型",
   "description": "让 OpenCode 指向 MuxLayer 本地入口，自由切换 Provider，含模型映射、故障转移、诊断、请求追踪和成本统计。",
   "datePublished": "2026-06-13",
-  "dateModified": "2026-06-13",
+  "dateModified": "2026-09-01",
   "author": {
     "@type": "Person",
     "name": "dengmengmian",
@@ -91,7 +91,7 @@
 <p>如果你想：</p>
 <ul>
 <li>在一个本地 UI 里让 OpenCode 在 DeepSeek、MiMo、OpenAI、Kimi、GLM、DashScope 等 Provider 之间切换。</li>
-<li>让 <code>agentgate</code> 虚拟模型解析成当前路由选中的真实模型。</li>
+<li>让 <code>muxlayer</code> 虚拟模型（仍兼容 <code>agentgate</code>）解析成当前路由选中的真实模型。</li>
 <li>让 OpenCode 的请求和 Codex、Claude Code 出现在同一份请求日志和成本看板里。</li>
 <li>想回到上一版 OpenCode 配置时能一键还原。</li>
 </ul>
@@ -119,7 +119,7 @@
 <td>Chat 兼容上游</td>
 </tr>
 <tr>
-<td><code>openai/agentgate</code> 虚拟模型</td>
+<td><code>openai/muxlayer</code> 虚拟模型（仍兼容 <code>openai/agentgate</code>）</td>
 <td>由路由选中的真实模型</td>
 <td>Provider 对应的模型 ID</td>
 </tr>
@@ -151,7 +151,7 @@
 </tr>
 <tr>
 <td>切换了 Provider 但 OpenCode 还在发旧模型名</td>
-<td>用 <code>agentgate</code> 虚拟模型这条路径，别在 OpenCode 里硬编码具体 Provider 的模型名。</td>
+<td>用 <code>muxlayer</code> 虚拟模型这条路径，别在 OpenCode 里硬编码具体 Provider 的模型名。</td>
 </tr>
 </tbody></table>
 <h2>相关教程</h2>
