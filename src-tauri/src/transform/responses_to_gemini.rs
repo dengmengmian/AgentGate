@@ -170,6 +170,22 @@ fn convert_input_array(items: &[Value]) -> Result<Vec<Value>, AppError> {
                     }
                 }
             }
+            "custom_tool_call" => {
+                let name = item.get("name").and_then(|n| n.as_str()).unwrap_or("");
+                let input = item
+                    .get("input")
+                    .map(|v| {
+                        if let Some(s) = v.as_str() {
+                            s.to_string()
+                        } else {
+                            v.to_string()
+                        }
+                    })
+                    .unwrap_or_default();
+                pending_function_calls.push(json!({
+                    "functionCall": {"name": name, "args": {"input": input}}
+                }));
+            }
             "function_call" => {
                 let name = item.get("name").and_then(|n| n.as_str()).unwrap_or("");
                 let arguments = item
@@ -188,7 +204,7 @@ fn convert_input_array(items: &[Value]) -> Result<Vec<Value>, AppError> {
                     "functionCall": {"name": name, "args": args}
                 }));
             }
-            "function_call_output" => {
+            "function_call_output" | "custom_tool_call_output" => {
                 flush_function_calls(&mut contents, &mut pending_function_calls);
 
                 let call_id = item.get("call_id").and_then(|c| c.as_str()).unwrap_or("");
@@ -354,27 +370,70 @@ fn convert_tools(tools: &[Value]) -> Vec<Value> {
                 let ns_name = tool.get("name").and_then(|n| n.as_str()).unwrap_or("");
                 if let Some(Value::Array(sub_tools)) = tool.get("tools") {
                     for sub in sub_tools {
-                        if sub.get("type").and_then(|t| t.as_str()) == Some("function") {
-                            let name = sub.get("name").and_then(|n| n.as_str()).unwrap_or("");
-                            let desc = sub
-                                .get("description")
-                                .and_then(|d| d.as_str())
-                                .unwrap_or("");
-                            let params = sub
-                                .get("parameters")
-                                .cloned()
-                                .unwrap_or(json!({"type": "object", "properties": {}}));
-                            let prefixed = if ns_name.is_empty() {
-                                name.to_string()
-                            } else {
-                                format!("{ns_name}__{name}")
-                            };
-                            declarations.push(json!({"name": prefixed, "description": desc, "parameters": params}));
+                        let sub_type = sub.get("type").and_then(|t| t.as_str()).unwrap_or("");
+                        match sub_type {
+                            "function" => {
+                                let name = sub.get("name").and_then(|n| n.as_str()).unwrap_or("");
+                                let desc = sub
+                                    .get("description")
+                                    .and_then(|d| d.as_str())
+                                    .unwrap_or("");
+                                let params = sub
+                                    .get("parameters")
+                                    .cloned()
+                                    .unwrap_or(json!({"type": "object", "properties": {}}));
+                                let prefixed = crate::transform::tool_calls::namespaced_chat_name(
+                                    ns_name, name,
+                                );
+                                declarations.push(json!({"name": prefixed, "description": desc, "parameters": params}));
+                            }
+                            "custom" => {
+                                let name = sub
+                                    .get("name")
+                                    .and_then(|n| n.as_str())
+                                    .unwrap_or("custom_tool");
+                                let desc = sub
+                                    .get("description")
+                                    .and_then(|d| d.as_str())
+                                    .unwrap_or("");
+                                let prefixed = crate::transform::tool_calls::namespaced_chat_name(
+                                    ns_name, name,
+                                );
+                                declarations.push(json!({
+                                    "name": prefixed,
+                                    "description": desc,
+                                    "parameters": {
+                                        "type": "object",
+                                        "properties": {"input": {"type": "string"}},
+                                        "required": ["input"]
+                                    }
+                                }));
+                            }
+                            _ => {}
                         }
                     }
                 }
             }
-            _ => {} // Skip web_search, custom, etc.
+            "custom" => {
+                let name = tool
+                    .get("name")
+                    .and_then(|n| n.as_str())
+                    .unwrap_or("custom_tool");
+                let desc = tool
+                    .get("description")
+                    .and_then(|d| d.as_str())
+                    .unwrap_or("");
+                declarations.push(json!({
+                    "name": name,
+                    "description": desc,
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"input": {"type": "string"}},
+                        "required": ["input"]
+                    }
+                }));
+            }
+            _ => {} // Skip web_search, code_interpreter, etc.
         }
     }
 
@@ -450,6 +509,21 @@ mod tests {
         // user message with functionResponse
         assert_eq!(contents[1]["role"], "user");
         assert!(contents[1]["parts"][0].get("functionResponse").is_some());
+    }
+
+    #[test]
+    fn convert_tools_flattens_functions_namespace_exec() {
+        let tools = vec![json!({
+            "type": "namespace",
+            "name": "functions",
+            "tools": [
+                {"type": "custom", "name": "exec", "description": "run js"},
+                {"type": "function", "name": "wait", "parameters": {"type": "object"}}
+            ]
+        })];
+        let result = convert_tools(&tools);
+        let names: Vec<&str> = result.iter().filter_map(|t| t["name"].as_str()).collect();
+        assert_eq!(names, vec!["exec", "wait"]);
     }
 
     #[test]

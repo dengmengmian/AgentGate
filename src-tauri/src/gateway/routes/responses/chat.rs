@@ -226,18 +226,12 @@ pub(super) async fn handle_non_stream_response(
                             // 截断），原样塞给客户端 → 下轮 history 带病。
                             let finish = choice.finish_reason.as_deref();
                             for tc in tcs {
-                                let safe_args =
-                                    crate::transform::tool_calls::salvage_tool_arguments(
-                                        &tc.function.arguments,
-                                        &tc.function.name,
-                                        &tc.id,
-                                        finish,
-                                    );
                                 let mut item = responses_tool_call_item_from_chat_name(
                                     &format!("fc_{}", tc.id),
                                     &tc.id,
                                     &tc.function.name,
-                                    &safe_args,
+                                    &tc.function.arguments,
+                                    finish,
                                     &tool_call_resolution,
                                 );
                                 if let Some(ref rc) = msg.reasoning_content {
@@ -375,10 +369,17 @@ fn responses_tool_call_item_from_chat_name(
     call_id: &str,
     chat_name: &str,
     arguments: &str,
+    finish_reason: Option<&str>,
     resolution: &crate::transform::tool_calls::ToolCallResolutionMap,
 ) -> Value {
     match crate::transform::tool_calls::resolve_tool_call_response_kind(chat_name, resolution) {
         crate::transform::tool_calls::ToolCallResponseKind::Function { name, namespace } => {
+            let arguments = crate::transform::tool_calls::salvage_tool_arguments(
+                arguments,
+                chat_name,
+                call_id,
+                finish_reason,
+            );
             let mut item = json!({
                 "id": item_id,
                 "type": "function_call",

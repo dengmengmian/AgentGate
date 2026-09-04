@@ -137,6 +137,45 @@ pub(super) fn convert_input_array(
                     name: None,
                 });
             }
+            "custom_tool_call" => {
+                if let Some(rc) = item.get("reasoning_content").and_then(|v| v.as_str()) {
+                    if !rc.is_empty() && pending_reasoning.is_none() {
+                        pending_reasoning = Some(rc.to_string());
+                    }
+                }
+
+                let raw_call_id = item
+                    .get("call_id")
+                    .and_then(|c| c.as_str())
+                    .unwrap_or("call_unknown");
+                let call_id =
+                    crate::transform::tool_calls::sanitize_call_id(raw_call_id).into_owned();
+                let name = item
+                    .get("name")
+                    .and_then(|n| n.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let input = item
+                    .get("input")
+                    .map(|v| {
+                        if let Some(s) = v.as_str() {
+                            s.to_string()
+                        } else {
+                            v.to_string()
+                        }
+                    })
+                    .unwrap_or_default();
+                pending_tool_calls.push(ToolCall {
+                    id: call_id,
+                    call_type: "function".to_string(),
+                    function: ToolCallFunction {
+                        name,
+                        arguments: crate::transform::tool_calls::custom_tool_arguments_from_input(
+                            &input,
+                        ),
+                    },
+                });
+            }
             "function_call" => {
                 // Capture reasoning_content from function_call items (DeepSeek thinking mode)
                 if let Some(rc) = item.get("reasoning_content").and_then(|v| v.as_str()) {
@@ -183,7 +222,7 @@ pub(super) fn convert_input_array(
                     function: ToolCallFunction { name, arguments },
                 });
             }
-            "function_call_output" => {
+            "function_call_output" | "custom_tool_call_output" => {
                 // Flush pending tool calls before adding tool response
                 flush_tool_calls(
                     &mut messages,

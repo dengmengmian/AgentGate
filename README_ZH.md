@@ -128,11 +128,11 @@ OrcaRouter 是一级 Provider，不需要按自定义端点手动配。
 
 | 平台 | 安装包 |
 |---|---|
-| macOS Apple 芯片 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_aarch64.dmg) |
-| macOS Intel 芯片 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64.dmg) |
-| Windows 10 / 11 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_x64-setup.exe) |
-| Debian / Ubuntu | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.deb) |
-| 其他 Linux 发行版 | [MuxLayer 2.0.4](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.4/MuxLayer_2.0.4_amd64.AppImage) |
+| macOS Apple 芯片 | [MuxLayer 2.0.5](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.5/MuxLayer_2.0.5_aarch64.dmg) |
+| macOS Intel 芯片 | [MuxLayer 2.0.5](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.5/MuxLayer_2.0.5_x64.dmg) |
+| Windows 10 / 11 | [MuxLayer 2.0.5](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.5/MuxLayer_2.0.5_x64-setup.exe) |
+| Debian / Ubuntu | [MuxLayer 2.0.5](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.5/MuxLayer_2.0.5_amd64.deb) |
+| 其他 Linux 发行版 | [MuxLayer 2.0.5](https://github.com/dengmengmian/muxlayer/releases/download/v2.0.5/MuxLayer_2.0.5_amd64.AppImage) |
 
 macOS 也可以用 Homebrew：
 

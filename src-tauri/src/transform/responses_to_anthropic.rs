@@ -398,6 +398,30 @@ fn convert_input_array(
                     }
                 }
             }
+            "custom_tool_call" => {
+                let raw_call_id = item
+                    .get("call_id")
+                    .and_then(|c| c.as_str())
+                    .unwrap_or("call_unknown");
+                let call_id = crate::transform::tool_calls::sanitize_call_id(raw_call_id);
+                let name = item.get("name").and_then(|n| n.as_str()).unwrap_or("");
+                let input = item
+                    .get("input")
+                    .map(|v| {
+                        if let Some(s) = v.as_str() {
+                            s.to_string()
+                        } else {
+                            v.to_string()
+                        }
+                    })
+                    .unwrap_or_default();
+                pending_tool_uses.push(json!({
+                    "type": "tool_use",
+                    "id": call_id.as_ref(),
+                    "name": name,
+                    "input": {"input": input}
+                }));
+            }
             "function_call" => {
                 let raw_call_id = item
                     .get("call_id")
@@ -424,7 +448,7 @@ fn convert_input_array(
                     "input": input
                 }));
             }
-            "function_call_output" => {
+            "function_call_output" | "custom_tool_call_output" => {
                 // Flush pending tool calls first
                 flush_tool_uses(
                     &mut messages,
@@ -743,33 +767,53 @@ fn convert_tools(tools: &[Value]) -> Vec<Value> {
                 let ns_name = tool.get("name").and_then(|n| n.as_str()).unwrap_or("");
                 if let Some(Value::Array(sub_tools)) = tool.get("tools") {
                     for sub in sub_tools {
-                        if sub.get("type").and_then(|t| t.as_str()) == Some("function") {
-                            let name = sub.get("name").and_then(|n| n.as_str()).unwrap_or("");
-                            let desc = sub
-                                .get("description")
-                                .and_then(|d| d.as_str())
-                                .unwrap_or("");
-                            let mut params = sub
-                                .get("parameters")
-                                .cloned()
-                                .unwrap_or(json!({"type": "object", "properties": {}}));
-                            crate::transform::schema_cleaner::clean_schema_for_deepseek(
-                                &mut params,
-                            );
-                            let prefixed = if ns_name.is_empty() {
-                                name.to_string()
-                            } else {
-                                format!("{ns_name}__{name}")
-                            };
-                            // sanitize 在 prefix 拼接之后做——namespace 名+`__`+sub 名
-                            // 整体可能超 128 或含非法字符。
-                            let sanitized =
-                                crate::transform::tool_calls::sanitize_tool_name(&prefixed);
-                            result.push(json!({
-                                "name": sanitized.as_ref(),
-                                "description": desc,
-                                "input_schema": params
-                            }));
+                        let sub_type = sub.get("type").and_then(|t| t.as_str()).unwrap_or("");
+                        match sub_type {
+                            "function" => {
+                                let name = sub.get("name").and_then(|n| n.as_str()).unwrap_or("");
+                                let desc = sub
+                                    .get("description")
+                                    .and_then(|d| d.as_str())
+                                    .unwrap_or("");
+                                let mut params = sub
+                                    .get("parameters")
+                                    .cloned()
+                                    .unwrap_or(json!({"type": "object", "properties": {}}));
+                                crate::transform::schema_cleaner::clean_schema_for_deepseek(
+                                    &mut params,
+                                );
+                                let prefixed = crate::transform::tool_calls::namespaced_chat_name(
+                                    ns_name, name,
+                                );
+                                let sanitized =
+                                    crate::transform::tool_calls::sanitize_tool_name(&prefixed);
+                                result.push(json!({
+                                    "name": sanitized.as_ref(),
+                                    "description": desc,
+                                    "input_schema": params
+                                }));
+                            }
+                            "custom" => {
+                                let raw_name = sub
+                                    .get("name")
+                                    .and_then(|n| n.as_str())
+                                    .unwrap_or("custom_tool");
+                                let prefixed = crate::transform::tool_calls::namespaced_chat_name(
+                                    ns_name, raw_name,
+                                );
+                                let name =
+                                    crate::transform::tool_calls::sanitize_tool_name(&prefixed);
+                                let desc = sub
+                                    .get("description")
+                                    .and_then(|d| d.as_str())
+                                    .unwrap_or("");
+                                result.push(json!({
+                                    "name": name.as_ref(),
+                                    "description": desc,
+                                    "input_schema": {"type": "object", "properties": {"input": {"type": "string"}}, "required": ["input"]}
+                                }));
+                            }
+                            _ => {}
                         }
                     }
                 }
@@ -1062,6 +1106,21 @@ mod tests {
             convert_tool_choice(&json!({"name": "search"})),
             json!({"type": "tool", "name": "search"})
         );
+    }
+
+    #[test]
+    fn convert_tools_flattens_functions_namespace_exec() {
+        let tools = vec![json!({
+            "type": "namespace",
+            "name": "functions",
+            "tools": [
+                {"type": "custom", "name": "exec", "description": "run js"},
+                {"type": "function", "name": "wait", "parameters": {"type": "object"}}
+            ]
+        })];
+        let result = convert_tools(&tools);
+        let names: Vec<&str> = result.iter().filter_map(|t| t["name"].as_str()).collect();
+        assert_eq!(names, vec!["exec", "wait"]);
     }
 
     #[test]

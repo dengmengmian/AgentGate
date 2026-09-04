@@ -41,8 +41,9 @@ use gemini::*;
 ///
 /// 工具同理：DeepSeek 的 Responses API 只接受 `apply_patch` 这一个 custom 工具,
 /// 其它一律 400（实测 `{"type":"custom","name":"exec"}` → "Unsupported custom
-/// tool"）。Codex gpt-5.6+ 就会发 `exec`,所以带不支持的 custom 工具时必须回落
-/// 到转换路径,而不是直通过去挨 400。
+/// tool"）。Codex 0.152+ 把 code-mode `exec` 放进 `{type:namespace,name:functions}`
+/// 里，只扫顶层 custom 会误判为可直通，模型侧就看不到 shell。带不支持的
+/// custom 工具（含 namespace 嵌套）时必须回落到转换路径。
 fn native_responses_allowed(
     provider_type: &str,
     model: &str,
@@ -76,13 +77,7 @@ fn native_responses_allowed(
     else {
         return true;
     };
-    !tools.unwrap_or(&[]).iter().any(|tool| {
-        tool.get("type").and_then(Value::as_str) == Some("custom")
-            && tool
-                .get("name")
-                .and_then(Value::as_str)
-                .is_none_or(|name| !allowed.contains(&name))
-    })
+    !crate::transform::tool_calls::contains_disallowed_custom_tool(tools.unwrap_or(&[]), allowed)
 }
 
 /// The model that `pass_through::handle` will actually send upstream:
@@ -594,6 +589,27 @@ mod tests {
             json!({"type": "function", "name": "shell"}),
             json!({"type": "custom", "name": "exec"}),
         ];
+        assert!(!native_responses_allowed(
+            "deepseek",
+            "deepseek-v4-flash",
+            false,
+            Some(&tools)
+        ));
+    }
+
+    #[test]
+    fn native_responses_blocked_for_exec_nested_in_functions_namespace() {
+        // Codex 0.152.1 把 code-mode exec 包进 functions 命名空间。
+        // 只扫顶层 type=custom 会误判为可直通，DeepSeek 收不到可调用的
+        // exec，模型就会说当前会话没有 shell。
+        let tools = vec![json!({
+            "type": "namespace",
+            "name": "functions",
+            "tools": [
+                {"type": "custom", "name": "exec", "description": "run js"},
+                {"type": "function", "name": "wait", "parameters": {"type": "object"}}
+            ]
+        })];
         assert!(!native_responses_allowed(
             "deepseek",
             "deepseek-v4-flash",

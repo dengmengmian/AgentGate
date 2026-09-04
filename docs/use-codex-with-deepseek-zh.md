@@ -81,7 +81,7 @@ Codex 每轮都会带 `include: ["reasoning.encrypted_content"]`，用于把上�
 在 Provider 里手动填 Responses 端点即可，网关会尝试直连。为避免上述问题把请求打废，网关内置两道判定，命中任意一条就自动回落到协议转换：
 
 - 目标模型不在上游 Responses API 的支持列表内（DeepSeek 支持 `deepseek-v4-flash` 和 `deepseek-v4-flash-vision-exp`）。
-- 请求里带了上游不接受的自定义工具（DeepSeek 仅接受 `apply_patch`）。
+- 请求里带了上游不接受的自定义工具（DeepSeek 仅接受 `apply_patch`），包括 Codex 0.152+ 放在 `functions` 命名空间里的 `exec`。
 
 也就是说，Codex 即使配了直连端点，实际仍会走转换路径。这是有意为之，不做进一步处理。
 

@@ -81,7 +81,7 @@ For text-only DeepSeek models, image stripping with an explicit notice, schema c
 Fill in a Responses endpoint on the provider and the gateway will try. To keep the problems above from wasting requests, two gates are built in — hitting either one falls back to protocol conversion:
 
 - The target model is not on the upstream Responses API's supported list (DeepSeek: `deepseek-v4-flash` and `deepseek-v4-flash-vision-exp`).
-- The request carries a custom tool the upstream does not accept (DeepSeek: `apply_patch` only).
+- The request carries a custom tool the upstream does not accept (DeepSeek: `apply_patch` only), including Codex 0.152+ `exec` nested inside a `functions` namespace.
 
 In other words, Codex falls back to conversion even with a pass-through endpoint configured. That is deliberate and no further handling is planned.
 

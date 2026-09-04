@@ -27,6 +27,57 @@ pub enum ToolCallResponseKind {
 
 pub type ToolCallResolutionMap = HashMap<String, ToolCallResponseKind>;
 
+/// Codex Responses Lite 把顶层 function / custom 工具包进这个命名空间。
+/// 它是默认命名空间：发给 Chat Completions 时不要加 `functions__` 前缀，
+/// 回写给 Codex 时也不要带 `namespace: "functions"`，否则
+/// `codex_core::tools::router` 会把 `exec` 当成错误 payload 拒掉。
+pub const DEFAULT_FUNCTION_NAMESPACE: &str = "functions";
+
+/// 把 namespace + tool name 收成 Chat Completions 侧的 function 名。
+/// 默认 `functions` 命名空间不前缀。
+pub fn namespaced_chat_name(namespace: &str, name: &str) -> String {
+    if namespace.is_empty() || namespace == DEFAULT_FUNCTION_NAMESPACE {
+        name.to_string()
+    } else {
+        format!("{namespace}__{name}")
+    }
+}
+
+fn namespaced_response_namespace(namespace: Option<&str>) -> Option<String> {
+    namespace
+        .filter(|ns| !ns.is_empty() && *ns != DEFAULT_FUNCTION_NAMESPACE)
+        .map(ToString::to_string)
+}
+
+fn namespace_children(tool: &Value) -> &[Value] {
+    static EMPTY: [Value; 0] = [];
+    tool.get("tools")
+        .or_else(|| tool.get("children"))
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or(&EMPTY)
+}
+
+/// 请求里是否带有上游 Responses API 不接受的 custom 工具（含 namespace 嵌套）。
+pub fn contains_disallowed_custom_tool(tools: &[Value], allowed: &[&str]) -> bool {
+    tools
+        .iter()
+        .any(|tool| tool_has_disallowed_custom(tool, allowed))
+}
+
+fn tool_has_disallowed_custom(tool: &Value, allowed: &[&str]) -> bool {
+    match tool.get("type").and_then(Value::as_str).unwrap_or("") {
+        "custom" => tool
+            .get("name")
+            .and_then(Value::as_str)
+            .is_none_or(|name| !allowed.contains(&name)),
+        "namespace" => namespace_children(tool)
+            .iter()
+            .any(|child| tool_has_disallowed_custom(child, allowed)),
+        _ => false,
+    }
+}
+
 /// tool_call arguments 必须是合法 JSON。上游 finish_reason=length / 客户端
 /// cancel / 网络断 都可能截断 arguments 留半截 JSON。原样塞回客户端 →
 /// 下轮 history 带病 → 严格 provider 400 "unexpected end of data"。
@@ -168,34 +219,9 @@ pub fn convert_tools_with_matrix(
                 }
             }
             "namespace" => {
-                // Flatten namespace tools: recursively extract function tools
-                let ns_name = tool.get("name").and_then(|n| n.as_str()).unwrap_or("");
-                if let Some(Value::Array(sub_tools)) = tool.get("tools") {
-                    for sub in sub_tools {
-                        let sub_type = sub.get("type").and_then(|t| t.as_str()).unwrap_or("");
-                        if sub_type == "function" {
-                            if let Some(mut converted) =
-                                convert_function_tool(sub, clean_for_deepseek)
-                            {
-                                // Prefix function name with namespace for uniqueness
-                                if !ns_name.is_empty() {
-                                    if let Some(func) = converted.get_mut("function") {
-                                        if let Some(name) =
-                                            func.get("name").and_then(|n| n.as_str())
-                                        {
-                                            let prefixed = format!("{ns_name}__{name}");
-                                            func["name"] = json!(prefixed);
-                                        }
-                                    }
-                                }
-                                result.push(converted);
-                            }
-                        }
-                    }
-                }
+                flatten_namespace_into(tool, clean_for_deepseek, &mut result);
             }
             "custom" => {
-                // Downgrade custom tool to function with single string input
                 let name = tool
                     .get("name")
                     .and_then(|n| n.as_str())
@@ -204,14 +230,7 @@ pub fn convert_tools_with_matrix(
                     .get("description")
                     .and_then(|d| d.as_str())
                     .unwrap_or("");
-                result.push(json!({
-                    "type": "function",
-                    "function": {
-                        "name": name,
-                        "description": desc,
-                        "parameters": { "type": "object", "properties": { "input": { "type": "string" } }, "required": ["input"] }
-                    }
-                }));
+                result.push(convert_custom_tool(name, desc));
             }
             "local_shell" => {
                 // Codex's builtin local_shell → standard function tool named "shell".
@@ -385,13 +404,11 @@ fn collect_tool_resolution(tool: &Value, namespace: Option<&str>, map: &mut Tool
     match tool_type {
         "function" => {
             if let Some(name) = responses_tool_name(tool) {
-                let chat_name = namespace
-                    .map(|ns| format!("{ns}__{name}"))
-                    .unwrap_or_else(|| name.clone());
+                let chat_name = namespaced_chat_name(namespace.unwrap_or(""), &name);
                 map.entry(chat_name)
                     .or_insert_with(|| ToolCallResponseKind::Function {
                         name,
-                        namespace: namespace.map(ToString::to_string),
+                        namespace: namespaced_response_namespace(namespace),
                     });
             }
         }
@@ -403,19 +420,14 @@ fn collect_tool_resolution(tool: &Value, namespace: Option<&str>, map: &mut Tool
             let Some(ns_name) = ns_name else {
                 return;
             };
-            if let Some(children) = tool
-                .get("tools")
-                .or_else(|| tool.get("children"))
-                .and_then(|v| v.as_array())
-            {
-                for child in children {
-                    collect_tool_resolution(child, Some(ns_name), map);
-                }
+            for child in namespace_children(tool) {
+                collect_tool_resolution(child, Some(ns_name), map);
             }
         }
         "custom" => {
             if let Some(name) = responses_tool_name(tool) {
-                map.entry(name.clone())
+                let chat_name = namespaced_chat_name(namespace.unwrap_or(""), &name);
+                map.entry(chat_name)
                     .or_insert_with(|| ToolCallResponseKind::Custom { name });
             }
         }
@@ -471,8 +483,14 @@ pub fn custom_tool_input_from_arguments(arguments: &str) -> String {
             .and_then(|value| value.as_str())
             .unwrap_or(arguments)
             .to_string(),
+        Ok(Value::String(s)) => s,
         _ => arguments.to_string(),
     }
+}
+
+/// Chat Completions 侧 function.arguments ← Codex custom_tool_call.input。
+pub fn custom_tool_arguments_from_input(input: &str) -> String {
+    json!({ "input": input }).to_string()
 }
 
 pub fn tool_search_arguments_from_arguments(arguments: &str) -> Value {
@@ -538,6 +556,61 @@ pub fn contains_kimi_web_search(tools: &[Value]) -> bool {
                 .and_then(|n| n.as_str())
                 == Some("$web_search")
     })
+}
+
+fn convert_custom_tool(name: &str, description: &str) -> Value {
+    json!({
+        "type": "function",
+        "function": {
+            "name": name,
+            "description": description,
+            "parameters": {
+                "type": "object",
+                "properties": { "input": { "type": "string" } },
+                "required": ["input"]
+            }
+        }
+    })
+}
+
+fn flatten_namespace_into(tool: &Value, clean_for_deepseek: bool, result: &mut Vec<Value>) {
+    let ns_name = tool.get("name").and_then(|n| n.as_str()).unwrap_or("");
+    for sub in namespace_children(tool) {
+        let sub_type = sub.get("type").and_then(|t| t.as_str()).unwrap_or("");
+        match sub_type {
+            "function" => {
+                if let Some(mut converted) = convert_function_tool(sub, clean_for_deepseek) {
+                    if let Some(func) = converted.get_mut("function") {
+                        if let Some(name) = func
+                            .get("name")
+                            .and_then(|n| n.as_str())
+                            .map(str::to_string)
+                        {
+                            let chat_name = namespaced_chat_name(ns_name, &name);
+                            if chat_name != name {
+                                func["name"] = json!(chat_name);
+                            }
+                        }
+                    }
+                    result.push(converted);
+                }
+            }
+            "custom" => {
+                let name = sub
+                    .get("name")
+                    .and_then(|n| n.as_str())
+                    .unwrap_or("custom_tool");
+                let desc = sub
+                    .get("description")
+                    .and_then(|d| d.as_str())
+                    .unwrap_or("");
+                let chat_name = namespaced_chat_name(ns_name, name);
+                result.push(convert_custom_tool(&chat_name, desc));
+            }
+            "namespace" => flatten_namespace_into(sub, clean_for_deepseek, result),
+            _ => {}
+        }
+    }
 }
 
 fn convert_function_tool(tool: &Value, clean_for_deepseek: bool) -> Option<Value> {
@@ -916,6 +989,41 @@ mod tests {
     }
 
     #[test]
+    fn convert_tools_flattens_codex_functions_namespace_exec_without_prefix() {
+        // Codex 0.152.1 Responses Lite wraps code-mode `exec` (custom/freeform)
+        // plus sibling functions inside `{type: namespace, name: functions}`.
+        // DeepSeek Chat Completions 必须看到名为 `exec` 的 function，回写时
+        // 也必须按 custom_tool_call 还原——前缀成 functions__exec 会被
+        // Codex router 当成错误 payload 拒掉。
+        let tools = vec![json!({
+            "type": "namespace",
+            "name": "functions",
+            "description": "",
+            "tools": [
+                {
+                    "type": "custom",
+                    "name": "exec",
+                    "description": "Run JavaScript code to orchestrate/compose tool calls",
+                    "format": {"type": "grammar", "syntax": "lark", "definition": "start: SOURCE"}
+                },
+                {
+                    "type": "function",
+                    "name": "wait",
+                    "description": "Wait for a running exec cell",
+                    "parameters": {"type": "object", "properties": {}}
+                }
+            ]
+        })];
+        let result = convert_tools(&tools, false);
+        let names: Vec<&str> = result
+            .iter()
+            .filter_map(|t| t["function"]["name"].as_str())
+            .collect();
+        assert_eq!(names, vec!["exec", "wait"]);
+        assert_eq!(result[0]["function"]["parameters"]["required"][0], "input");
+    }
+
+    #[test]
     fn test_convert_tools_custom() {
         let tools = vec![json!({
             "type": "custom",
@@ -1005,6 +1113,37 @@ mod tests {
     }
 
     #[test]
+    fn tool_resolution_marks_functions_namespace_exec_as_custom() {
+        let raw = json!({
+            "tools": [{
+                "type": "namespace",
+                "name": "functions",
+                "tools": [
+                    {"type": "custom", "name": "exec", "description": "run js"},
+                    {"type": "function", "name": "wait", "parameters": {"type": "object"}}
+                ]
+            }]
+        })
+        .to_string();
+        let map = build_tool_call_resolution_map(&raw);
+        assert_eq!(
+            map.get("exec"),
+            Some(&ToolCallResponseKind::Custom {
+                name: "exec".into()
+            })
+        );
+        assert_eq!(
+            map.get("wait"),
+            Some(&ToolCallResponseKind::Function {
+                name: "wait".into(),
+                namespace: None
+            })
+        );
+        assert!(map.get("functions__exec").is_none());
+        assert!(map.get("functions__wait").is_none());
+    }
+
+    #[test]
     fn tool_resolution_preserves_user_function_named_tool_search() {
         let raw = json!({
             "tools": [
@@ -1030,6 +1169,14 @@ mod tests {
             "hello"
         );
         assert_eq!(custom_tool_input_from_arguments("plain"), "plain");
+        assert_eq!(
+            custom_tool_input_from_arguments(r#"await tools.exec_command({cmd:"pwd"})"#),
+            r#"await tools.exec_command({cmd:"pwd"})"#
+        );
+        assert_eq!(
+            custom_tool_arguments_from_input(r#"await tools.exec_command({cmd:"pwd"})"#),
+            json!({"input": r#"await tools.exec_command({cmd:"pwd"})"#}).to_string()
+        );
         assert_eq!(
             tool_search_arguments_from_arguments(r#"{"query":"rust","limit":3}"#),
             json!({"query": "rust", "limit": 3})

@@ -196,6 +196,41 @@ fn test_convert_function_call_and_output() {
 }
 
 #[test]
+fn test_convert_custom_tool_call_and_output() {
+    let req = ResponsesRequest {
+        model: Some("gpt-4".to_string()),
+        input: json!([
+            {
+                "type": "custom_tool_call",
+                "call_id": "call_exec",
+                "name": "exec",
+                "input": "await tools.exec_command({cmd:\"pwd\"})"
+            },
+            {
+                "type": "custom_tool_call_output",
+                "call_id": "call_exec",
+                "output": "cwd=/tmp"
+            }
+        ]),
+        ..Default::default()
+    };
+    let result = convert_with_provider(&req, "gpt-4", &DefaultProvider).unwrap();
+    assert_eq!(result.messages.len(), 2);
+    assert_eq!(result.messages[0].role, "assistant");
+    let tcs = result.messages[0].tool_calls.as_ref().unwrap();
+    assert_eq!(tcs[0].function.name, "exec");
+    assert_eq!(
+        tcs[0].function.arguments,
+        r#"{"input":"await tools.exec_command({cmd:\"pwd\"})"}"#
+    );
+    assert_eq!(result.messages[1].role, "tool");
+    assert_eq!(
+        result.messages[1].tool_call_id,
+        Some("call_exec".to_string())
+    );
+}
+
+#[test]
 fn test_assistant_text_and_function_call_merge_into_one() {
     // Codex 把"assistant 说一句"和 function_call 作为两个独立 item 下发;应合并成
     // 一条 assistant 消息(content + tool_calls),而不是拆成两条连续 assistant。

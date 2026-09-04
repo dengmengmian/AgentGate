@@ -658,18 +658,12 @@ async fn finalize(
 
     // Close tool calls. 用 tc.output_index（不是 idx + 1）+ JSON salvage + namespace 还原。
     if has_tool_calls {
-        let finish = acc.finish_reason.as_deref();
         for tc in acc.tool_calls.values() {
-            let safe_args = crate::transform::tool_calls::salvage_tool_arguments(
-                &tc.arguments,
-                &tc.name,
-                &tc.id,
-                finish,
-            );
             let item_id = format!("fc_{}", tc.id);
             let oi = tc.output_index;
             let item =
-                send_tool_call_done(&tx, acc, &item_id, oi, &tc.id, &tc.name, &safe_args, rc).await;
+                send_tool_call_done(&tx, acc, &item_id, oi, &tc.id, &tc.name, &tc.arguments, rc)
+                    .await;
             acc.output_items.push(item);
         }
     }
@@ -769,9 +763,15 @@ async fn send_tool_call_done(
     );
     match kind {
         crate::transform::tool_calls::ToolCallResponseKind::Function { name, namespace } => {
+            let arguments = crate::transform::tool_calls::salvage_tool_arguments(
+                arguments,
+                chat_name,
+                call_id,
+                acc.finish_reason.as_deref(),
+            );
             send(
                 tx,
-                &ev::function_call_arguments_done(item_id, output_index, arguments),
+                &ev::function_call_arguments_done(item_id, output_index, &arguments),
             )
             .await;
             send(
@@ -781,7 +781,7 @@ async fn send_tool_call_done(
                     output_index,
                     call_id,
                     &name,
-                    arguments,
+                    &arguments,
                     reasoning_content,
                     namespace.as_deref(),
                 ),
