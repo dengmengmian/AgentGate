@@ -36,14 +36,17 @@ use gemini::*;
 /// their models there. Image requests are allowed only when the selected model
 /// is also marked `vision` in the generated catalog; other image requests fall
 /// back to Responses→Chat conversion, which applies the provider's image
-/// degradation policy. Providers absent from the table (OpenAI) keep the
-/// previous unrestricted behaviour.
+/// degradation policy.
 ///
 /// 工具同理：DeepSeek 的 Responses API 只接受 `apply_patch` 这一个 custom 工具,
 /// 其它一律 400（实测 `{"type":"custom","name":"exec"}` → "Unsupported custom
 /// tool"）。Codex 0.152+ 把 code-mode `exec` 放进 `{type:namespace,name:functions}`
 /// 里，只扫顶层 custom 会误判为可直通，模型侧就看不到 shell。带不支持的
 /// custom 工具（含 namespace 嵌套）时必须回落到转换路径。
+///
+/// 真正的 OpenAI Responses 认 custom exec，可以直通。其它不在表里的类型
+///（`custom_openai_compatible` 等）多数不认，直通会丢掉命名空间里的 `exec`，
+/// 一律按「不允许任何 custom 工具」处理。
 fn native_responses_allowed(
     provider_type: &str,
     model: &str,
@@ -55,7 +58,13 @@ fn native_responses_allowed(
         .iter()
         .find(|(ty, _)| *ty == provider_type)
     else {
-        return true;
+        if provider_type == "openai" {
+            return true;
+        }
+        return !crate::transform::tool_calls::contains_disallowed_custom_tool(
+            tools.unwrap_or(&[]),
+            &[],
+        );
     };
     if !models.contains(&model) {
         return false;
@@ -638,6 +647,57 @@ mod tests {
         assert!(native_responses_allowed(
             "openai",
             "gpt-5.6-terra",
+            false,
+            Some(&tools)
+        ));
+    }
+
+    fn namespaced_exec_tools() -> Vec<Value> {
+        vec![json!({
+            "type": "namespace",
+            "name": "functions",
+            "tools": [
+                {"type": "custom", "name": "exec", "description": "run js"},
+                {"type": "function", "name": "wait", "parameters": {"type": "object"}}
+            ]
+        })]
+    }
+
+    #[test]
+    fn native_responses_openai_allows_namespaced_exec() {
+        // Real OpenAI Responses 认 custom exec，可以直通。
+        assert!(native_responses_allowed(
+            "openai",
+            "gpt-5.6-terra",
+            false,
+            Some(&namespaced_exec_tools())
+        ));
+    }
+
+    #[test]
+    fn native_responses_blocked_for_namespaced_exec_on_third_party() {
+        // custom_openai_compatible 等第三方 Responses 不认 Codex 的 custom exec，
+        // 直通会把命名空间里的工具丢掉。必须回落到转换路径。
+        assert!(!native_responses_allowed(
+            "custom_openai_compatible",
+            "some-model",
+            false,
+            Some(&namespaced_exec_tools())
+        ));
+    }
+
+    #[test]
+    fn native_responses_allows_third_party_without_custom_tools() {
+        assert!(native_responses_allowed(
+            "custom_openai_compatible",
+            "some-model",
+            false,
+            None
+        ));
+        let tools = vec![json!({"type": "function", "name": "wait"})];
+        assert!(native_responses_allowed(
+            "custom_openai_compatible",
+            "some-model",
             false,
             Some(&tools)
         ));

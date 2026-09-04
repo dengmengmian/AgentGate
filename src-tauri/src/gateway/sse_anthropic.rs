@@ -37,6 +37,8 @@ pub struct AnthropicSseAccumulator {
     /// Anthropic message_delta 携带的 `stop_reason`（end_turn / max_tokens /
     /// stop_sequence / tool_use / refusal），映射到 Responses status 用。
     pub stop_reason: Option<String>,
+    pub tool_call_resolution: crate::transform::tool_calls::ToolCallResolutionMap,
+    finalized: bool,
 }
 
 impl AnthropicSseAccumulator {
@@ -59,6 +61,8 @@ impl AnthropicSseAccumulator {
             reasoning_item_id,
             thinking_blocks: Vec::new(),
             stop_reason: None,
+            tool_call_resolution: Default::default(),
+            finalized: false,
         }
     }
 
@@ -215,9 +219,13 @@ pub async fn process_anthropic_stream(
                                     output_index: oi,
                                 },
                             );
-                            send(
+                            crate::gateway::sse::send_tool_call_added(
                                 &tx,
-                                &ev::function_call_added(&item_id, oi, &clamped_id, name),
+                                &acc.tool_call_resolution,
+                                &item_id,
+                                oi,
+                                &clamped_id,
+                                name,
                             )
                             .await;
                         }
@@ -263,13 +271,13 @@ pub async fn process_anthropic_stream(
                                     tc.arguments.push_str(partial);
                                     let delta_args = &tc.arguments[tc.last_args_len..];
                                     let item_id = format!("fc_{}", tc.id);
-                                    send(
+                                    crate::gateway::sse::send_tool_call_arguments_delta(
                                         &tx,
-                                        &ev::function_call_arguments_delta(
-                                            &item_id,
-                                            tc.output_index,
-                                            delta_args,
-                                        ),
+                                        &acc.tool_call_resolution,
+                                        &item_id,
+                                        tc.output_index,
+                                        &tc.name,
+                                        delta_args,
                                     )
                                     .await;
                                     tc.last_args_len = tc.arguments.len();
@@ -400,6 +408,10 @@ async fn stream_reasoning_delta(
 }
 
 async fn finalize(acc: &mut AnthropicSseAccumulator, tx: &mpsc::Sender<String>) {
+    if acc.finalized {
+        return;
+    }
+    acc.finalized = true;
     // Store reasoning for multi-turn
     if !acc.reasoning_content.is_empty() {
         let tc_ids: Vec<String> = acc.tool_calls.values().map(|tc| tc.id.clone()).collect();
@@ -460,21 +472,16 @@ async fn finalize(acc: &mut AnthropicSseAccumulator, tx: &mpsc::Sender<String>) 
         } else {
             Some(acc.reasoning_content.as_str())
         };
-        send(
+        crate::gateway::sse::send_tool_call_done(
             tx,
-            &ev::function_call_arguments_done(&item_id, tc.output_index, &tc.arguments),
-        )
-        .await;
-        send(
-            tx,
-            &ev::function_call_done(
-                &item_id,
-                tc.output_index,
-                &tc.id,
-                &tc.name,
-                &tc.arguments,
-                rc,
-            ),
+            &acc.tool_call_resolution,
+            &item_id,
+            tc.output_index,
+            &tc.id,
+            &tc.name,
+            &tc.arguments,
+            rc,
+            acc.stop_reason.as_deref(),
         )
         .await;
     }
@@ -519,5 +526,80 @@ mod tests {
     fn accumulator_tool_calls_list_empty() {
         let acc = AnthropicSseAccumulator::new("resp_1".into(), "model".into());
         assert!(acc.tool_calls_list().is_empty());
+    }
+
+    fn bootstrap_from_sse(body: &str) -> crate::gateway::sse_bootstrap::Bootstrap {
+        use futures::StreamExt;
+        crate::gateway::sse_bootstrap::Bootstrap {
+            prefix: body.as_bytes().to_vec(),
+            stream: futures::stream::empty().boxed(),
+        }
+    }
+
+    fn namespaced_exec_resolution() -> crate::transform::tool_calls::ToolCallResolutionMap {
+        crate::transform::tool_calls::build_tool_call_resolution_map(
+            &json!({
+                "tools": [{
+                    "type": "namespace",
+                    "name": "functions",
+                    "tools": [
+                        {"type": "custom", "name": "exec", "description": "run js"},
+                        {"type": "function", "name": "wait", "parameters": {"type": "object"}}
+                    ]
+                }]
+            })
+            .to_string(),
+        )
+    }
+
+    #[tokio::test]
+    async fn namespaced_exec_emits_custom_tool_call() {
+        let mut acc = AnthropicSseAccumulator::new("resp_exec".into(), "claude".into());
+        acc.tool_call_resolution = namespaced_exec_resolution();
+        let body = concat!(
+            "event: message_start\n",
+            r#"data: {"type":"message_start","message":{"id":"msg_1"}}"#,
+            "\n\n",
+            "event: content_block_start\n",
+            r#"data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"tu_exec","name":"exec","input":{}}}"#,
+            "\n\n",
+            "event: content_block_delta\n",
+            r#"data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"{\"input\":\"await tools.exec_command({cmd:\\\"pwd\\\"})\"}"}}"#,
+            "\n\n",
+            "event: message_stop\n",
+            r#"data: {"type":"message_stop"}"#,
+            "\n\n",
+        );
+        let (tx, mut rx) = mpsc::channel::<String>(64);
+        process_anthropic_stream(bootstrap_from_sse(body), tx, &mut acc)
+            .await
+            .expect("stream should complete");
+
+        let mut events = String::new();
+        while let Some(ev) = rx.recv().await {
+            events.push_str(&ev);
+            events.push('\n');
+        }
+        assert!(
+            events.contains("custom_tool_call"),
+            "expected custom_tool_call, got: {events}"
+        );
+        assert!(
+            events.contains(r#""name":"exec""#),
+            "expected exec name, got: {events}"
+        );
+        assert!(
+            events.contains("await tools.exec_command({cmd:"),
+            "expected raw JS input, got: {events}"
+        );
+        assert!(
+            !events.contains(r#""type":"function_call""#),
+            "exec must not be restored as function_call: {events}"
+        );
+        assert_eq!(
+            events.matches("\"type\":\"response.completed\"").count(),
+            1,
+            "message_stop plus end-of-stream must not double-finalize: {events}"
+        );
     }
 }

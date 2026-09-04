@@ -26,6 +26,8 @@ pub(super) async fn handle_gemini_non_stream_response(
         Ok(upstream_json) => {
             let resp_id = format!("resp_{}", &request_id[4..]);
             let mut output = Vec::new();
+            let tool_call_resolution =
+                crate::transform::tool_calls::build_tool_call_resolution_map(&raw_request);
 
             // Parse Gemini response: candidates[0].content.parts[]
             if let Some(candidate) = upstream_json
@@ -52,14 +54,16 @@ pub(super) async fn handle_gemini_non_stream_response(
                                 .map(|a| a.to_string())
                                 .unwrap_or("{}".to_string());
                             let call_id = format!("call_gemini_{}", output.len());
-                            output.push(json!({
-                                "id": format!("fc_{call_id}"),
-                                "type": "function_call",
-                                "status": "completed",
-                                "call_id": call_id,
-                                "name": name,
-                                "arguments": args
-                            }));
+                            output.push(
+                                crate::transform::tool_calls::responses_tool_call_item_from_chat_name(
+                                    &format!("fc_{call_id}"),
+                                    &call_id,
+                                    name,
+                                    &args,
+                                    None,
+                                    &tool_call_resolution,
+                                ),
+                            );
                         }
                     }
                 }
@@ -182,6 +186,8 @@ pub(super) async fn handle_gemini_stream_response(
 
             tokio::spawn(async move {
                 let mut acc = GeminiSseAccumulator::new(resp_id, model_clone.clone());
+                acc.tool_call_resolution =
+                    crate::transform::tool_calls::build_tool_call_resolution_map(&raw_req);
                 let result =
                     crate::gateway::sse_gemini::process_gemini_stream(boot, tx, &mut acc).await;
 

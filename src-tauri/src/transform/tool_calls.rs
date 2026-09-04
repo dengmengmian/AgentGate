@@ -503,6 +503,56 @@ pub fn tool_search_arguments_from_arguments(arguments: &str) -> Value {
         .unwrap_or_else(|| json!({ "query": arguments }))
 }
 
+/// Chat / Anthropic / Gemini 上游回的 tool name，按请求侧 resolution 还原成
+/// Codex Responses 的 `function_call` / `custom_tool_call` / `tool_search_call`。
+pub fn responses_tool_call_item_from_chat_name(
+    item_id: &str,
+    call_id: &str,
+    chat_name: &str,
+    arguments: &str,
+    finish_reason: Option<&str>,
+    resolution: &ToolCallResolutionMap,
+) -> Value {
+    match resolve_tool_call_response_kind(chat_name, resolution) {
+        ToolCallResponseKind::Function { name, namespace } => {
+            let arguments = salvage_tool_arguments(arguments, chat_name, call_id, finish_reason);
+            let mut item = json!({
+                "id": item_id,
+                "type": "function_call",
+                "status": "completed",
+                "call_id": call_id,
+                "name": name,
+                "arguments": arguments,
+            });
+            if let Some(ns) = namespace {
+                item["namespace"] = json!(ns);
+            }
+            item
+        }
+        ToolCallResponseKind::Custom { name } => {
+            let input = custom_tool_input_from_arguments(arguments);
+            json!({
+                "id": item_id,
+                "type": "custom_tool_call",
+                "status": "completed",
+                "call_id": call_id,
+                "name": name,
+                "input": input,
+            })
+        }
+        ToolCallResponseKind::ToolSearch => {
+            let arguments = tool_search_arguments_from_arguments(arguments);
+            json!({
+                "type": "tool_search_call",
+                "status": "completed",
+                "call_id": call_id,
+                "execution": "client",
+                "arguments": arguments,
+            })
+        }
+    }
+}
+
 /// #7 修复：工具名去重。Codex CLI/Desktop 偶发 bug 把同名工具发两次，
 /// 上游可能不接受重复（OpenAI strict mode / DeepSeek 都会 400）。
 /// function tool 用 function.name 做 key，builtin 用 type 做 key。
@@ -1185,6 +1235,43 @@ mod tests {
             tool_search_arguments_from_arguments("rust"),
             json!({"query": "rust"})
         );
+    }
+
+    #[test]
+    fn responses_item_restores_namespaced_exec_as_custom_tool_call() {
+        let raw = json!({
+            "tools": [{
+                "type": "namespace",
+                "name": "functions",
+                "tools": [
+                    {"type": "custom", "name": "exec", "description": "run js"},
+                    {"type": "function", "name": "wait", "parameters": {"type": "object"}}
+                ]
+            }]
+        })
+        .to_string();
+        let map = build_tool_call_resolution_map(&raw);
+        let js = r#"await tools.exec_command({cmd:"pwd"})"#;
+        let item = responses_tool_call_item_from_chat_name(
+            "fc_1",
+            "call_1",
+            "exec",
+            &json!({"input": js}).to_string(),
+            None,
+            &map,
+        );
+        assert_eq!(item["type"], "custom_tool_call");
+        assert_eq!(item["name"], "exec");
+        assert_eq!(item["call_id"], "call_1");
+        assert_eq!(item["input"], js);
+        assert!(item.get("arguments").is_none());
+        assert!(item.get("namespace").is_none());
+
+        let wait =
+            responses_tool_call_item_from_chat_name("fc_2", "call_2", "wait", "{}", None, &map);
+        assert_eq!(wait["type"], "function_call");
+        assert_eq!(wait["name"], "wait");
+        assert_eq!(wait["arguments"], "{}");
     }
 
     #[test]

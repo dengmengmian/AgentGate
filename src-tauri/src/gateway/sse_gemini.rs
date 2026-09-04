@@ -28,6 +28,7 @@ pub struct GeminiSseAccumulator {
     text_item_emitted: bool,
     msg_item_id: String,
     tool_call_counter: usize,
+    pub tool_call_resolution: crate::transform::tool_calls::ToolCallResolutionMap,
 }
 
 impl GeminiSseAccumulator {
@@ -46,6 +47,7 @@ impl GeminiSseAccumulator {
             text_item_emitted: false,
             msg_item_id,
             tool_call_counter: 0,
+            tool_call_resolution: Default::default(),
         }
     }
 
@@ -211,8 +213,24 @@ pub async fn process_gemini_stream(
                             },
                         );
 
-                        send(&tx, &ev::function_call_added(&item_id, oi, &call_id, name)).await;
-                        send(&tx, &ev::function_call_arguments_delta(&item_id, oi, &args)).await;
+                        crate::gateway::sse::send_tool_call_added(
+                            &tx,
+                            &acc.tool_call_resolution,
+                            &item_id,
+                            oi,
+                            &call_id,
+                            name,
+                        )
+                        .await;
+                        crate::gateway::sse::send_tool_call_arguments_delta(
+                            &tx,
+                            &acc.tool_call_resolution,
+                            &item_id,
+                            oi,
+                            name,
+                            &args,
+                        )
+                        .await;
                     }
                 }
             }
@@ -274,21 +292,16 @@ async fn finalize(acc: &mut GeminiSseAccumulator, tx: &mpsc::Sender<String>) {
         } else {
             Some(acc.reasoning_content.as_str())
         };
-        send(
+        crate::gateway::sse::send_tool_call_done(
             tx,
-            &ev::function_call_arguments_done(&item_id, tc.output_index, &tc.arguments),
-        )
-        .await;
-        send(
-            tx,
-            &ev::function_call_done(
-                &item_id,
-                tc.output_index,
-                &call_id,
-                &tc.name,
-                &tc.arguments,
-                rc,
-            ),
+            &acc.tool_call_resolution,
+            &item_id,
+            tc.output_index,
+            &call_id,
+            &tc.name,
+            &tc.arguments,
+            rc,
+            None,
         )
         .await;
     }
@@ -323,5 +336,65 @@ mod tests {
     fn gemini_accumulator_tool_calls_list_empty() {
         let acc = GeminiSseAccumulator::new("resp_1".into(), "model".into());
         assert!(acc.tool_calls_list().is_empty());
+    }
+
+    fn bootstrap_from_sse(body: &str) -> crate::gateway::sse_bootstrap::Bootstrap {
+        use futures::StreamExt;
+        crate::gateway::sse_bootstrap::Bootstrap {
+            prefix: body.as_bytes().to_vec(),
+            stream: futures::stream::empty().boxed(),
+        }
+    }
+
+    fn namespaced_exec_resolution() -> crate::transform::tool_calls::ToolCallResolutionMap {
+        crate::transform::tool_calls::build_tool_call_resolution_map(
+            &json!({
+                "tools": [{
+                    "type": "namespace",
+                    "name": "functions",
+                    "tools": [
+                        {"type": "custom", "name": "exec", "description": "run js"}
+                    ]
+                }]
+            })
+            .to_string(),
+        )
+    }
+
+    #[tokio::test]
+    async fn namespaced_exec_emits_custom_tool_call() {
+        let mut acc = GeminiSseAccumulator::new("resp_exec".into(), "gemini".into());
+        acc.tool_call_resolution = namespaced_exec_resolution();
+        let body = concat!(
+            "data: ",
+            r#"{"candidates":[{"content":{"parts":[{"functionCall":{"name":"exec","args":{"input":"await tools.exec_command({cmd:\"pwd\"})"}}}]}}]}"#,
+            "\n\n",
+        );
+        let (tx, mut rx) = mpsc::channel::<String>(64);
+        process_gemini_stream(bootstrap_from_sse(body), tx, &mut acc)
+            .await
+            .expect("stream should complete");
+
+        let mut events = String::new();
+        while let Some(ev) = rx.recv().await {
+            events.push_str(&ev);
+            events.push('\n');
+        }
+        assert!(
+            events.contains("custom_tool_call"),
+            "expected custom_tool_call, got: {events}"
+        );
+        assert!(
+            events.contains(r#""name":"exec""#),
+            "expected exec name, got: {events}"
+        );
+        assert!(
+            events.contains("await tools.exec_command({cmd:"),
+            "expected raw JS input, got: {events}"
+        );
+        assert!(
+            !events.contains(r#""type":"function_call""#),
+            "exec must not be restored as function_call: {events}"
+        );
     }
 }

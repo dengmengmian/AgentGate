@@ -4,7 +4,7 @@
 
 ### Fixed / 修复
 
-- **Codex 0.152+ cannot run shell / Codex 0.152+ 跑不了 shell** —— Codex CLI 0.152+ puts the code-mode `exec` tool inside a `functions` namespace. MuxLayer only inspected top-level custom tools, so DeepSeek native Responses pass-through dropped `exec`. The model then said it had no shell, and if it still called `exec` as a JSON function, Codex's `tools::router` rejected the payload. Nested custom tools now force conversion, `exec` is exposed as a callable function, and the response is restored as `custom_tool_call` with raw JavaScript. Codex CLI 0.152+ 把 code-mode 的 `exec` 放进 `functions` 命名空间。MuxLayer 只扫顶层 custom 工具，DeepSeek Responses 直通会把 `exec` 丢掉。模型就会说没有 shell；即便它仍用 JSON function 去调 `exec`，Codex 的 `tools::router` 也会拒掉 payload。现在会递归检查嵌套 custom 并回落到转换路径，把 `exec` 暴露成可调用 function，再还原成带原始 JavaScript 的 `custom_tool_call`。
+- **Codex 0.152+ cannot run shell / Codex 0.152+ 跑不了 shell** —— Codex CLI 0.152+ puts the code-mode `exec` tool inside a `functions` namespace. MuxLayer only inspected top-level custom tools, so DeepSeek and other third-party Responses endpoints dropped `exec`. Chat conversion restored it, but Claude and Gemini still wrote `function_call`, which Codex's `tools::router` rejected. Nested custom tools now force conversion on every non-OpenAI Responses path; Claude / Gemini / Chat all restore `custom_tool_call` with raw JavaScript. Codex 0.152+ 把 code-mode 的 `exec` 放进 `functions` 命名空间。MuxLayer 只扫顶层 custom 工具，DeepSeek 和其它第三方 Responses 会把 `exec` 丢掉。Chat 转换已经能还原，但 Claude / Gemini 仍回 `function_call`，Codex 的 router 会拒。现在所有非 OpenAI 的 Responses 路径都会转换，Claude / Gemini / Chat 都还原成带原始 JavaScript 的 `custom_tool_call`。
 
 ## [2.0.4] - 2026-09-01
 

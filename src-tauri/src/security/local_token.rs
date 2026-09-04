@@ -332,9 +332,12 @@ mod tests {
         let replacement = if &token[10..11] == "X" { "Y" } else { "X" };
         wrong.replace_range(10..11, replacement);
         assert!(!validate_token(&wrong));
-        // One char different at end
+        // One char different at end. 末字符碰巧已经是 X 时不能再写成 X，
+        // 否则断言变成「原 token 校验失败」。
         let mut wrong2 = token.clone();
-        wrong2.replace_range(token.len() - 1..token.len(), "X");
+        let last = token.len() - 1;
+        let end_replacement = if &token[last..] == "X" { "Y" } else { "X" };
+        wrong2.replace_range(last..token.len(), end_replacement);
         assert!(!validate_token(&wrong2));
         cleanup(&temp);
     }

@@ -28,6 +28,8 @@ pub(super) async fn handle_anthropic_non_stream_response(
             if let Some(content) = upstream_json.get("content").and_then(|c| c.as_array()) {
                 let msg_id = format!("msg_{}", resp_id.replace("resp_", ""));
                 let mut text_parts = Vec::new();
+                let tool_call_resolution =
+                    crate::transform::tool_calls::build_tool_call_resolution_map(&raw_request);
 
                 for block in content {
                     let block_type = block.get("type").and_then(|t| t.as_str()).unwrap_or("");
@@ -44,14 +46,16 @@ pub(super) async fn handle_anthropic_non_stream_response(
                             let input = block.get("input").unwrap_or(&empty_input);
                             let arguments =
                                 serde_json::to_string(input).unwrap_or("{}".to_string());
-                            output.push(json!({
-                                "id": format!("fc_{id}"),
-                                "type": "function_call",
-                                "status": "completed",
-                                "call_id": id,
-                                "name": name,
-                                "arguments": arguments
-                            }));
+                            output.push(
+                                crate::transform::tool_calls::responses_tool_call_item_from_chat_name(
+                                    &format!("fc_{id}"),
+                                    id,
+                                    name,
+                                    &arguments,
+                                    None,
+                                    &tool_call_resolution,
+                                ),
+                            );
                         }
                         _ => {}
                     }
@@ -185,6 +189,8 @@ pub(super) async fn handle_anthropic_stream_response(
 
             tokio::spawn(async move {
                 let mut acc = AnthropicSseAccumulator::new(resp_id, model_clone.clone());
+                acc.tool_call_resolution =
+                    crate::transform::tool_calls::build_tool_call_resolution_map(&raw_req);
                 let result =
                     crate::gateway::sse_anthropic::process_anthropic_stream(boot, tx, &mut acc)
                         .await;

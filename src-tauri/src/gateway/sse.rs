@@ -661,9 +661,18 @@ async fn finalize(
         for tc in acc.tool_calls.values() {
             let item_id = format!("fc_{}", tc.id);
             let oi = tc.output_index;
-            let item =
-                send_tool_call_done(&tx, acc, &item_id, oi, &tc.id, &tc.name, &tc.arguments, rc)
-                    .await;
+            let item = send_tool_call_done(
+                &tx,
+                &acc.tool_call_resolution,
+                &item_id,
+                oi,
+                &tc.id,
+                &tc.name,
+                &tc.arguments,
+                rc,
+                acc.finish_reason.as_deref(),
+            )
+            .await;
             acc.output_items.push(item);
         }
     }
@@ -690,7 +699,7 @@ async fn send(tx: &mpsc::Sender<String>, event: &str) {
     let _ = tx.send(event.to_string()).await;
 }
 
-async fn send_tool_call_added(
+pub(crate) async fn send_tool_call_added(
     tx: &mpsc::Sender<String>,
     resolution: &crate::transform::tool_calls::ToolCallResolutionMap,
     item_id: &str,
@@ -726,7 +735,7 @@ async fn send_tool_call_added(
     }
 }
 
-async fn send_tool_call_arguments_delta(
+pub(crate) async fn send_tool_call_arguments_delta(
     tx: &mpsc::Sender<String>,
     resolution: &crate::transform::tool_calls::ToolCallResolutionMap,
     item_id: &str,
@@ -747,27 +756,25 @@ async fn send_tool_call_arguments_delta(
     }
 }
 
-async fn send_tool_call_done(
+pub(crate) async fn send_tool_call_done(
     tx: &mpsc::Sender<String>,
-    acc: &SseAccumulator,
+    resolution: &crate::transform::tool_calls::ToolCallResolutionMap,
     item_id: &str,
     output_index: usize,
     call_id: &str,
     chat_name: &str,
     arguments: &str,
     reasoning_content: Option<&str>,
+    finish_reason: Option<&str>,
 ) -> Value {
-    let kind = crate::transform::tool_calls::resolve_tool_call_response_kind(
-        chat_name,
-        &acc.tool_call_resolution,
-    );
+    let kind = crate::transform::tool_calls::resolve_tool_call_response_kind(chat_name, resolution);
     match kind {
         crate::transform::tool_calls::ToolCallResponseKind::Function { name, namespace } => {
             let arguments = crate::transform::tool_calls::salvage_tool_arguments(
                 arguments,
                 chat_name,
                 call_id,
-                acc.finish_reason.as_deref(),
+                finish_reason,
             );
             send(
                 tx,

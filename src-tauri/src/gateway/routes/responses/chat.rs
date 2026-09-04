@@ -226,7 +226,7 @@ pub(super) async fn handle_non_stream_response(
                             // 截断），原样塞给客户端 → 下轮 history 带病。
                             let finish = choice.finish_reason.as_deref();
                             for tc in tcs {
-                                let mut item = responses_tool_call_item_from_chat_name(
+                                let mut item = crate::transform::tool_calls::responses_tool_call_item_from_chat_name(
                                     &format!("fc_{}", tc.id),
                                     &tc.id,
                                     &tc.function.name,
@@ -360,60 +360,6 @@ pub(super) async fn handle_non_stream_response(
             );
 
             Err(GatewayError(err))
-        }
-    }
-}
-
-fn responses_tool_call_item_from_chat_name(
-    item_id: &str,
-    call_id: &str,
-    chat_name: &str,
-    arguments: &str,
-    finish_reason: Option<&str>,
-    resolution: &crate::transform::tool_calls::ToolCallResolutionMap,
-) -> Value {
-    match crate::transform::tool_calls::resolve_tool_call_response_kind(chat_name, resolution) {
-        crate::transform::tool_calls::ToolCallResponseKind::Function { name, namespace } => {
-            let arguments = crate::transform::tool_calls::salvage_tool_arguments(
-                arguments,
-                chat_name,
-                call_id,
-                finish_reason,
-            );
-            let mut item = json!({
-                "id": item_id,
-                "type": "function_call",
-                "status": "completed",
-                "call_id": call_id,
-                "name": name,
-                "arguments": arguments,
-            });
-            if let Some(ns) = namespace {
-                item["namespace"] = json!(ns);
-            }
-            item
-        }
-        crate::transform::tool_calls::ToolCallResponseKind::Custom { name } => {
-            let input = crate::transform::tool_calls::custom_tool_input_from_arguments(arguments);
-            json!({
-                "id": item_id,
-                "type": "custom_tool_call",
-                "status": "completed",
-                "call_id": call_id,
-                "name": name,
-                "input": input,
-            })
-        }
-        crate::transform::tool_calls::ToolCallResponseKind::ToolSearch => {
-            let arguments =
-                crate::transform::tool_calls::tool_search_arguments_from_arguments(arguments);
-            json!({
-                "type": "tool_search_call",
-                "status": "completed",
-                "call_id": call_id,
-                "execution": "client",
-                "arguments": arguments,
-            })
         }
     }
 }
